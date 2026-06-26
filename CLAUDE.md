@@ -40,6 +40,11 @@ When a decision is made, update these files in the same change — they are the 
   natural-language and trigger-rich (the router reads it).
 - **State files:** agent-read state (resume/progress) → Markdown; machine-aggregated telemetry
   (the run-log) → JSONL. See [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md).
+- **Skills are self-contained.** A skill reads only inputs bundled in its own dir (`templates/` for
+  files it emits, `references/` for files it reads) — never repo-root `templates/`/`docs/` at runtime
+  (skills are symlinked/copied into other projects). Repo root is canonical; bundles are kept in sync by
+  `scripts/sync-skill-resources.sh`. After editing a canonical template/doc, run it. See
+  [docs/SKILL-STYLE.md](docs/SKILL-STYLE.md) › Bundled resources.
 
 ## Layout
 

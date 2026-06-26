@@ -25,15 +25,17 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   **discover→drop-decoys→confirm** then tier (generate QUALITY_SCORE / template+hard-stop the four
   author-required roles), stack-aware **baseline-sensor gate** (hard-stop build/test/lint/typecheck;
   warn formatter; warn/ask logging), config-seed against the known spec-driven shape (no probing).
-- **Current micro-state (resume here):** first real `/harness:init` on `~/workspace/one-shot` (Swift
-  macOS app) was **interrupted** — old init auto-scaffolded `openspec/` instead of halting; that's
-  now fixed (`cfdb00b`, live via symlink). one-shot baseline is **clean & ready to commit** (only
-  Swift foundation; harness skill symlinks git-ignored; user is adding `.vscode/` to `.gitignore`).
-  The interrupted run left a **partial `openspec/`** in one-shot.
-- **Next action — the operator runs, in a fresh one-shot session:** (1) add `.vscode/` ignore +
-  commit the baseline; (2) `rm -rf openspec/` (drop the partial scaffold); (3) `openspec init --tools
-  claude` (operator initializes OpenSpec — reinstalls the vendor `openspec-*`/`opsx:*` skills the
-  harness *needs*; don't remove them); (4) `/harness:init`. Then, from a harness-pipeline session,
+  **Finding H (self-contained skills):** skills now bundle their runtime inputs in-dir (`templates/` +
+  `references/`); repo root canonical, drift-guarded by `scripts/sync-skill-resources.sh`.
+- **Current micro-state (resume here):** one-shot baseline committed (`5db4d03`, `.vscode/` ignored, all
+  5 context docs authored — no template markers). The clean re-init was **blocked by finding H** — the
+  symlinked init skill couldn't see its bundled templates/docs (they lived only at harness repo root).
+  **Now fixed** (this change): bundles created in-dir, refs rewritten, validated readable through
+  one-shot's symlink. one-shot still has **no `openspec/`, no `docs/HARNESS.md`** (wiped) — ready for a
+  clean init.
+- **Next action — the operator runs, in a one-shot session:** (1) `openspec init --tools claude`
+  (initializes OpenSpec — installs the vendor `openspec-*`/`opsx:*` skills the harness *needs*; don't
+  remove them); (2) `/harness:init` (the bundle now resolves over the symlink). Then, from a harness-pipeline session,
   **review the run:** read the **newest** transcript by mtime in
   `~/.claude/projects/-Users-acatl-workspace-one-shot/*.jsonl` (ignore the 2 pre-wipe ones; confirm
   it has this run's `▶ harness:init`), grep `▶ harness:`/`■ harness:`, cross-check
@@ -328,8 +330,9 @@ Port in dependency order. Each follows the Per-skill checklist.
 From one-shot's first `harness:init` run:
 - **A — fixed.** init no longer writes absolute pipeline paths into the consuming HARNESS.md (template +
   skill reworded to generic refs; the consuming file must be self-contained).
-- **B — deferred.** template-location / distribution portability (see Notes-to-resolve bullet above) —
-  defer to plugin packaging.
+- **B — resolved (runtime bundle); full plugin packaging still deferred.** See finding **H** — skills now
+  carry their runtime inputs inside their own dirs, so they work over a bare symlink today. A real
+  plugin bundle/manifest (distributable artifact) remains the deferred long-term distribution mechanism.
 - **C — fixed.** init now seeds `openspec/config.yaml` `context:` from the project's context docs so spec
   generation isn't blind (`config_context_bytes>0`).
 - **D — fixed.** init redesigned so it never fabricates load-bearing project knowledge:
@@ -364,6 +367,16 @@ From one-shot's first `harness:init` run:
   runs only on an operator-initialized `openspec/config.yaml` and authors `context:` against the **known
   spec-driven shape** — no CLI schema-probing. Surfaced when init scaffolded `openspec/` on one-shot's
   first real init instead of halting.
+- **H — fixed.** Skills are now **self-contained**. `harness:init` halted on one-shot's re-run because it
+  reads bundled inputs (`templates/HARNESS.md`, `templates/context-docs/*`, `references/sensor-baseline.md`,
+  `references/harness-runs.SCHEMA.md`, `references/runtime-verification-binding.md`) that lived only at the
+  harness **repo root** — symlinking the skill dir alone didn't carry them. Latent in `build`/`review` too
+  (both read the run-log schema; `build` also the runtime binding). Fix: bundle each skill's runtime inputs
+  inside its own dir (`templates/` = files it emits, `references/` = files it reads), rewrite SKILL.md refs
+  to skill-relative paths, keep repo root canonical, and guard drift with `scripts/sync-skill-resources.sh`
+  (`sync` copies canonical→bundle; `check` fails on drift — wire into pre-push/CI). Convention documented in
+  `docs/SKILL-STYLE.md › Bundled resources` + `CLAUDE.md`. This makes skills work over a bare symlink **and**
+  survive future copy/plugin packaging — resolving the runtime half of finding **B**.
 
 ## Risks
 

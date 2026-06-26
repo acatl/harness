@@ -19,8 +19,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 - **start:** `▶ harness:init v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
 - **end:** `■ harness:init → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
-> **Inputs (bundled):** `templates/HARNESS.md` (schema to fill), `templates/harness-runs.SCHEMA.md`
-> (run-log contract). Behavioral-verify model: `docs/runtime-verification-binding.md`. Read before generating.
+> **Inputs (bundled in this skill dir; paths below are relative to it):** `templates/HARNESS.md` (schema
+> to fill), `references/harness-runs.SCHEMA.md` (run-log contract). Behavioral-verify model:
+> `references/runtime-verification-binding.md`. Read before generating.
 
 **Principle: detect → confirm → ask only what can't be inferred.** Never interrogate for what the repo
 already states. One question at a time (tight question, indexed options, recommendation + escape hatch).
@@ -57,7 +58,7 @@ Summarize detections before asking anything.
 Present inferred commands + order; ask to confirm/correct (recommend + escape hatch).
 
 ### 2a. Baseline sensor assessment (gate)
-After detecting sensors, assess the toolchain against the stack baseline (`templates/sensor-baseline.md`). Tier each sensor:
+After detecting sensors, assess the toolchain against the stack baseline (`references/sensor-baseline.md`). Tier each sensor:
 - **Essential (HARD-STOP if missing):** build/compile gate · test runner · linter · type-check. NOTE: for compiled stacks the build gate IS the type-check (e.g. `swift build`, `cargo build`, `go build`) — don't double-count; type-check hard-stops only where it's a *separate* expected gate (e.g. `tsc`, `mypy`) and absent.
 - **Recommended (WARN, proceed):** formatter · structured logging.
 - **logging is warn/ASK only** — no canonical marker, can't be reliably auto-detected. Ask the operator to confirm structured logging exists (it feeds behavioral-verify's log signal); never hard-stop on it.
@@ -75,7 +76,7 @@ Any ⛔ → **STOP this pass:** list the missing essentials + why each matters; 
 1. Task tracker — backend + 5 verbs (`resolve`/`start`/`link`/`review`/`done`) + id prefix.
 2. Per-stage hooks (optional) — move/status/label at refined/building/verified/PR-open/merged.
 3. Conventions — branch prefixes, commit contract, version source, PR merge style.
-4. Runtime verification — applies-when / skip-when / launch (or a project launch-verify script for multi-process) / readiness / driver / liveness / log source / expected (model: `docs/runtime-verification-binding.md`).
+4. Runtime verification — applies-when / skip-when / launch (or a project launch-verify script for multi-process) / readiness / driver / liveness / log source / expected (model: `references/runtime-verification-binding.md`).
 5. Finish merge mode — two-merge (default) or single-merge.
 6. Observability — run-log path (default `.claude/harness/runs.jsonl`), review cadence, extra fields.
 7. Build state — progress-file path (default under change-state dir).

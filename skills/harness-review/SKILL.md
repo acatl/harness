@@ -17,7 +17,7 @@ metadata:
 harness improvements**. The log matters only because this reads it — a log nobody aggregates is theater.
 
 > **Bindings.** Run-log path + schema from `docs/HARNESS.md › Observability` (schema:
-> `templates/harness-runs.SCHEMA.md`). Reality backfill via the PR host + task tracker (HARNESS.md).
+> `references/harness-runs.SCHEMA.md`). Reality backfill via the PR host + task tracker (HARNESS.md).
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:

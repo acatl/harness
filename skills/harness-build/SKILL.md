@@ -226,7 +226,7 @@ Run in order; each must pass:
    pre-push gate.
 2. **Behavioral-verify** (HARNESS.md › Runtime verification): bring up → exercise → observe → verdict.
    Liveness always; logs + behavioral per the binding. **Skip for pure-logic-only changes** (no runtime
-   surface). See `docs/runtime-verification-binding.md`.
+   surface). See `references/runtime-verification-binding.md`.
 3. **openspec-verify-change** (vendor skill) — spec conformance against the artifacts. Resolve gaps.
 4. **Skeptical review** (doer ≠ judge) — a distinct review pass against the project's QUALITY_SCORE
    rubric (HARNESS.md › Context docs). Scale to the diff (small/localized → one inline pass; large →
@@ -243,7 +243,7 @@ On any failure not caused by this change → STOP + surface (don't patch around 
 2. **Task tracker:** fire the `verified` stage hook (HARNESS.md). Do not move to a review/done state —
    that's ship/finish.
 3. **Append one run-log row** to the run-log (HARNESS.md › Observability; schema:
-   `templates/harness-runs.SCHEMA.md`). Deterministic fields from real output; `outcome` =
+   `references/harness-runs.SCHEMA.md`). Deterministic fields from real output; `outcome` =
    `verified-not-shipped` (or `stopped-needs-human`/`discarded`); `[E]` fields `null`.
 4. **Completion summary:**
    ```text
