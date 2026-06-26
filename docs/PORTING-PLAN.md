@@ -303,6 +303,21 @@ Port in dependency order. Each follows the Per-skill checklist.
   cleanup; it affects skill dir naming and how `harness:init` locates the bundled templates. Doesn't
   block Phase 3 (skill bodies are independent of the namespace mechanism).
 
+- **`harness:init` template-location / distribution portability** — init currently finds `templates/`
+  by resolving the skill symlink back to the pipeline root; that only works on-machine with the symlink.
+  When we do plugin packaging, bundle the templates into `skills/harness-init/references/` so they travel
+  with the skill. (Surfaced in one-shot's first init run; doesn't block on-machine use.)
+
+### Phase 6 — first-run findings
+
+From one-shot's first `harness:init` run:
+- **A — fixed.** init no longer writes absolute pipeline paths into the consuming HARNESS.md (template +
+  skill reworded to generic refs; the consuming file must be self-contained).
+- **B — deferred.** template-location / distribution portability (see Notes-to-resolve bullet above) —
+  defer to plugin packaging.
+- **C — fixed.** init now seeds `openspec/config.yaml` `context:` from the project's context docs so spec
+  generation isn't blind (`config_context_bytes>0`).
+
 ## Risks
 
 - **Liveness binding** is the hardest genericization (macOS crash-report mechanism is deeply

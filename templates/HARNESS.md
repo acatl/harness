@@ -71,7 +71,7 @@ rubric. `harness:init` scaffolds minimal stubs if absent.
 | design references | `<docs/DESIGN.md / docs/design-docs/, or none>` | `refine`, design review |
 
 - The judge rubric's categories (correctness / convention / simplification / efficiency / altitude)
-  must match the run-log `judge_findings[].category` (see `templates/harness-runs.SCHEMA.md`).
+  must match the run-log `judge_findings[].category` (see the harness run-log schema).
 
 ## Gates (local pre-push hook)
 
@@ -107,7 +107,7 @@ label. Declare only what the project wants; leave blank to do nothing at that st
 ## Runtime verification (behavioral-verify binding)
 
 How `build` exercises the running system and judges whether the change actually works. Contract +
-rationale: see the repo's `docs/runtime-verification-binding.md`. The skill owns the 4-step contract
+rationale: see the harness pipeline's runtime-verification binding contract. The skill owns the 4-step contract
 (bring up → exercise → observe → verdict) and signal interpretation; you declare the recipe here.
 
 | Key | Value |
@@ -144,7 +144,7 @@ rationale: see the repo's `docs/runtime-verification-binding.md`. The skill owns
 ## Observability (harness self-improvement)
 
 `harness:build` appends one row per run to the run-log; `harness:review` aggregates it and proposes
-harness improvements. Schema: the repo's `templates/harness-runs.SCHEMA.md`.
+harness improvements. Schema: the harness run-log schema.
 
 | Key | Value |
 |-----|-------|

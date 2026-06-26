@@ -60,6 +60,10 @@ Present inferred commands + order; ask to confirm/correct (recommend + escape ha
 ### 4. Write `docs/HARNESS.md`
 Fill template with confirmed + answered values; delete N/A rows; **keep section headings**. Preserve
 pre-existing bindings. OpenSpec absent → write the section + flag the missing hard dep.
+- **Never write absolute machine paths** (e.g. `/Users/.../harness-pipeline/...`) into the generated
+  HARNESS.md — reference the harness pipeline's own docs (the runtime-verification binding contract, the
+  run-log schema) generically. The consuming HARNESS.md must be self-contained + portable across
+  machines/teammates.
 
 ### 5. Scaffolding (confirm before editing files)
 - **Context docs.** Scaffold minimal stubs for missing project-knowledge docs — `docs/PRODUCT.md`,
@@ -67,6 +71,13 @@ pre-existing bindings. OpenSpec absent → write the section + flag the missing 
   in HARNESS.md › Context docs. Stubs minimal (operator fleshes out). **`QUALITY_SCORE.md` seeds the
   standard judge categories** (correctness / convention / simplification / efficiency / altitude) to
   match the run-log schema. Never overwrite an existing doc — link it.
+- **Seed the OpenSpec feedforward.** `openspec/config.yaml` `context:` empty → author it from the Context
+  docs: distill the product charter/north-star + what-it-is / is-NOT (non-goals) + tech constraints + key
+  runtime invariants into the `context:` block, and add per-artifact `rules:` (proposal: enforce
+  non-goals/scope guard; design: dependency + architecture invariants, no speculative abstractions; tasks:
+  the final task is the sensor gate from HARNESS.md, pure-logic changes ship with tests, non-unit-tested
+  surfaces get a runtime-verify task). Schema stays `spec-driven`. Else spec generation is blind
+  (`config_context_bytes=0`).
 - Git-ignore the run-log path, app runtime-log path, build progress dir (append to `.gitignore`).
 - Optional pre-push gate stub if wanted.
 
@@ -77,5 +88,6 @@ tracker). Point to the next skill (`harness:refine` or `harness:build`).
 ## Don't
 - Don't invent commands — uninferred + operator-unknown → marked placeholder, say so.
 - Don't add a machine-parsed config format — the agent reads this file; prose tables are correct.
+- Don't write absolute machine paths into the generated HARNESS.md — pipeline doc refs stay generic; the consuming file must be self-contained + portable.
 - Don't modify source — only `docs/HARNESS.md`, context-doc stubs, and (with confirmation) `.gitignore` / a hook stub.
 - Don't treat a missing optional capability as an error — note + continue.
