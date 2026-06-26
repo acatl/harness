@@ -336,6 +336,12 @@ From one-shot's first `harness:init` run:
   Never auto-installs/configures — assess + warn/stop only; setup is the operator's job (same scope line as
   not fabricating context docs). Matrix: `templates/sensor-baseline.md` (a new bundled template — **reinforces
   the deferred distribution/plugin-packaging item**, finding B).
+- **F — fixed.** init now **discovers context docs by ROLE** (product charter · architecture · reliability ·
+  security · quality-score · design refs) across the repo root + `docs/` (+ obvious docs dirs), **filters
+  decoys** (`.old`/`.bak`/`.draft`/`~`/`archive|backup` — recorded as ignored, never auto-selected), lists
+  candidates per role, and **confirms the role→file mapping with the operator** (one consolidated
+  confirmation, NEEDS-DECISION on 0/>1/decoy-only) before gating or templating. Fixes the root-only
+  `ARCHITECTURE.md` assumption that misfired on one-shot, where docs live in `docs/`.
 
 ## Risks
 
