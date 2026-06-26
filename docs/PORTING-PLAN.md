@@ -330,6 +330,12 @@ From one-shot's first `harness:init` run:
   - The bundled-templates dependency (`templates/context-docs/`) **reinforces the deferred
     distribution/plugin-packaging item** (finding B): these templates must travel with the skill, so plugin
     packaging should bundle `templates/` into the init skill's references.
+- **E — added.** init now runs a **stack-aware baseline-sensor gate** (Step 2a): assesses the detected
+  toolchain against a per-stack baseline and HARD-STOPS on missing essentials (build/test/lint/type-check),
+  WARNS on a missing formatter, and WARN/ASKs on logging (no reliable marker — it feeds behavioral-verify).
+  Never auto-installs/configures — assess + warn/stop only; setup is the operator's job (same scope line as
+  not fabricating context docs). Matrix: `templates/sensor-baseline.md` (a new bundled template — **reinforces
+  the deferred distribution/plugin-packaging item**, finding B).
 
 ## Risks
 

@@ -32,9 +32,11 @@ Never block on optional capabilities.
 `docs/HARNESS.md` exists → read it; this run = gap-fill + update. Keep set bindings; propose only for
 missing/placeholder rows. Never overwrite a set binding without confirming.
 
-**Two-phase when author-required context docs are missing (Step 5 gate):**
-- **Pass 1** — generate `QUALITY_SCORE.md` (canonical rubric) + drop templates for any unauthored gated docs (ARCHITECTURE / PRODUCT / RELIABILITY / SECURITY), then **STOP**: do NOT write `docs/HARNESS.md`, scaffold openspec, or seed `openspec/config.yaml` in a stopped pass. Print the files needing authorship + paths.
-- **Pass 2 (re-run after the operator authors them)** — a doc is authored when it exists and the `<!-- HARNESS TEMPLATE` marker line is gone. All four authored → proceed to HARNESS.md + openspec scaffold + config seed.
+**Two-phase resume — either gate can stop a pass. Both must clear to proceed:**
+- **Baseline-sensor gate (Step 2a):** any essential sensor (build/test/lint/type-check) missing → STOP, list the missing essentials, operator sets up the tooling (init does NOT install it), re-run.
+- **Author-required context docs (Step 5 gate):**
+  - **Pass 1** — generate `QUALITY_SCORE.md` (canonical rubric) + drop templates for any unauthored gated docs (ARCHITECTURE / PRODUCT / RELIABILITY / SECURITY), then **STOP**: do NOT write `docs/HARNESS.md`, scaffold openspec, or seed `openspec/config.yaml` in a stopped pass. Print the files needing authorship + paths.
+  - **Pass 2 (re-run after the operator authors them)** — a doc is authored when it exists and the `<!-- HARNESS TEMPLATE` marker line is gone. All four authored → proceed to HARNESS.md + openspec scaffold + config seed.
 
 ### 1. Scan (detect — don't ask yet), parallel where possible
 - **Stack:** `Package.swift`→Swift · `package.json`(+`nx.json`/`turbo.json`/workspaces)→Node · `Cargo.toml`→Rust · `go.mod`→Go · `pyproject.toml`/`setup.py`→Python · else ask.
@@ -49,6 +51,21 @@ Summarize detections before asking anything.
 
 ### 2. Confirm detected sensors
 Present inferred commands + order; ask to confirm/correct (recommend + escape hatch).
+
+### 2a. Baseline sensor assessment (gate)
+After detecting sensors, assess the toolchain against the stack baseline (`templates/sensor-baseline.md`). Tier each sensor:
+- **Essential (HARD-STOP if missing):** build/compile gate · test runner · linter · type-check. NOTE: for compiled stacks the build gate IS the type-check (e.g. `swift build`, `cargo build`, `go build`) — don't double-count; type-check hard-stops only where it's a *separate* expected gate (e.g. `tsc`, `mypy`) and absent.
+- **Recommended (WARN, proceed):** formatter · structured logging.
+- **logging is warn/ASK only** — no canonical marker, can't be reliably auto-detected. Ask the operator to confirm structured logging exists (it feeds behavioral-verify's log signal); never hard-stop on it.
+
+Detect each per the baseline matrix (config files / deps / scripts). Print a baseline report: `✅ present` / `⚠️ missing-recommended` / `⛔ missing-essential`, each ⚠️/⛔ with the concrete degradation:
+- no linter → weaker pre-push gate; convention/correctness findings slip through.
+- no type-check (separate-gate stacks) → a class of correctness errors uncaught.
+- no structured logging → behavioral-verify loses its log signal (liveness + visual only).
+- no formatter → style drift, noisy diffs.
+
+Any ⛔ → **STOP this pass:** list the missing essentials + why each matters; state init does NOT install/configure them (operator sets them up); wait, then re-run `/harness:init` to continue. (Same two-phase stop+resume pattern as the context-doc gate.)
+⚠️ only → warn + proceed.
 
 ### 3. Interview the rest (one question per turn; skip what the scan answered)
 1. Task tracker — backend + 5 verbs (`resolve`/`start`/`link`/`review`/`done`) + id prefix.
@@ -96,4 +113,5 @@ tracker). Point to the next skill (`harness:refine` or `harness:build`).
 - Don't add a machine-parsed config format — the agent reads this file; prose tables are correct.
 - Don't write absolute machine paths into the generated HARNESS.md — pipeline doc refs stay generic; the consuming file must be self-contained + portable.
 - Don't modify source — only `docs/HARNESS.md`, context-doc stubs, and (with confirmation) `.gitignore` / a hook stub.
+- Never auto-install or configure tooling — assess + warn/stop only; setup is the operator's job.
 - Don't treat a missing optional capability as an error — note + continue.
