@@ -16,8 +16,11 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 2 — `harness:init` **validated end-to-end** (both beds have generated `docs/HARNESS.md`).
-- **Next action:** Start **Phase 3** — port `harness:recon` first (first dependency of `build`).
+- **Phase:** 3 — porting spec pipeline. `harness:recon` **ported**
+  ([skills/harness-recon/SKILL.md](../skills/harness-recon/SKILL.md)), symlinked into both beds.
+- **Next action:** Port `harness:architecture`, then `harness:design`, then the `harness:build`
+  workhorse. Context docs (PRODUCT/ARCHITECTURE/RELIABILITY/SECURITY/QUALITY_SCORE) now exist in both
+  beds + are wired into HARNESS.md + scaffolded by init.
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -63,6 +66,10 @@ test green; `openspec init --tools claude` run in each; harness skills symlinked
 - **Skill surface (collapsed):** `new` + `apply` + `oneshot` are **gone**, replaced by one workhorse
   **`harness:build`**. Final surface (9) = `init`, `refine`, `explore` (optional), `build`,
   `fine-tune`, `ship`, `finish`, `address-pr-comments`, `review`.
+- **Project context docs** are part of the harness profile: `PRODUCT.md`, `ARCHITECTURE.md`,
+  `RELIABILITY.md`, `SECURITY.md`, `QUALITY_SCORE.md` (judge rubric — categories must match the
+  run-log). Skills ground on them; they live in the consuming project, are pointed at by HARNESS.md ›
+  Context docs, and `harness:init` scaffolds minimal stubs. Created in both beds.
 - **Harness observability loop** (the meta-layer that makes the harness self-improving from data):
   `build` appends one JSONL row per run to a run-log; `harness:review` aggregates it, backfills
   reality fields from GH/tracker, and **proposes (never auto-applies)** edits to skills/config.
@@ -184,7 +191,8 @@ The contract everything else depends on. Done before porting any skill.
 
 ### Phase 3 — Spec pipeline (the prize)
 Port in dependency order. Each follows the Per-skill checklist.
-- [ ] `harness:recon`
+- [x] `harness:recon` — ported + genericized (kino monorepo paths → HARNESS.md bindings); writes
+      verdicts to proposal.md + evidence to the change-state dir. Symlinked into both beds.
 - [ ] `harness:architecture`
 - [ ] `harness:design`
 - [ ] **`harness:build`** — the workhorse. Assemble from `specd-new` (authoring) + `specd-apply`

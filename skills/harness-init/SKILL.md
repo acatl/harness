@@ -78,6 +78,12 @@ Never batch into a wall. Ask, wait, next.
 - If OpenSpec is absent, still write the section but flag the missing hard dependency.
 
 ### 5. Scaffolding (confirm before editing files)
+- **Context docs.** Scaffold minimal stubs for any missing project-knowledge docs the skills ground
+  on — `docs/PRODUCT.md`, `ARCHITECTURE.md`, `docs/RELIABILITY.md`, `docs/SECURITY.md`,
+  `docs/QUALITY_SCORE.md` — and record their paths in HARNESS.md › Context docs. Keep stubs minimal
+  (a few lines); the operator fleshes them out. **`QUALITY_SCORE.md` must seed the standard judge
+  categories** (correctness / convention / simplification / efficiency / altitude) so they match the
+  run-log schema. Never overwrite a doc that already exists — link it instead.
 - Ensure the run-log path, the app runtime-log path, and the build progress dir are **git-ignored**
   (append to `.gitignore` — confirm first).
 - Optionally create a pre-push gate stub if the project wants it (ask).

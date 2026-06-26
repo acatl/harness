@@ -56,6 +56,23 @@ Each must pass before the next. This set also defines the pre-push gate (see *Ga
 | PR merge | `<squash-merge with a Conventional title>` |
 | version source | `<path / tool that owns the version>` — never hardcode the version |
 
+## Context docs (project knowledge the skills ground on)
+
+Skills read these for product scope, the architecture/runtime/security contracts, and the review
+rubric. `harness:init` scaffolds minimal stubs if absent.
+
+| Doc | Path | Read by |
+|-----|------|---------|
+| product charter | `<docs/PRODUCT.md>` | `refine` (scope/non-goals), `build` (scope guard) |
+| architecture | `<ARCHITECTURE.md>` | architecture review, `build` |
+| reliability | `<docs/RELIABILITY.md>` | architecture/design review, `build` |
+| security | `<docs/SECURITY.md>` | architecture review, `build` |
+| quality score (judge rubric) | `<docs/QUALITY_SCORE.md>` | the judge in `build`, `review` |
+| design references | `<docs/DESIGN.md / docs/design-docs/, or none>` | `refine`, design review |
+
+- The judge rubric's categories (correctness / convention / simplification / efficiency / altitude)
+  must match the run-log `judge_findings[].category` (see `templates/harness-runs.SCHEMA.md`).
+
 ## Gates (local pre-push hook)
 
 `<path to pre-push hook, or "none">` — runs the PR-blocking sensors locally before a push. Fix
