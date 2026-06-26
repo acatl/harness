@@ -16,11 +16,10 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 3 — porting spec pipeline. `harness:recon` **ported**
-  ([skills/harness-recon/SKILL.md](../skills/harness-recon/SKILL.md)), symlinked into both beds.
-- **Next action:** Port `harness:architecture`, then `harness:design`, then the `harness:build`
-  workhorse. Context docs (PRODUCT/ARCHITECTURE/RELIABILITY/SECURITY/QUALITY_SCORE) now exist in both
-  beds + are wired into HARNESS.md + scaffolded by init.
+- **Phase:** 3 — porting spec pipeline. `harness:recon` + `harness:architecture` **ported** (telegraphic),
+  symlinked into both beds. All skills now follow [docs/SKILL-STYLE.md](SKILL-STYLE.md).
+- **Next action:** Port `harness:design` (mirrors architecture: skill + design-lenses reference), then
+  the `harness:build` workhorse.
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -152,6 +151,9 @@ For each skill being ported:
 - [ ] Update internal skill cross-references to the `harness:` namespace.
 - [ ] Confirm the skill names the binding source for anything it can't infer; never assume a stack.
 - [ ] Add the skill to the README skill index + the pipeline diagram if it's a pipeline stage.
+- [ ] Write the SKILL.md **body telegraphic** per [SKILL-STYLE.md](SKILL-STYLE.md) (frontmatter
+      `description` stays trigger-rich). Every decision-bearing datum kept; drop inverse-of-Do Don'ts,
+      keep non-redundant boundary Don'ts.
 
 ---
 
@@ -193,7 +195,9 @@ The contract everything else depends on. Done before porting any skill.
 Port in dependency order. Each follows the Per-skill checklist.
 - [x] `harness:recon` — ported + genericized (kino monorepo paths → HARNESS.md bindings); writes
       verdicts to proposal.md + evidence to the change-state dir. Symlinked into both beds.
-- [ ] `harness:architecture`
+- [x] `harness:architecture` — ported telegraphic + genericized (kino paths → HARNESS.md bindings,
+      recon markers → `harness:recon`, context via HARNESS.md › Context docs). Includes the 15-lens
+      reference (`references/architecture-lenses.md`, telegraphic, all criteria kept).
 - [ ] `harness:design`
 - [ ] **`harness:build`** — the workhorse. Assemble from `specd-new` (authoring) + `specd-apply`
       (impl). Must include: start-state auto-detect (`openspec list --json`, >1 open → ask),
