@@ -16,12 +16,11 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 3 — porting spec pipeline. `harness:recon` + `harness:architecture` + `harness:design`
-  **ported**, symlinked into both beds. Style: procedure telegraphic, judgment criteria (lenses,
-  second-order, calibration) kept full per [docs/SKILL-STYLE.md](SKILL-STYLE.md).
-- **Next action:** Port **`harness:build`** — the workhorse (assembles authoring + impl; auto-detect
-  start state, gated/yolo, recon-wired, own progress file, openspec-verify, behavioral-verify, STOP
-  at verified-not-shipped). Largest port; approach carefully.
+- **Phase:** 3 — `harness:recon` + `architecture` + `design` + **`build`** ported (build assembled
+  from the verified [build-source-map.md](build-source-map.md) — SKILL.md + 5 references). All
+  symlinked into both beds. Only `harness:finish` remains in Phase 3.
+- **Next action:** Port `harness:finish` (sync-specs + archive; confirmable merge-gate; single/two-merge;
+  backfill run-log `[E]` fields). Then Phase 4 (refine, explore, fine-tune, ship, address-pr-comments).
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -203,10 +202,12 @@ Port in dependency order. Each follows the Per-skill checklist.
 - [x] `harness:design` — ported + genericized (kino brand/`@kino/ui`/`.impeccable.md`/`KINO-` →
       design-references bindings + generic phrasing; `specd:`→`harness:`). Skill procedure telegraphic;
       the 11-lens reference + second-order + calibration kept **full** (judgment criteria).
-- [ ] **`harness:build`** — the workhorse. Assemble from `specd-new` (authoring) + `specd-apply`
-      (impl). Must include: start-state auto-detect (`openspec list --json`, >1 open → ask),
-      gated/yolo mode, recon wired after proposal, own progress/resume file, vendor
-      `openspec-verify-change` call, behavioral-verify binding, **STOP at verified-not-shipped**.
+- [x] **`harness:build`** — assembled from the verified source map (specd-new authoring + specd-apply
+      impl). SKILL.md (telegraphic) + 5 references (full rationale, genericized). Includes: start-state
+      auto-detect, gated(default)/yolo, recon after proposal, reviews autonomous + H2 spec-review gate,
+      own progress file, sensors + behavioral-verify + openspec-verify + skeptical review, **STOP at
+      verified-not-shipped**, run-log append. Reviews-mode reconciliation: reviews run autonomous;
+      build mode controls H2 + impl gates only (recorded in build-source-map §F/§G).
 - [ ] `harness:finish`
 
 ### Phase 4 — Surrounding skills
