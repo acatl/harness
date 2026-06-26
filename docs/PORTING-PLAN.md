@@ -1,0 +1,249 @@
+# Harness Pipeline — Porting Plan
+
+Living plan for porting skills from source projects into this repo as a generic, parametrized,
+stack-agnostic harness pipeline. **This file is the source of truth for progress.** On context
+loss, read this top-to-bottom, then resume from the **Status pointer**.
+
+## How to use this file (resume protocol)
+
+1. Read the **Status pointer** — it names the current phase + next concrete action.
+2. Read **Locked decisions** — do not relitigate these.
+3. Open the phase you're on; work its checklist top-down; tick boxes as you go.
+4. When a phase completes, update the Status pointer to the next phase's first action.
+5. Per-skill ports follow the same **Per-skill checklist** (below) every time.
+
+---
+
+## Status pointer
+
+- **Phase:** 2 — `harness:init` → **drafted** ([skills/harness-init/SKILL.md](../skills/harness-init/SKILL.md)).
+- **Next action:** Validate `harness:init` against a real project (dry-run its scan/interview on
+  MermaidLens or a web repo), then start **Phase 3** (port `harness:recon` first). Resolve the
+  distribution/namespace open item (plugin packaging) when convenient — it doesn't block Phase 3.
+- **Last updated:** 2026-06-25
+
+---
+
+## Locked decisions
+
+- **Namespace:** every skill is `harness:<name>` (e.g. `/harness:refine`). Provenance signal for
+  people we share with. Not `specd:` (too narrow — half the skills aren't spec-driven), not `hp:`/`h:`
+  (cryptic), not `sdlc:` (presumptuous).
+- **Binding layer:** a single `docs/HARNESS.md` per consuming project (Option A). The agent is the
+  parser — prose tables, no machine config file. Skills resolve all project specifics there; never
+  hardcode a command, path, or convention.
+- **Task tracker = verb contract** in `docs/HARNESS.md`. Skills call abstract verbs
+  (`resolve` / `start` / `link` / `review` / `done`), the profile maps each verb to the project's
+  backend (Kino `mcp__kino__*`, Jira via Atlassian MCP / `acli` / REST, etc.). This is how Kino-vs-Jira
+  is parametrized.
+- **Source-of-truth projects:** `/Users/acatl/workspace/apple/MermaidLens` (Swift, newer, already
+  generic — best *packaging*) and `/Users/acatl/workspace/kino` (web, older, hardcoded — best *logic*).
+  Port = lift kino's richer logic onto MermaidLens's project-agnostic framing.
+- **Stack-agnostic is a hard requirement.** Same skill must serve Swift and web; all stack-specifics
+  live in the binding layer.
+- **Vendor deps (assume present, do NOT bring):** the OpenSpec CLI and its vendor skills —
+  `openspec-verify-change`, `openspec-sync-specs`, `openspec-archive-change`, `openspec-new-change`,
+  `openspec-apply-change`. Our skills *call* these and assume the consuming project has OpenSpec
+  installed. OpenSpec is an accepted hard dependency.
+- **Pipeline ordering (confirmed):**
+  `proposal → recon → design.md → specs → [review: architecture → design] → tasks → apply → verify`.
+- **Impeccable: dropped entirely.** No `harness:impeccable`, no brand-review stage, no web craft
+  sub-skills. The `specd:new` skip-when-absent seam is the model if brand review is ever added later.
+- **Skill surface (collapsed):** `new` + `apply` + `oneshot` are **gone**, replaced by one workhorse
+  **`harness:build`**. Final surface (9) = `init`, `refine`, `explore` (optional), `build`,
+  `fine-tune`, `ship`, `finish`, `address-pr-comments`, `review`.
+- **Harness observability loop** (the meta-layer that makes the harness self-improving from data):
+  `build` appends one JSONL row per run to a run-log; `harness:review` aggregates it, backfills
+  reality fields from GH/tracker, and **proposes (never auto-applies)** edits to skills/config.
+  Keystone field = `skill_version` (`git hash-object` of the skill) for before/after attribution.
+  Schema: [templates/harness-runs.SCHEMA.md](../templates/harness-runs.SCHEMA.md). This is the one
+  place JSONL is correct (machine-aggregated). Genericized from MermaidLens: sensor names come from
+  HARNESS.md, `visual_check`→`behavioral_check`, product-specifics dropped, extra fields opt-in.
+- **`harness:build`** — one skill, full cycle from a task. Two orthogonal behaviors:
+  - **Auto-detect start state:** `openspec list --json` → no authored change: author one
+    (proposal → recon → design.md → specs → architecture review → design review → tasks). Change
+    exists: resume straight to implementation (hand-authored / authored-earlier / interrupted).
+    More than one open change → `AskUserQuestion` to pick. Open (non-archived) changes only.
+  - **Mode parameter:** `gated` (default) stops after tasks, shows the spec, loops "ready?" until
+    the operator approves or requests edits; `yolo` skips that gate. **Both still stop on a genuine
+    fork** (decision fork, design-level problem, scope drift, uncaused sensor/verify failure).
+  - **Own progress file:** build maintains a progress/state file under the change dir so it always
+    knows where it left off — resumable across sessions. Builds on kino's `.specd/` pattern.
+  - **Logs the run (final step):** append one JSONL row to the run-log per the schema — the
+    observability loop's input. Distinct from the progress file (Markdown resume vs JSONL telemetry).
+- **Nothing ships automatically.** The implement-and-verify core ends at **verified locally, NOT
+  shipped** — implement (stop-on-fork) → sensors → behavioral-verify (binding) → vendor spec-verify
+  → skeptical review → STOP. The operator tests on their own; `harness:ship` (push + open PR) is a
+  separate, deliberate step. This is a hard stop regardless of gated/yolo.
+- **`harness:fine-tune`** (from `~/.claude/skills/fine-tune`) — the post-build polish loop
+  (fix → test → approve → commit). Reused nearly as-is; changes: test step binds to HARNESS.md
+  sensors; commits stay local; hands off to `harness:ship` when done.
+- **`harness:explore`** — extract + improve OpenSpec Explore: keep the thinking-partner stance, add
+  digestible one-thread-at-a-time output (replaces the manual `walk-me-through` after every run).
+  Native `/opsx:explore` stays available. Possible (not committed): surface recon-style reuse hits.
+- **Behavioral verification is a binding** (`HARNESS.md › Runtime verification`), not hardcoded.
+  Contract: bring up → exercise → observe → verdict. Signal tiers: liveness (always) · logs ·
+  behavioral (best-effort, needs a driver). The project declares launch/driver/liveness/log per
+  stack; complex topologies (e.g. web+API two-server) push orchestration into a project-owned
+  launch script the binding calls (the `run.sh` model). Skill owns the contract + signal
+  interpretation; project owns the launch recipe. See [runtime-verification-binding.md](runtime-verification-binding.md).
+
+---
+
+## Source → target mapping
+
+| Source (kino unless noted) | Target | Verdict | Notes |
+|---|---|---|---|
+| `specd-new` + `specd-apply` + MermaidLens `propose` | **`harness:build`** | **Merge into one workhorse** | Auto-detect start state + gated/yolo mode + own progress file. Authoring half = old `new`; impl half = old `apply`. Calls vendor `openspec-verify-change`. Ends at verified-not-shipped. |
+| `specd-recon` | `harness:recon` | **Port + wire into build** | After proposal.md, before design.md. |
+| `specd-architecture` | `harness:architecture` | **Port** | Supersedes `openspec-architecture-review`. |
+| `specd-design` | `harness:design` | **Port** | Supersedes `openspec-design-review`. |
+| `specd-finish` | `harness:finish` | **Port** | Calls vendor sync + archive. Confirmable merge-gate; two/single-merge. Backfills run-log `[E]` reality fields. |
+| `harness-review` (MermaidLens; kino has one too) | `harness:review` | **Port + genericize** | Aggregate run-log → propose harness edits. Genericize schema (sensor names from HARNESS.md, drop product-specifics). |
+| `.claude/harness/SCHEMA.md` (MermaidLens) | `templates/harness-runs.SCHEMA.md` | **Done (genericized)** | The run-log row contract. |
+| `refine` (kino) | `harness:refine` | **Port kino logic** | Richer than MermaidLens; reframe onto HARNESS.md. |
+| `address-pr-comments` | `harness:address-pr-comments` | **Port** | Standalone PR-comment loop. |
+| `run` (MermaidLens) | (Swift backend of behavioral-verify binding) | **Port as binding** | Not a standalone stage. De-macOS the `.ips`/`pgrep`. |
+| `ship` (MermaidLens) | `harness:ship` | **Port** | Push + PR. Now a deliberate post-test step, not auto-run. |
+| `~/.claude/skills/fine-tune` | `harness:fine-tune` | **Port + rebind** | Test step → HARNESS.md sensors; hands off to `harness:ship`. |
+| `openspec-explore` (vendor) | `harness:explore` | **Extract + improve** | Add digestible output (built-in walk-me-through); keep native available. |
+| `recon-first` rule (worktree) | `harness` rule | **Port** | Promote out of worktree; contributor-level twin of recon. |
+| `openspec-architecture-review` | — | **Drop** | Superseded fork (design-lenses byte-identical to specd version). |
+| `openspec-design-review` | — | **Drop** | Superseded fork. |
+| `impeccable-spec-review` | — | **Drop** | Superseded by specd:impeccable. |
+| `specd-impeccable`, `/impeccable`, `impeccable-pr-orchestrator`, web craft skills | — | **Drop** | Impeccable dropped entirely. |
+| OpenSpec vendor skills | — | **Assume present** | Call, do not bring. |
+
+New skill, no source:
+| — | `harness:init` | **Build first** | Scans project, interviews user, writes `docs/HARNESS.md`. Foundation — every other skill is inert without it. |
+
+---
+
+## Per-skill checklist (apply to every port)
+
+For each skill being ported:
+
+- [ ] Copy source SKILL.md (+ its `references/`) into `skills/harness-<name>/`.
+- [ ] Rename to `harness:<name>`; update the frontmatter `name`/`description`.
+- [ ] Strip every hardcoded stack command/path → replace with a reference to the relevant
+      `docs/HARNESS.md` binding ("run the `test` sensor declared in HARNESS.md").
+- [ ] Replace task-tracker calls (`mcp__kino__*`, `KINO-`, ticket-lifecycle) with the **verb
+      contract** (`resolve`/`start`/`link`/`review`/`done` per HARNESS.md › Task tracker).
+- [ ] Strip product/brand specifics (kino charter, non-goals dir, Clerk, Nx, TypeORM) → bind to
+      generic profile docs (charter in `CLAUDE.md`/`docs/PRODUCT.md`, conventions in HARNESS.md).
+- [ ] Update internal skill cross-references to the `harness:` namespace.
+- [ ] Confirm the skill names the binding source for anything it can't infer; never assume a stack.
+- [ ] Add the skill to the README skill index + the pipeline diagram if it's a pipeline stage.
+
+---
+
+## Phases
+
+### Phase 0 — Foundations ✅
+- [x] Read blueprint, both source projects, all named skills.
+- [x] Resolve duplications + orchestration gaps (verified against files).
+- [x] Lock decisions (namespace, binding model, ordering, drops). See Locked decisions.
+
+### Phase 1 — Repo scaffolding + binding contract ✅
+The contract everything else depends on. Done before porting any skill.
+- [x] Repo layout (`skills/`, `rules/`, `docs/`, `templates/`, README) — see [README](../README.md).
+- [x] `docs/HARNESS.md` **template/schema** → [templates/HARNESS.md](../templates/HARNESS.md):
+      Sensors, Paths, Conventions, Gates, Task tracker (verbs + stage hooks), Runtime verification,
+      Build state, Finish merge mode, Session chapters, OpenSpec.
+- [x] **Task-tracker verb contract** (5 verbs) + **per-stage hook map** — in the template.
+- [x] **Behavioral / runtime-verification binding** specified —
+      [runtime-verification-binding.md](runtime-verification-binding.md) + the template's *Runtime
+      verification* section.
+- [x] **Run-log schema** (observability) — [templates/harness-runs.SCHEMA.md](../templates/harness-runs.SCHEMA.md)
+      + the template's *Observability* section.
+- [x] README: purpose, namespace, pipeline table, dependencies, layout.
+
+### Phase 2 — `harness:init` (foundation skill)
+- [x] Build the binding generator → [skills/harness-init/SKILL.md](../skills/harness-init/SKILL.md):
+      scan/detect, confirm sensors, one-question-at-a-time interview, write `docs/HARNESS.md`,
+      idempotent gap-fill, git-ignore scaffolding.
+- [ ] Dry-run validate against MermaidLens (Swift) and a web repo; tighten detection heuristics.
+
+### Phase 3 — Spec pipeline (the prize)
+Port in dependency order. Each follows the Per-skill checklist.
+- [ ] `harness:recon`
+- [ ] `harness:architecture`
+- [ ] `harness:design`
+- [ ] **`harness:build`** — the workhorse. Assemble from `specd-new` (authoring) + `specd-apply`
+      (impl). Must include: start-state auto-detect (`openspec list --json`, >1 open → ask),
+      gated/yolo mode, recon wired after proposal, own progress/resume file, vendor
+      `openspec-verify-change` call, behavioral-verify binding, **STOP at verified-not-shipped**.
+- [ ] `harness:finish`
+
+### Phase 4 — Surrounding skills
+- [ ] `harness:refine`
+- [ ] `harness:explore` — extract OpenSpec Explore + add digestible output (built-in
+      walk-me-through). Keep native available.
+- [ ] `harness:fine-tune` — port from `~/.claude/skills/fine-tune`; bind test step to HARNESS.md
+      sensors; hand off to `harness:ship`.
+- [ ] `harness:ship` — push + open PR; deliberate post-test step.
+- [ ] `harness:address-pr-comments`
+- [ ] `harness:review` — aggregate the run-log, backfill `[E]` fields, propose harness edits
+      (data-backed only, never auto-apply). Verify `build` writes rows the schema expects.
+- [ ] Port MermaidLens `run` as the **Swift backend** of the behavioral-verification binding (not a
+      standalone skill).
+
+### Phase 5 — Cross-cutting + cleanup
+- [ ] `recon-first` rule promoted into the repo's rules.
+- [ ] Consistency pass: every internal reference uses `harness:`; every stack-specific points at
+      HARNESS.md; no kino/MermaidLens product strings leaked.
+- [ ] README skill index + usage complete; pipeline diagram matches the shipped skills.
+
+### Phase 6 — Validation (prove stack-agnosticism)
+- [ ] Dry-run the binding model against MermaidLens (Swift) — does a HARNESS.md drive the skills?
+- [ ] Dry-run against a web target — same skills, different bindings.
+- [ ] Fix any remaining hardcoded leaks found by the dry-runs.
+
+---
+
+## Notes to resolve when we get there
+
+- **Spec auto-detection in `build`** — `openspec list --json` (active, most-recent first). 0 open →
+  author. ≥1 open → `AskUserQuestion` to pick (kino `specd-apply` already does this; reuse).
+  Open/non-archived only. `openspec status --change <name> --json` gives state for author-vs-resume.
+- **Build's progress/resume file** — design the exact file + format (build on kino's `.specd/`:
+  `surface-map.md` + `decisions.md` + resume check). Must let build know which tasks are done and
+  where it left off, across sessions and across gated/yolo.
+- **Stage-aware task-tracker actions (configurable)** — extend the HARNESS.md task-tracker section
+  beyond the 5 verbs with a **per-stage hook map**: at each stage (refined / building / verified /
+  PR-open / merged) allow an optional tracker action — move column, set status, add label. All
+  optional, declared per project. Design the declaration shape in Phase 1.
+- **Recon inside explore** — possible opportunity for `explore` to surface reuse-style hits; not
+  committed. Revisit when porting `explore`.
+- **`finish` confirmable merge-gate + single-merge mode** — the existing finish hard-stops if the
+  feature isn't merged. Change to: if it can't confirm the merge, ASK ("already merged / tested in
+  prod / single-merge flow?") and proceed on confirmation. Add a **single-merge** mode (configurable
+  in HARNESS.md) that folds sync+archive into one landing instead of opening a separate chore PR — for
+  teams that want one merge, not two.
+- **`fine-tune` sticky mode (explicit-exit protocol)** — model on OpenSpec Explore's "you must exit
+  explore mode first." Fine-tune must: re-anchor every turn (`Still fine-tuning <topic>`); treat a
+  nested skill (e.g. impeccable) as allowed but NON-terminal — run it, then resume the loop; exit ONLY
+  on explicit "exit"/"done"/"stop", or an asked-and-confirmed yes. Back it with a small "fine-tune
+  active" marker file so it survives nested skills + context loss and never forgets it was in the loop.
+
+- **Distribution + namespace mechanism** — the `harness:` namespace most naturally comes from
+  packaging the repo as a Claude Code **plugin named `harness`** (skills auto-invoked as
+  `harness:<skill>`). That also answers "how do teammates pull it" (add the plugin/marketplace) and
+  keeps `templates/` + `docs/` traveling with the skills. Decide plugin-vs-loose-skills before Phase 5
+  cleanup; it affects skill dir naming and how `harness:init` locates the bundled templates. Doesn't
+  block Phase 3 (skill bodies are independent of the namespace mechanism).
+
+## Risks
+
+- **Liveness binding** is the hardest genericization (macOS crash-report mechanism is deeply
+  platform-specific). May need a small per-backend section in HARNESS.md rather than one verb.
+- **Multi-server topology** — the genuine hard edge of the behavioral-verification binding. Design
+  pushes orchestration into a project-owned launch script; stress-test against a real web+API layout
+  in Phase 6.
+- **OpenSpec version coupling** — our skills assume a specific OpenSpec CLI surface; pin/document
+  the expected version in README.
+
+## See also
+
+- Pipeline diagram: [docs/pipeline.md](pipeline.md) — the end-to-end chain (editable Mermaid).
+- Blueprint: [docs/blueprint-harness-pipeline.md](blueprint-harness-pipeline.md).
