@@ -18,12 +18,27 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 - **Phase:** 6 — **live harness iteration** (building of the harness is done). All 12 skills + the
   `recon-first` rule are ported, telegraphic, genericized, namespaced `harness:<name>` (frontmatter
-  colon, dir dashed), and carry **start/end breadcrumbs** (commit `713feb3`). harness repo: ~19
-  commits on `feat/harness-foundation` (local, unpushed by the user's choice).
-- **Next action:** dogfood the harness on the real project **`~/workspace/one-shot`** (Swift macOS
-  app). Each session there logs to a transcript + run-log; from a harness-pipeline session I read
-  those, diagnose friction, and edit the skills (edits are live via symlink). See **Harness iteration
-  loop** below.
+  colon, dir dashed), with **start/end breadcrumbs**. harness repo on `feat/harness-foundation`
+  (local, unpushed by the user's choice). `harness:init` hardened across `c2d59e7 → cfdb00b`
+  (findings A–G below): self-contained refs, OpenSpec **two-gate** (CLI installed + project
+  initialized — both halt+ask, init NEVER scaffolds openspec or installs anything), context-doc
+  **discover→drop-decoys→confirm** then tier (generate QUALITY_SCORE / template+hard-stop the four
+  author-required roles), stack-aware **baseline-sensor gate** (hard-stop build/test/lint/typecheck;
+  warn formatter; warn/ask logging), config-seed against the known spec-driven shape (no probing).
+- **Current micro-state (resume here):** first real `/harness:init` on `~/workspace/one-shot` (Swift
+  macOS app) was **interrupted** — old init auto-scaffolded `openspec/` instead of halting; that's
+  now fixed (`cfdb00b`, live via symlink). one-shot baseline is **clean & ready to commit** (only
+  Swift foundation; harness skill symlinks git-ignored; user is adding `.vscode/` to `.gitignore`).
+  The interrupted run left a **partial `openspec/`** in one-shot.
+- **Next action — the operator runs, in a fresh one-shot session:** (1) add `.vscode/` ignore +
+  commit the baseline; (2) `rm -rf openspec/` (drop the partial scaffold); (3) `openspec init --tools
+  claude` (operator initializes OpenSpec — reinstalls the vendor `openspec-*`/`opsx:*` skills the
+  harness *needs*; don't remove them); (4) `/harness:init`. Then, from a harness-pipeline session,
+  **review the run:** read the **newest** transcript by mtime in
+  `~/.claude/projects/-Users-acatl-workspace-one-shot/*.jsonl` (ignore the 2 pre-wipe ones; confirm
+  it has this run's `▶ harness:init`), grep `▶ harness:`/`■ harness:`, cross-check
+  `one-shot/.claude/harness/runs.jsonl`, diagnose friction, edit skills here (live via symlink),
+  commit on `feat/harness-foundation`.
 - **Last updated:** 2026-06-26
 
 ### Test beds (external sibling repos)
