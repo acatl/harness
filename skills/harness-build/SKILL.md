@@ -1,5 +1,5 @@
 ---
-name: harness-build
+name: harness:build
 description: >-
   The workhorse: take a task (or an existing OpenSpec change) all the way to a verified, ready-to-ship
   change — author the spec if none exists (proposal → recon → design → reviews → tasks), then implement

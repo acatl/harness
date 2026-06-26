@@ -1,5 +1,5 @@
 ---
-name: harness-address-pr-comments
+name: harness:address-pr-comments
 description: >
   Use when a PR has review comments (from bots, teammates, or external reviewers) that need structured
   triage and end-to-end resolution. Evaluates every comment thread, auto-fixes everything that does not

@@ -1,5 +1,5 @@
 ---
-name: harness-design
+name: harness:design
 description: >-
   Audits an OpenSpec change directory from a UX/design perspective before the spec is applied and code
   is generated. Use whenever the user wants to review a spec for design quality, check UX coverage

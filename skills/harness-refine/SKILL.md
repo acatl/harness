@@ -1,5 +1,5 @@
 ---
-name: harness-refine
+name: harness:refine
 description: >-
   Turn a rough tracker task or bare intent into a well-formed, spec-ready task (User Story +
   Given/When/Then AC + Why + Out-of-scope) as the project's Technical Product Owner. Grounds against the

@@ -1,5 +1,5 @@
 ---
-name: harness-architecture
+name: harness:architecture
 description: >-
   Audits an OpenSpec change directory from an architecture and engineering quality perspective before
   the spec is applied and code is generated. Use whenever the user wants to review a spec for technical

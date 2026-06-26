@@ -1,5 +1,5 @@
 ---
-name: harness-review
+name: harness:review
 description: >-
   Review the harness run-log and propose concrete improvements to the harness itself. Use when asked to
   "review the harness", "improve the harness", "look at harness data", or on a periodic cadence (after N

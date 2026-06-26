@@ -1,5 +1,5 @@
 ---
-name: harness-explore
+name: harness:explore
 description: >-
   Enter explore mode — a thinking partner for exploring ideas, investigating problems, and clarifying
   requirements before or during a change. An improved OpenSpec Explore: same thinking-partner stance,

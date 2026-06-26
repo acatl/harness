@@ -1,5 +1,5 @@
 ---
-name: harness-recon
+name: harness:recon
 description: >-
   Reconnoiter the codebase for prior art a proposed change could reuse or extend before its design is
   authored. Runs between the proposal and design artifacts in the OpenSpec flow (and is called by

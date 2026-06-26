@@ -1,5 +1,5 @@
 ---
-name: harness-finish
+name: harness:finish
 description: >-
   One-command closeout for a completed OpenSpec change: syncs the delta specs into the main specs,
   archives the change, lands that per the project's merge mode (single-merge rides the feature PR;

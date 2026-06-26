@@ -1,5 +1,5 @@
 ---
-name: harness-fine-tune
+name: harness:fine-tune
 description: >-
   Iterative polishing loop for refining a change after it's implemented — typically after harness:build
   reaches verified-not-shipped and you're testing it. Use when the user says "let's fine-tune", "polish

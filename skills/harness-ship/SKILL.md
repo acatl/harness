@@ -1,5 +1,5 @@
 ---
-name: harness-ship
+name: harness:ship
 description: >-
   Commit the current work and open a PR following the repo's release-automation contract — Conventional
   Commit subjects and a Conventional squash-merge title (the version is derived from that title). Use

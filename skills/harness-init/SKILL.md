@@ -1,5 +1,5 @@
 ---
-name: harness-init
+name: harness:init
 description: >
   Initialize the harness pipeline in a project — scan what's already there, interview the operator
   for what can't be inferred, and generate docs/HARNESS.md (the binding layer every other harness
