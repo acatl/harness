@@ -16,11 +16,11 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 4 — **complete.** All 12 skills ported + symlinked into both beds. `run` folded into the
-  behavioral-verify binding (Swift backend) — no standalone skill.
-- **Next action:** Phase 5 — cross-cutting cleanup: promote the `recon-first` rule into `rules/`,
-  consistency pass (every internal ref uses `harness:`, no leaked product strings), README skill index +
-  pipeline diagram match the shipped 12 skills. Then Phase 6 validation dry-runs.
+- **Phase:** 5 — **complete.** All 12 skills ported + symlinked; `recon-first` rule promoted;
+  consistency scan clean; README + diagram match the shipped set.
+- **Next action:** Phase 6 — validation dry-runs against the beds (does `harness:init`'s generated
+  HARNESS.md drive the skills? exercise the pipeline on a real change in each stack), then the
+  multi-server runtime-verification stress test. Fix any leaks the dry-runs surface.
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -232,10 +232,12 @@ Port in dependency order. Each follows the Per-skill checklist.
       standalone skill.
 
 ### Phase 5 — Cross-cutting + cleanup
-- [ ] `recon-first` rule promoted into the repo's rules.
-- [ ] Consistency pass: every internal reference uses `harness:`; every stack-specific points at
-      HARNESS.md; no kino/MermaidLens product strings leaked.
-- [ ] README skill index + usage complete; pipeline diagram matches the shipped skills.
+- [x] `recon-first` rule promoted into `rules/recon-first.md` (genericized).
+- [x] Consistency pass: scan clean — only intentional mentions (`nx` = verify-derivation fallback;
+      `e.g. Kino` = illustrative backend; `/opsx:explore` = deliberately-kept native command).
+- [x] README skill index updated (12 skills + 3 build-internal review sub-skills + recon-first rule).
+- [x] Pipeline diagram cross-check — uses `harness:*` throughout; recon/architecture/design shown inside
+      build; review in the observability loop; impeccable absent. No drift.
 
 ### Phase 6 — Validation (prove stack-agnosticism)
 - [ ] Dry-run the binding model against MermaidLens (Swift) — does a HARNESS.md drive the skills?
