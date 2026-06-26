@@ -16,12 +16,15 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 5 — **complete.** All 12 skills ported + symlinked; `recon-first` rule promoted;
-  consistency scan clean; README + diagram match the shipped set.
-- **Next action:** Phase 6 — validation dry-runs against the beds (does `harness:init`'s generated
-  HARNESS.md drive the skills? exercise the pipeline on a real change in each stack), then the
-  multi-server runtime-verification stress test. Fix any leaks the dry-runs surface.
-- **Last updated:** 2026-06-25
+- **Phase:** 6 — **live harness iteration** (building of the harness is done). All 12 skills + the
+  `recon-first` rule are ported, telegraphic, genericized, namespaced `harness:<name>` (frontmatter
+  colon, dir dashed), and carry **start/end breadcrumbs** (commit `713feb3`). harness repo: ~19
+  commits on `feat/harness-foundation` (local, unpushed by the user's choice).
+- **Next action:** dogfood the harness on the real project **`~/workspace/one-shot`** (Swift macOS
+  app). Each session there logs to a transcript + run-log; from a harness-pipeline session I read
+  those, diagnose friction, and edit the skills (edits are live via symlink). See **Harness iteration
+  loop** below.
+- **Last updated:** 2026-06-26
 
 ### Test beds (external sibling repos)
 
@@ -35,6 +38,28 @@ test green; `openspec init --tools claude` run in each; harness skills symlinked
   `HWTES-`. sensors: `npm run format` / `npm run lint` / `npm test` (zero-install) / `npm run build`.
 - Both: single-merge finish; runtime-verification **N/A** (pure-logic libs — add a runnable surface
   later to exercise that binding). OpenSpec CLI 1.3.1.
+
+### Harness iteration loop (Phase 6 — the current phase)
+
+Dogfood the harness on a **real** project and improve the skills from observed friction.
+
+- **Target project:** `~/workspace/one-shot` — a Swift macOS app (Package.swift, `run.sh`, `.swiftlint.yml`,
+  `.swift-format`, ARCHITECTURE.md, CLAUDE.md, `docs/`, `openspec/`, `.claude/`). git + openspec already
+  set up. This is a real runtime surface (unlike the pure-logic beds) — exercises behavioral-verify.
+- **Wiring:** harness skills are symlinked into `one-shot/.claude/skills/harness-*` (git-ignored). Edits
+  to skills in this repo are **live** in one-shot via the symlink — no re-pull. one-shot needs a
+  `docs/HARNESS.md` (run `/harness:init` there if absent).
+- **Two observation signals (no manual paste needed — both on disk):**
+  1. **Session transcript** — `~/.claude/projects/-Users-acatl-workspace-one-shot/*.jsonl`. Each skill
+     prints `▶ harness:<name> v<hash8> · …` (start) and `■ harness:<name> → <outcome>` (end). `grep`
+     those markers to locate every run, its content-version, and outcome, then read around rough spots.
+  2. **Run-log** — `one-shot/.claude/harness/runs.jsonl` (path per its HARNESS.md › Observability),
+     written by `harness:build`; structured friction metrics; `harness:review` aggregates.
+- **The loop:** operator works one-shot with the harness → notes friction (or I infer it) → from a
+  harness-pipeline session I read one-shot's transcript + run-log → diagnose the skill wording/logic →
+  edit the skill **here** (live via symlink). `v<hash8>` in the breadcrumb tells old runs from new.
+- **Resume after compression:** read this section + the transcript markers; the skills are in
+  `skills/harness-*/`, the observability convention is in [SKILL-STYLE.md](SKILL-STYLE.md) › Breadcrumbs.
 
 ---
 
