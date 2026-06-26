@@ -195,9 +195,9 @@ The contract everything else depends on. Done before porting any skill.
 Port in dependency order. Each follows the Per-skill checklist.
 - [x] `harness:recon` — ported + genericized (kino monorepo paths → HARNESS.md bindings); writes
       verdicts to proposal.md + evidence to the change-state dir. Symlinked into both beds.
-- [x] `harness:architecture` — ported telegraphic + genericized (kino paths → HARNESS.md bindings,
-      recon markers → `harness:recon`, context via HARNESS.md › Context docs). Includes the 15-lens
-      reference (`references/architecture-lenses.md`, telegraphic, all criteria kept).
+- [x] `harness:architecture` — ported + genericized (kino paths → HARNESS.md bindings, recon markers →
+      `harness:recon`, context via HARNESS.md › Context docs). Skill body telegraphic; the 15-lens
+      reference + the second-order-thinking examples kept **full** (judgment criteria — see style rule).
 - [ ] `harness:design`
 - [ ] **`harness:build`** — the workhorse. Assemble from `specd-new` (authoring) + `specd-apply`
       (impl). Must include: start-state auto-detect (`openspec list --json`, >1 open → ask),

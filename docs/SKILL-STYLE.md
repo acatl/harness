@@ -16,9 +16,18 @@ Skills are read by a machine, not a human. Optimize the **body** for an LLM exec
   - a foot-gun with no positive-form home.
 
 ## Scope of the rule
-- Applies to the **SKILL.md body** (and references/).
+- Applies to **procedural SKILL.md bodies** — steps, modes, taxonomies, templates, flow. These
+  compress safely (imperative/structured; telegraphic loses nothing).
 - **Frontmatter `description` stays natural-language and trigger-rich** — the router reads it to
   decide activation; keyword/trigger coverage matters more than brevity there. Do not telegraph it.
+
+## Do NOT compress (completeness > brevity — compressing risks value)
+- **Judgment-criteria references** (review *lenses*, rubrics): the prose carries the *why* and the
+  *how-to-recognize* a model uses for borderline calls. Genericize, but keep them full.
+- **Calibration / worked examples** that teach *how to judge* (e.g. second-order-thinking examples):
+  the explanation IS the value; a bare bullet list drops it.
+- Rule: if a passage teaches *judgment* rather than *procedure*, preserve it. When unsure whether
+  compressing a passage loses value, **don't** — leave it fuller.
 
 ## Tooling
 - `compress-skill` (installed) does a behavior-preserving compression with oracle falsification — use

@@ -109,12 +109,35 @@ Then output (mandatory, self-verifying):
 Apply only relevant lenses. At a fork with compounding consequences, annotate the finding `→ Downstream:` inline.
 
 ## Step 5 — Second-order thinking (inline, selective)
-Add downstream consequence inline when a finding sits at a decision point. Apply to: validation at the
-wrong boundary (service-layer validation bypassed by internal callers); sync op on a hot path that
-belongs in a queue; shared mutable state without ownership; schema choice that constrains future
-features; a new pattern that will be replicated; missing operational handles (monitor/retry/cancel).
-**Don't** apply to routine "just add it" findings (missing index, standard validation gap, routine
-logging) — dilutes signal.
+The most valuable thing this review adds beyond a checklist. Apply it **during** the lens review, not
+as a separate pass: when a finding sits at a decision point (a technical choice the spec makes, or
+fails to make, that shapes future behavior), add the downstream consequence inline. Apply it when you see:
+
+- **Validation at the wrong boundary.** Validation in the service layer instead of at the HTTP
+  boundary is bypassed by any internal caller (a job, an admin script, a test fixture) that calls the
+  service directly. The spec may describe validation without saying where it lives. Misplaced
+  validation silently becomes optional over time as callers that "know what they're doing" skip it.
+- **Synchronous operations on hot paths that belong in a queue.** Sending an email, resizing an image,
+  calling an external API inside a sync request handler works at low volume; at scale it's the
+  bottleneck and a timeout source. Retrofitting async later is far costlier than speccing it now
+  (queue infra, idempotency, response-contract rethink).
+- **Shared mutable state without ownership.** A counter/aggregate/denormalized field multiple
+  services or processes can write to without coordination is a race that's rare at low traffic and
+  consistent at scale. The spec may not even acknowledge the field is shared.
+- **Schema choices that become constraints on future features.** A column type, NULL policy, or
+  normalization choice constrains every future feature touching this data. Integer that should be
+  decimal, boolean that needs to be an enum, inconsistent soft-delete — cheap at spec time, expensive
+  after data exists.
+- **New patterns introduced here that will be replicated.** A new error-handling approach, response
+  shape, or service structure — if it's wrong or inconsistent in the spec, it gets copied when the
+  next similar thing is built. The cost is the accumulated inconsistency, not this instance.
+- **Missing operational handles.** A new background job with no way to monitor, retry, or cancel it
+  is an operational blindspot; a new status with no admin way to change it is a support escalation.
+  Engineering gaps that generate operational toil.
+
+**Don't** apply second-order thinking to obvious missing indexes, standard input-validation gaps, or
+routine logging omissions — those are just "add it" findings, and downstream analysis on routine items
+dilutes the signal.
 
 ## Step 6 — Surface forks before the report
 Check for TRADEOFF / UNCLEAR / RISK:
