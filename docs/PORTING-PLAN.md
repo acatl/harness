@@ -317,6 +317,19 @@ From one-shot's first `harness:init` run:
   defer to plugin packaging.
 - **C — fixed.** init now seeds `openspec/config.yaml` `context:` from the project's context docs so spec
   generation isn't blind (`config_context_bytes>0`).
+- **D — fixed.** init redesigned so it never fabricates load-bearing project knowledge:
+  - **(a)** Hard-gates on the **OpenSpec CLI** (`command -v openspec`) — missing → stop, ask, wait,
+    re-check; never proceed without it. Scaffolds `openspec/` via `openspec init --tools claude` when the
+    dir is absent.
+  - **(b)** **GENERATES** `QUALITY_SCORE.md` from a canonical, stack-agnostic rubric template (categories
+    match the run-log schema) — a real, ready file, not a stub.
+  - **(c)** **TEMPLATES + HARD-STOPS** on `ARCHITECTURE` / `PRODUCT` / `RELIABILITY` / `SECURITY`: drops an
+    author-required template (never invents content) and stops the pass until the operator authors each.
+    Two-phase resume via the `<!-- HARNESS TEMPLATE` marker — a doc is authored once the marker line is
+    removed; on re-run, all four authored → proceed to HARNESS.md + openspec scaffold + config seed.
+  - The bundled-templates dependency (`templates/context-docs/`) **reinforces the deferred
+    distribution/plugin-packaging item** (finding B): these templates must travel with the skill, so plugin
+    packaging should bundle `templates/` into the init skill's references.
 
 ## Risks
 
