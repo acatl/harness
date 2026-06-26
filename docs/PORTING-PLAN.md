@@ -16,10 +16,12 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 3 — porting spec pipeline. `harness:recon` + `harness:architecture` **ported** (telegraphic),
-  symlinked into both beds. All skills now follow [docs/SKILL-STYLE.md](SKILL-STYLE.md).
-- **Next action:** Port `harness:design` (mirrors architecture: skill + design-lenses reference), then
-  the `harness:build` workhorse.
+- **Phase:** 3 — porting spec pipeline. `harness:recon` + `harness:architecture` + `harness:design`
+  **ported**, symlinked into both beds. Style: procedure telegraphic, judgment criteria (lenses,
+  second-order, calibration) kept full per [docs/SKILL-STYLE.md](SKILL-STYLE.md).
+- **Next action:** Port **`harness:build`** — the workhorse (assembles authoring + impl; auto-detect
+  start state, gated/yolo, recon-wired, own progress file, openspec-verify, behavioral-verify, STOP
+  at verified-not-shipped). Largest port; approach carefully.
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -198,7 +200,9 @@ Port in dependency order. Each follows the Per-skill checklist.
 - [x] `harness:architecture` — ported + genericized (kino paths → HARNESS.md bindings, recon markers →
       `harness:recon`, context via HARNESS.md › Context docs). Skill body telegraphic; the 15-lens
       reference + the second-order-thinking examples kept **full** (judgment criteria — see style rule).
-- [ ] `harness:design`
+- [x] `harness:design` — ported + genericized (kino brand/`@kino/ui`/`.impeccable.md`/`KINO-` →
+      design-references bindings + generic phrasing; `specd:`→`harness:`). Skill procedure telegraphic;
+      the 11-lens reference + second-order + calibration kept **full** (judgment criteria).
 - [ ] **`harness:build`** — the workhorse. Assemble from `specd-new` (authoring) + `specd-apply`
       (impl). Must include: start-state auto-detect (`openspec list --json`, >1 open → ask),
       gated/yolo mode, recon wired after proposal, own progress/resume file, vendor
