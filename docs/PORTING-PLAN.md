@@ -16,10 +16,9 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 4 — `harness:ship` + `harness:refine` ported, symlinked into both beds.
-- **Next action:** finish Phase 4 — `harness:explore`, `harness:fine-tune`,
-  `harness:address-pr-comments`, and the MermaidLens `run` as the Swift backend of the behavioral-verify
-  binding. (8/9 named skills done; explore/fine-tune/address-pr-comments remain.)
+- **Phase:** 4 — `ship` + `refine` + `explore` + `fine-tune` ported, symlinked into both beds.
+- **Next action:** finish Phase 4 — `harness:address-pr-comments` (large), `harness:review` (run-log
+  aggregator), and the MermaidLens `run` as the Swift backend of the behavioral-verify binding.
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -215,10 +214,10 @@ Port in dependency order. Each follows the Per-skill checklist.
 - [x] `harness:refine` — ported kino logic (richest: verdict taxonomy, completeness + expansion passes,
       quality pass) + genericized (tracker ops, context docs, ids; richer-than-5-verb tracker ops noted).
       Judgment kept full per style rule.
-- [ ] `harness:explore` — extract OpenSpec Explore + add digestible output (built-in
-      walk-me-through). Keep native available.
-- [ ] `harness:fine-tune` — port from `~/.claude/skills/fine-tune`; bind test step to HARNESS.md
-      sensors; hand off to `harness:ship`.
+- [x] `harness:explore` — extracted OpenSpec Explore + digestible one-thread output (built-in
+      walk-me-through); optional reuse-preview; native `/opsx:explore` kept available.
+- [x] `harness:fine-tune` — ported from `~/.claude/skills/fine-tune`; test step → HARNESS.md sensors;
+      sticky-mode (re-anchor, nested-skill resume, explicit-exit, marker file); hands off to `harness:ship`.
 - [x] `harness:ship` — push + open PR; deliberate post-test step. Genericized onto HARNESS.md (format
       sensor, conventions, version source, pre-push gate, tracker `link` verb + PR-open hook).
 - [ ] `harness:address-pr-comments`
