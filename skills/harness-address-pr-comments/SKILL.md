@@ -25,6 +25,11 @@ from current branch; else list open PRs and ask.
 > Verify commands resolve from **HARNESS.md › Sensors** (fallback: dynamic derivation in Phase 3a).
 > Project standards = the rules dir + context docs (HARNESS.md). Conventions (branch/commit) per HARNESS.md.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:address-pr-comments v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:address-pr-comments → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 Act as a Principal Engineer. Every valid finding gets fixed, every invalid finding refuted, every
 direction-affecting ambiguity surfaces to the operator. **Default bias: correctness, not scope.**
 

@@ -19,6 +19,11 @@ harness improvements**. The log matters only because this reads it — a log nob
 > **Bindings.** Run-log path + schema from `docs/HARNESS.md › Observability` (schema:
 > `templates/harness-runs.SCHEMA.md`). Reality backfill via the PR host + task tracker (HARNESS.md).
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:review v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:review → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 **This skill proposes; it does not auto-apply.** Skill/config edits change how every future run behaves —
 surface them for human approval.
 

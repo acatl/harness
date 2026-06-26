@@ -23,6 +23,11 @@ the feature PR.
 > **Bindings.** Resolve from `docs/HARNESS.md`: change-state dir, task-tracker verbs (`done`) +
 > `merged` stage hook, **Finish › merge mode** (`single-merge` | `two-merge`), run-log path, PR host.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:finish v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:finish → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 The done-move is **operator-gated by design** — review comments can still land after sync, so the
 operator decides whether the task is actually done. Sync + archive proceed without a confirm
 (invocation is consent to finalize); only the task close asks.

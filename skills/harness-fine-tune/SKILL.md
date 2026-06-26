@@ -20,6 +20,11 @@ Lightweight session state machine for iterative polishing after a change is impl
 > **Bindings.** Test step uses the `format`/`lint`/`test`/`typecheck` **sensors** (HARNESS.md ›
 > Sensors). Doc-sync targets the change-state dir. Push + PR = `harness:ship`.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:fine-tune v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:fine-tune → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 ## Sticky mode (load-bearing)
 Fine-tune is a **persistent mode** — like OpenSpec Explore's "you must exit first." It does NOT
 silently end:

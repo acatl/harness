@@ -14,6 +14,11 @@ description: >
 Inverse of every other harness skill: they *read* `docs/HARNESS.md`; this *writes* it. Until it
 exists + is correct, the rest of the pipeline is inert.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:init v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:init → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 > **Inputs (bundled):** `templates/HARNESS.md` (schema to fill), `templates/harness-runs.SCHEMA.md`
 > (run-log contract). Behavioral-verify model: `docs/runtime-verification-binding.md`. Read before generating.
 

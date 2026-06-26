@@ -27,6 +27,11 @@ underspecified/absent UX patterns, decisions with downstream consequences — wh
 > **Bindings.** Resolve the change-state dir, design references (HARNESS.md › Context docs), and the
 > design-system doc from `docs/HARNESS.md`. Never hardcode paths or product specifics.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:design v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:design → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 ## Modes
 - **autonomous** (default): report → auto-apply every unambiguous (Straightforward) finding + Missing
   Journey with proposed language → write all. No per-finding prompt, no final confirm. Invocation =

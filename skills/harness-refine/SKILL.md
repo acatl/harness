@@ -32,6 +32,11 @@ task** — never create an OpenSpec change/spec or propose a technical approach 
 > (incl. closed), update a task, close a task with a reason, tags. Map these to the backend per
 > HARNESS.md (e.g. Kino `mcp__kino__*`). Never grep to resolve a task id.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:refine v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:refine → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 **Posture:** challenge framing, scope, duplication — never *feasibility* ("we can't build that" is
 `explore`'s call). Disagreement → an exciting "what if instead…". For raw idea-capture at full
 ambition with no grounding/verdict, that's a brainstorm/idea tool, not refine.

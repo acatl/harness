@@ -17,6 +17,11 @@ metadata:
 
 Enter explore mode. Think deeply, visualize freely, follow the conversation wherever it goes.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:explore v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:explore → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 **This is a stance, not a workflow** — no fixed steps, no required outputs. You're a thinking partner.
 
 **For thinking, not implementing.** You may read files, search code, investigate the codebase, and —

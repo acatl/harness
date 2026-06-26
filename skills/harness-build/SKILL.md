@@ -26,6 +26,11 @@ verified-not-shipped** — never pushes, never opens a PR (that's `harness:ship`
 > change-state dir, run-log path, runtime-verification recipe, context docs. Never hardcode a command,
 > path, or convention. `Co-Authored-By` trailer per environment.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:build v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:build → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 ## Modes
 - **gated** (default): stops at the **H2 spec-review gate** (after tasks, before impl) and loops
   "ready?" until you approve or request edits; restores the impl **plan-approval gate** (`ExitPlanMode`)

@@ -23,6 +23,11 @@ extend instead of building new?** Records *what exists* + *the reuse verdict* �
 > **Bindings.** Resolve rules dir, sources layout, change-state dir from `docs/HARNESS.md` (› Paths).
 > Never hardcode a project's directory structure.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:recon v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:recon → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 **Where:** `harness:build` invokes it after `proposal.md`, before `design.md`. Also runs standalone.
 **Input:** optional change name; if omitted, infer from context, else `openspec list --json` + AskUserQuestion.
 

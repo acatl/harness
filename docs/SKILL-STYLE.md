@@ -29,6 +29,15 @@ Skills are read by a machine, not a human. Optimize the **body** for an LLM exec
 - Rule: if a passage teaches *judgment* rather than *procedure*, preserve it. When unsure whether
   compressing a passage loses value, **don't** — leave it fuller.
 
+## Breadcrumbs
+Every skill body emits a start line `▶ harness:<name> v<hash8> …` and an end line
+`■ harness:<name> → <outcome>`. These land in the Claude Code session transcript so harness iteration
+can grep it to locate every skill run, attribute it to a skill content-version, and read its outcome.
+- The `## Breadcrumbs` block is **self-contained in each SKILL.md** — skills travel as standalone dirs
+  and cannot reference repo docs at runtime.
+- `<hash8>` = first 8 chars of `git hash-object` of the skill's own SKILL.md — its content version, so
+  transcript friction can be attributed to a specific skill version.
+
 ## Tooling
 - `compress-skill` (installed) does a behavior-preserving compression with oracle falsification — use
   it for a rigorous pass on an existing verbose skill. New skills: author telegraphic from the start.

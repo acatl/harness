@@ -21,6 +21,11 @@ silently**. This skill exists so that never happens.
 > **Bindings.** Resolve from `docs/HARNESS.md`: format sensor, branch/commit conventions, version
 > source, pre-push gate, task-tracker `link` verb + `PR open` stage hook, PR host. Never hardcode.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:ship v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:ship → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 ## Contract (load-bearing)
 - **No direct commits to the default branch.** Branch → PR → squash-merge.
 - **Conventional Commits** on every commit subject **and** the PR squash title (the release tool

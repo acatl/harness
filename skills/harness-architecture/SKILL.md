@@ -27,6 +27,11 @@ redesign.** Opinionated, practical.
 > **Bindings.** Resolve the change-state dir, context docs (ARCHITECTURE / RELIABILITY / SECURITY),
 > and rules dir from `docs/HARNESS.md`. Never hardcode paths.
 
+## Breadcrumbs
+Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
+- **start:** `▶ harness:architecture v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **end:** `■ harness:architecture → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+
 ## Modes
 - **autonomous** (default): report → auto-apply every unambiguous (Straightforward) finding + Missing
   Technical Concern with its proposed language → write all. No per-finding prompt, no final confirm.
