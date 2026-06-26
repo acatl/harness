@@ -16,11 +16,10 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 3 — **complete.** `recon` + `architecture` + `design` + `build` + `finish` ported, all
-  symlinked into both beds.
-- **Next action:** Phase 4 — port `harness:refine`, `harness:explore`, `harness:fine-tune`,
-  `harness:ship`, `harness:address-pr-comments`, and the MermaidLens `run` as the Swift backend of the
-  behavioral-verify binding.
+- **Phase:** 4 — `harness:ship` + `harness:refine` ported, symlinked into both beds.
+- **Next action:** finish Phase 4 — `harness:explore`, `harness:fine-tune`,
+  `harness:address-pr-comments`, and the MermaidLens `run` as the Swift backend of the behavioral-verify
+  binding. (8/9 named skills done; explore/fine-tune/address-pr-comments remain.)
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -213,12 +212,15 @@ Port in dependency order. Each follows the Per-skill checklist.
       modes (HARNESS.md), run-log `[E]` backfill, chore-PR via `harness:ship` for two-merge.
 
 ### Phase 4 — Surrounding skills
-- [ ] `harness:refine`
+- [x] `harness:refine` — ported kino logic (richest: verdict taxonomy, completeness + expansion passes,
+      quality pass) + genericized (tracker ops, context docs, ids; richer-than-5-verb tracker ops noted).
+      Judgment kept full per style rule.
 - [ ] `harness:explore` — extract OpenSpec Explore + add digestible output (built-in
       walk-me-through). Keep native available.
 - [ ] `harness:fine-tune` — port from `~/.claude/skills/fine-tune`; bind test step to HARNESS.md
       sensors; hand off to `harness:ship`.
-- [ ] `harness:ship` — push + open PR; deliberate post-test step.
+- [x] `harness:ship` — push + open PR; deliberate post-test step. Genericized onto HARNESS.md (format
+      sensor, conventions, version source, pre-push gate, tracker `link` verb + PR-open hook).
 - [ ] `harness:address-pr-comments`
 - [ ] `harness:review` — aggregate the run-log, backfill `[E]` fields, propose harness edits
       (data-backed only, never auto-apply). Verify `build` writes rows the schema expects.
