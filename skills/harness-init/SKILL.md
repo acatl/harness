@@ -32,17 +32,20 @@ Never block on optional capabilities.
 `docs/HARNESS.md` exists → read it; this run = gap-fill + update. Keep set bindings; propose only for
 missing/placeholder rows. Never overwrite a set binding without confirming.
 
-**Two-phase resume — either gate can stop a pass. Both must clear to proceed:**
+**Multi-gate resume — any one gate stops a pass; all must clear before init writes `docs/HARNESS.md` + seeds config:**
+- **OpenSpec preconditions (Step 1):** CLI not installed, OR `openspec/` not initialized (operator runs `openspec init` themselves — init never scaffolds it) → STOP, ask, wait, re-run.
 - **Baseline-sensor gate (Step 2a):** any essential sensor (build/test/lint/type-check) missing → STOP, list the missing essentials, operator sets up the tooling (init does NOT install it), re-run.
 - **Author-required context docs (Step 5 gate):**
-  - **Pass 1** — generate `QUALITY_SCORE.md` (canonical rubric) + drop templates for any unauthored gated docs (ARCHITECTURE / PRODUCT / RELIABILITY / SECURITY), then **STOP**: do NOT write `docs/HARNESS.md`, scaffold openspec, or seed `openspec/config.yaml` in a stopped pass. Print the files needing authorship + paths.
-  - **Pass 2 (re-run after the operator authors them)** — a doc is authored when it exists and the `<!-- HARNESS TEMPLATE` marker line is gone. All four authored → proceed to HARNESS.md + openspec scaffold + config seed.
+  - **Pass 1** — generate `QUALITY_SCORE.md` (canonical rubric) + drop templates for any unauthored gated docs (ARCHITECTURE / PRODUCT / RELIABILITY / SECURITY), then **STOP**: do NOT write `docs/HARNESS.md` or seed `openspec/config.yaml` in a stopped pass. Print the files needing authorship + paths.
+  - **Pass 2 (re-run after the operator authors them)** — a doc is authored when it exists and the `<!-- HARNESS TEMPLATE` marker line is gone. All four authored (and OpenSpec + sensor gates clear) → proceed to HARNESS.md + config seed.
 
 ### 1. Scan (detect — don't ask yet), parallel where possible
 - **Stack:** `Package.swift`→Swift · `package.json`(+`nx.json`/`turbo.json`/workspaces)→Node · `Cargo.toml`→Rust · `go.mod`→Go · `pyproject.toml`/`setup.py`→Python · else ask.
 - **Sensors:** infer format/lint/test/build from configs + scripts (`.swiftlint.yml`, `.swift-format`, eslint/biome, `package.json` scripts, `Makefile`, `justfile`, CI).
 - **Paths:** sources dir, tests dir, rules dir, existing run/launch script (`run.sh`, `dev`).
-- **OpenSpec (hard dependency):** `command -v openspec`. **Missing → STOP:** tell the operator OpenSpec must be installed (hard dep), **wait** for them to confirm it's installed, then re-check. Never proceed without the CLI. Present but `openspec/` dir absent → scaffold in Step 5 via `openspec init --tools claude`.
+- **OpenSpec — two hard preconditions, init never sets either up:**
+  - **CLI installed:** `command -v openspec`. Missing → **STOP:** tell the operator to install OpenSpec (hard dep), **wait** for confirmation, re-check.
+  - **Initialized in the project:** `openspec/` present (with `openspec/config.yaml`). Absent / no trace → **STOP:** tell the operator to initialize it themselves — `openspec init` (vendor CLI) — then re-run `/harness:init`. **init does NOT run `openspec init` or scaffold `openspec/` itself.**
 - **PR host:** `git remote -v` (GitHub via `gh`) — needed by ship/finish + run-log backfill.
 - **Task tracker:** look for hints (available `mcp__*`, Jira/Linear config) — expect to ask.
 - **Optional capabilities:** session-chapter tool, behavioral driver (computer-use / chrome MCP) — note availability.
@@ -81,7 +84,7 @@ Any ⛔ → **STOP this pass:** list the missing essentials + why each matters; 
 
 ### 4. Write `docs/HARNESS.md`
 Fill template with confirmed + answered values; delete N/A rows; **keep section headings**. Preserve
-pre-existing bindings. CLI confirmed in Step 1; `openspec/` dir absent → write the section noting it'll be scaffolded in Step 5 (`openspec init --tools claude`).
+pre-existing bindings. OpenSpec CLI + `openspec/` init are Step-1 preconditions (both operator-provided) — by here they're satisfied; write the section against the initialized `openspec/`.
 - **Never write absolute machine paths** (e.g. `/Users/.../harness-pipeline/...`) into the generated
   HARNESS.md — reference the harness pipeline's own docs (the runtime-verification binding contract, the
   run-log schema) generically. The consuming HARNESS.md must be self-contained + portable across
@@ -92,16 +95,9 @@ pre-existing bindings. CLI confirmed in Step 1; `openspec/` dir absent → write
 - **Context docs — tiered. Two tiers; never fabricate load-bearing project knowledge.**
   - **quality-score (init GENERATES — canonical):** quality-score role has no confirmed candidate → write `docs/QUALITY_SCORE.md` in full from the bundled canonical rubric template (`templates/context-docs/QUALITY_SCORE.md`). Real, ready file — categories (correctness / convention / simplification / efficiency / altitude) MUST match the run-log schema. Operator may add project-specific examples later. Not a stop.
   - **Author-required roles (init TEMPLATES + HARD-STOPS — never fabricated):** architecture · product charter · reliability · security. A role is **satisfied** when its confirmed file exists and is authored; **unauthored** when it has no real candidate OR the confirmed file still contains the line `<!-- HARNESS TEMPLATE` (the template marker). For each unauthored role, copy its bundled template (`templates/context-docs/<NAME>.md`) to the confirmed path (or the conventional path when the role had no candidate — e.g. the confirmed architecture doc wherever it lives, defaulting to `docs/ARCHITECTURE.md` when none exists). Never invent their content — they are load-bearing project knowledge (architecture/design reviews + refine's scope-guard ground on them; a fabricated one makes reviews confidently wrong).
-  - **Hard gate + resume:** ANY of the four author-required roles unauthored after templating → **STOP this pass.** Print the list of files needing authorship + their confirmed paths; tell the operator: author them (remove the `<!-- HARNESS TEMPLATE` marker line when done), then **re-run `/harness:init`** to continue. Do NOT write `docs/HARNESS.md`, seed `openspec/config.yaml`, or scaffold openspec in a stopped pass. On re-run, a role is satisfied when its confirmed file exists and the marker line is gone; all four authored → proceed.
+  - **Hard gate + resume:** ANY of the four author-required roles unauthored after templating → **STOP this pass.** Print the list of files needing authorship + their confirmed paths; tell the operator: author them (remove the `<!-- HARNESS TEMPLATE` marker line when done), then **re-run `/harness:init`** to continue. Do NOT write `docs/HARNESS.md` or seed `openspec/config.yaml` in a stopped pass. On re-run, a role is satisfied when its confirmed file exists and the marker line is gone; all four authored → proceed.
   - Record all confirmed role→file paths in HARNESS.md › Context docs. Never overwrite an authored doc — link it.
-- **Scaffold OpenSpec (after the gate).** Reached only once the CLI is confirmed (Step 1) and all four author-required docs are authored. `openspec/` absent → run `openspec init --tools claude` (announce it first), then seed config (next bullet).
-- **Seed the OpenSpec feedforward.** `openspec/config.yaml` `context:` empty → author it from the Context
-  docs: distill the product charter/north-star + what-it-is / is-NOT (non-goals) + tech constraints + key
-  runtime invariants into the `context:` block, and add per-artifact `rules:` (proposal: enforce
-  non-goals/scope guard; design: dependency + architecture invariants, no speculative abstractions; tasks:
-  the final task is the sensor gate from HARNESS.md, pure-logic changes ship with tests, non-unit-tested
-  surfaces get a runtime-verify task). Schema stays `spec-driven`. Else spec generation is blind
-  (`config_context_bytes=0`).
+- **Seed the OpenSpec feedforward** (only when `openspec/config.yaml` exists — it's a Step-1 precondition). If its `context:` is empty, author it against the standard OpenSpec spec-driven config shape — do NOT probe the CLI for a schema: `schema: spec-driven`; `context: |` a block distilled from the confirmed context docs (north-star + IS/IS-NOT + tech constraints + key invariants + task-tracker note); `rules:` per artifact (proposal: enforce non-goals/scope guard; design: dependency + architecture invariants, no speculative abstractions; tasks: final task is the HARNESS.md sensor gate, pure-logic ships with tests, non-unit-tested surfaces get a runtime-verify task). Preserve any non-`context` keys already present.
 - Git-ignore the run-log path, app runtime-log path, build progress dir (append to `.gitignore`).
 - Optional pre-push gate stub if wanted.
 
@@ -117,4 +113,5 @@ tracker). Point to the next skill (`harness:refine` or `harness:build`).
 - Don't write absolute machine paths into the generated HARNESS.md — pipeline doc refs stay generic; the consuming file must be self-contained + portable.
 - Don't modify source — only `docs/HARNESS.md`, context-doc stubs, and (with confirmation) `.gitignore` / a hook stub.
 - Never auto-install or configure tooling — assess + warn/stop only; setup is the operator's job.
+- **init gates, it never sets up.** Never run `openspec init` / scaffold `openspec/`, never install the CLI, never install/configure sensors, never author context docs. Each missing precondition (OpenSpec CLI, OpenSpec init, essential sensors, author-required docs) → halt + ask + wait + resume on re-run. Never probe the CLI to discover a config schema — author config against the known spec-driven shape.
 - Don't treat a missing optional capability as an error — note + continue.

@@ -319,14 +319,14 @@ From one-shot's first `harness:init` run:
   generation isn't blind (`config_context_bytes>0`).
 - **D — fixed.** init redesigned so it never fabricates load-bearing project knowledge:
   - **(a)** Hard-gates on the **OpenSpec CLI** (`command -v openspec`) — missing → stop, ask, wait,
-    re-check; never proceed without it. Scaffolds `openspec/` via `openspec init --tools claude` when the
-    dir is absent.
+    re-check; never proceed without it. (Superseded by finding G: `openspec/` init is now a second hard
+    precondition the operator provides — init no longer scaffolds it.)
   - **(b)** **GENERATES** `QUALITY_SCORE.md` from a canonical, stack-agnostic rubric template (categories
     match the run-log schema) — a real, ready file, not a stub.
   - **(c)** **TEMPLATES + HARD-STOPS** on `ARCHITECTURE` / `PRODUCT` / `RELIABILITY` / `SECURITY`: drops an
     author-required template (never invents content) and stops the pass until the operator authors each.
     Two-phase resume via the `<!-- HARNESS TEMPLATE` marker — a doc is authored once the marker line is
-    removed; on re-run, all four authored → proceed to HARNESS.md + openspec scaffold + config seed.
+    removed; on re-run, all four authored → proceed to HARNESS.md + config seed.
   - The bundled-templates dependency (`templates/context-docs/`) **reinforces the deferred
     distribution/plugin-packaging item** (finding B): these templates must travel with the skill, so plugin
     packaging should bundle `templates/` into the init skill's references.
@@ -342,6 +342,13 @@ From one-shot's first `harness:init` run:
   candidates per role, and **confirms the role→file mapping with the operator** (one consolidated
   confirmation, NEEDS-DECISION on 0/>1/decoy-only) before gating or templating. Fixes the root-only
   `ARCHITECTURE.md` assumption that misfired on one-shot, where docs live in `docs/`.
+- **G — fixed.** init no longer auto-scaffolds OpenSpec. "OpenSpec not initialized" is now a **hard-stop
+  precondition** (operator runs `openspec init` themselves, then re-runs `/harness:init`), matching the
+  CLI / context-docs / sensor gates — init gates, it never sets up. OpenSpec is now split into two Step-1
+  hard preconditions (CLI installed; project initialized), both halt+ask+wait. The config-seed step now
+  runs only on an operator-initialized `openspec/config.yaml` and authors `context:` against the **known
+  spec-driven shape** — no CLI schema-probing. Surfaced when init scaffolded `openspec/` on one-shot's
+  first real init instead of halting.
 
 ## Risks
 
