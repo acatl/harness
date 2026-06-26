@@ -16,11 +16,11 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 3 — `harness:recon` + `architecture` + `design` + **`build`** ported (build assembled
-  from the verified [build-source-map.md](build-source-map.md) — SKILL.md + 5 references). All
-  symlinked into both beds. Only `harness:finish` remains in Phase 3.
-- **Next action:** Port `harness:finish` (sync-specs + archive; confirmable merge-gate; single/two-merge;
-  backfill run-log `[E]` fields). Then Phase 4 (refine, explore, fine-tune, ship, address-pr-comments).
+- **Phase:** 3 — **complete.** `recon` + `architecture` + `design` + `build` + `finish` ported, all
+  symlinked into both beds.
+- **Next action:** Phase 4 — port `harness:refine`, `harness:explore`, `harness:fine-tune`,
+  `harness:ship`, `harness:address-pr-comments`, and the MermaidLens `run` as the Swift backend of the
+  behavioral-verify binding.
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -208,7 +208,9 @@ Port in dependency order. Each follows the Per-skill checklist.
       own progress file, sensors + behavioral-verify + openspec-verify + skeptical review, **STOP at
       verified-not-shipped**, run-log append. Reviews-mode reconciliation: reviews run autonomous;
       build mode controls H2 + impl gates only (recorded in build-source-map §F/§G).
-- [ ] `harness:finish`
+- [x] `harness:finish` — ported + genericized (Kino `confirmDone` → tracker `done` verb + `merged`
+      hook; `/opsx:sync`+`/opsx:archive` vendor). Added: confirmable merge-gate, single/two-merge
+      modes (HARNESS.md), run-log `[E]` backfill, chore-PR via `harness:ship` for two-merge.
 
 ### Phase 4 — Surrounding skills
 - [ ] `harness:refine`
