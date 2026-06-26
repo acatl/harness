@@ -87,6 +87,29 @@ A `Runtime verification` section the project fills in. The agent reads it, doesn
 - log source: server log; `error` level = failure
 - expected: changed endpoints return expected status/shape
 
+### Swift backend — full mechanism (ported from the `run` skill)
+
+The Swift example's liveness check has load-bearing timing details (learned from a real crash, MERM-2 /
+PR #5 — a debounced off-main write trapped ~500ms after each edit; a green build + clean log missed it):
+
+- **Spawn-marker timing.** Drop the marker the instant the app is spawned — `m=$(mktemp)` **right after
+  `./run.sh` returns** (it launches async and returns at spawn). Place it *after* run.sh's build/sign,
+  never before — else build time folds into the window and a late `.ips` from the *previous* run looks
+  new and false-fails a healthy run.
+- **Settle window.** Check liveness **after exercising the change AND a short settle window** — debounced
+  / async off-main work must have run (the MERM-2 trap fired ~500ms late, so an immediate check misses it).
+- **Two signals.** `pgrep -x <App>` is the fast primary signal (gone = crash, even on green build + clean
+  log); a `<App>-*.ips` newer than the marker corroborates (`.ips` is written asynchronously, a second+
+  after the abort). On macOS use BSD `find … -newer "$m"` (a marker file) — **not** GNU `-newermt "@epoch"`,
+  which BSD `find` won't parse.
+- **Visual is best-effort; liveness + log are not.** The screenshot/drive needs Screen Recording /
+  computer-use access; if ungranted, note the on-screen check was skipped and rely on log + liveness
+  (file/process reads, always available). "No screen recording" downgrades only the visual tier.
+
+This is the Swift instance of the binding — there is no standalone `run` skill; `harness:build`'s Step F
+behavioral-verify invokes the launch recipe declared in HARNESS.md, which for a Swift app is `run.sh` +
+this liveness procedure.
+
 ---
 
 ## 3. Escape hatch for complex topologies (the load-bearing move)

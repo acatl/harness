@@ -16,9 +16,11 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 4 — `ship` + `refine` + `explore` + `fine-tune` ported, symlinked into both beds.
-- **Next action:** finish Phase 4 — `harness:address-pr-comments` (large), `harness:review` (run-log
-  aggregator), and the MermaidLens `run` as the Swift backend of the behavioral-verify binding.
+- **Phase:** 4 — **complete.** All 12 skills ported + symlinked into both beds. `run` folded into the
+  behavioral-verify binding (Swift backend) — no standalone skill.
+- **Next action:** Phase 5 — cross-cutting cleanup: promote the `recon-first` rule into `rules/`,
+  consistency pass (every internal ref uses `harness:`, no leaked product strings), README skill index +
+  pipeline diagram match the shipped 12 skills. Then Phase 6 validation dry-runs.
 - **Last updated:** 2026-06-25
 
 ### Test beds (external sibling repos)
@@ -220,11 +222,14 @@ Port in dependency order. Each follows the Per-skill checklist.
       sticky-mode (re-anchor, nested-skill resume, explicit-exit, marker file); hands off to `harness:ship`.
 - [x] `harness:ship` — push + open PR; deliberate post-test step. Genericized onto HARNESS.md (format
       sensor, conventions, version source, pre-push gate, tracker `link` verb + PR-open hook).
-- [ ] `harness:address-pr-comments`
-- [ ] `harness:review` — aggregate the run-log, backfill `[E]` fields, propose harness edits
-      (data-backed only, never auto-apply). Verify `build` writes rows the schema expects.
-- [ ] Port MermaidLens `run` as the **Swift backend** of the behavioral-verification binding (not a
-      standalone skill).
+- [x] `harness:address-pr-comments` — ported full operational detail (gh commands, jq-safety, throttle,
+      race-check, idempotency), genericized: verify → HARNESS.md sensors, standards → rules dir, trailer →
+      `[harness:address-pr-comments]`, PR host binding.
+- [x] `harness:review` — run-log aggregator; backfill `[E]` from PR host + tracker; propose (never
+      auto-apply) data-backed edits; attribution by `skill_version`.
+- [x] `run` folded into the **behavioral-verify binding** (Swift backend) — full mechanism (spawn-marker
+      timing, settle window, BSD `find`, visual-best-effort) added to runtime-verification-binding.md. No
+      standalone skill.
 
 ### Phase 5 — Cross-cutting + cleanup
 - [ ] `recon-first` rule promoted into the repo's rules.
