@@ -55,9 +55,11 @@ ambition with no grounding/verdict, that's a brainstorm/idea tool, not refine.
 - **Scope = the one task** named/created this invocation. Any other mutation (spike, extra task,
   move/close) needs an explicit yes.
 - **Surface before solving** — charter conflicts, already-built, load-bearing defaults named first.
-- **Forks are pure text** — every operator decision is rendered as a walk-me-through fork card
-  (`references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
-  operator replies by letter. **Never `AskUserQuestion` or any native picker.**
+- **Forks are pure text** — **any** ≥2-option decision put to the operator (clarify, project-resolve,
+  *and* next-step/iterate offers like "commit / tighten / discuss") is rendered as a walk-me-through fork
+  card (`references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
+  operator replies by letter. **Never `AskUserQuestion`, any native picker, or ad-hoc prose `(a)/(b)/(c)`.**
+  The lone exception is the bare draft-approval gate (yes / edit) — a one-line ask, not a fork.
 
 ---
 
@@ -213,7 +215,10 @@ Surface all in one note — widen the thinking, don't bloat the task.
 
 ## 6. Iterate → commit
 - Show the draft, wait for **explicit approval** (directive verb — "yes"/"go ahead"/"do it"; not
-  "ok"/"makes sense"). Edits → step 5.
+  "ok"/"makes sense"). Edits → step 5. This is a **one-line approval gate (yes / edit)**, not a fork —
+  don't dress it up. But the moment you offer **multiple next-step options** (e.g. "commit as-is /
+  tighten the impl note / keep discussing"), that IS a fork → render it as a walk-me-through card, never
+  ad-hoc prose `(a)/(b)/(c)`.
 - Approve → update the task (title + description; + type if it changed).
 - **Brainstorm / Sharpen — non-blocking suggestion (feature/idea only).** After the commit, end with a
   plain one-line suggestion the operator can ignore. **Do not open a fork here** (no card, no question) —

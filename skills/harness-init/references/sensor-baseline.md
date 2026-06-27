@@ -71,8 +71,8 @@ typing config first, then gate.
 | sensor | tier | expected | detect |
 | --- | --- | --- | --- |
 | build | essential | build/package gate | `pyproject.toml` / `setup.py` |
-| test | essential | pytest / unittest | `pytest.ini` / `pyproject.toml` `[tool.pytest]` / `tests/` |
-| lint | essential | ruff / flake8 | `ruff.toml` / `.flake8` / `pyproject.toml` config |
+| test | essential | pytest / unittest | `pytest.ini` / `[tool.pytest.ini_options]` (pytest 6+) or `[tool.pytest]` (pytest 9+) in `pyproject.toml` / `tests/` |
+| lint | essential | ruff / flake8 | `ruff.toml` / `.ruff.toml` / `.flake8` / `[tool.ruff]` in `pyproject.toml` |
 | type-check | essential **if typed** (separate gate); N/A if untyped | mypy / pyright | explicit typing config (`mypy.ini` / `pyrightconfig.json` / `[tool.mypy]` or `[tool.pyright]` in `pyproject.toml`) → gate; bare `pyproject.toml` (packaging/lint only) does **not** count → skip |
 | format | recommended | black / ruff format | `pyproject.toml` `[tool.black]` / ruff config |
 | logging | recommended (warn/ask) | `logging` | no marker — ask |
