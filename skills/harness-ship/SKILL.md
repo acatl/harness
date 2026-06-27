@@ -46,6 +46,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    `Co-Authored-By` trailer if the environment requires one.
 5. **Push** — high-blast-radius. **Confirm with the user before pushing.** The pre-push gate runs the
    project's sensors; if it blocks, fix and retry — never bypass it.
+   - **Exception — invoked as `harness:finish`'s chore-PR step:** the `finish` invocation already
+     consented to this push (the chore PR carries only sync+archive plumbing), so **push without
+     re-confirming**. This waiver applies ONLY to that delegated call — **standalone `ship` always confirms.**
 6. **Open the PR** (PR host per HARNESS.md, e.g. `gh pr create`). The **PR title MUST be a Conventional
    Commit** matching the intended release bump — it's the squash title the release tool reads. Write a
    substantive body (what / why / risk).
@@ -60,4 +63,5 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   deliberate act.
 - **Docs/CI-only → `docs:` / `ci:`** — those intentionally produce no release.
 - **Never hardcode or bump the version by hand** — the release tool owns the version source (HARNESS.md).
-- **Never push without the confirm.**
+- **Never push without the confirm** — except the `harness:finish` chore-PR step, which is pre-authorized
+  by the finish invocation (standalone ship still always confirms).

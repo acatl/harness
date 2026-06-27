@@ -29,8 +29,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 - **end:** `■ harness:finish → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
 The done-move is **operator-gated by design** — review comments can still land after sync, so the
-operator decides whether the task is actually done. Sync + archive proceed without a confirm
-(invocation is consent to finalize); only the task close asks.
+operator decides whether the task is actually done. Everything up to and including **opening the chore PR**
+(sync + archive + commit + the chore-PR push) proceeds without a confirm — invoking `finish` is consent to
+finalize through the open PR. Only the **task close (step 6)** asks. (`finish` never *merges* the PR.)
 
 ## Steps
 
@@ -57,6 +58,9 @@ operator decides whether the task is actually done. Sync + archive proceed witho
      subject) and push — it rides the open PR. **No new PR.**
    - **two-merge:** create a `chore-` branch off the landed base, commit the sync+archive, and open a
      **chore PR** via `harness:ship` (Conventional `chore:` title). This is the second, final merge.
+     **Run straight through to the open PR — no push confirm.** Invoking `finish` is consent to open the
+     chore PR, so the delegated `ship` call pushes without re-asking (it carries only sync+archive
+     plumbing). Report the chore-PR URL when done. (Don't merge it — that's the human's final act.)
 
 6. **Close the linked task (operator-confirmed).** Ask whether to mark the task `done` + clear any
    in-review label. On yes → task-tracker `done` verb + `merged` stage hook (HARNESS.md). On no →

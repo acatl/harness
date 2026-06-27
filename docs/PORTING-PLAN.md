@@ -431,6 +431,15 @@ From one-shot's first `harness:init` run:
   next-step prompt. Fixed: ship gains a step-8 **Next pointer** and address-pr-comments' final report gains
   a **Next pointer** — both tell the operator to run `harness:finish` once merged (two-merge: finish opens
   the chore PR). Surfaced dogfooding the post-PR path on one-shot.
+- **M — changed by operator decision.** `harness:finish` (two-merge) stopped to confirm the chore-PR push —
+  correct per ship's push guard, but it broke finish's "one-command closeout / invocation is consent to
+  finalize" expectation (operator hit it on one-shot). **Operator chose to auto-push the chore PR** (option
+  B over keeping the confirm). Implemented narrowly: finish now runs straight through sync → archive →
+  commit → **open the chore PR** with no push confirm; the delegated `ship` call waives its push-confirm
+  **only** when invoked as finish's chore-PR step (standalone `ship` still always confirms). Task-close
+  (step 6) stays operator-gated; finish still never *merges* the PR. NOTE: this is a deliberate, scoped
+  exception to the global "pushing always confirms" posture — limited to sync+archive plumbing on a new
+  chore branch.
 
 ## Risks
 
