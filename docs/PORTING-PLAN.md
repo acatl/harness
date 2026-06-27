@@ -425,6 +425,12 @@ From one-shot's first `harness:init` run:
     `harness:ship` was **not** in the finding-I rollout — it had zero `AskUserQuestion` at grep time, so it
     was missed — but it clearly *does* fork (in prose). ship needs the walk-me-through format too. Surface
     only; fold into a later fork-format follow-up.
+- **L — fixed.** No skill pointed the operator to `harness:finish` after a PR merged — `harness:ship` ended
+  at the PR-URL report and `harness:address-pr-comments` never mentioned finish, so the pipeline's last
+  handoff (`… → merge → finish`) was silent. Operator merged the first PR of a two-PR phase and got no
+  next-step prompt. Fixed: ship gains a step-8 **Next pointer** and address-pr-comments' final report gains
+  a **Next pointer** — both tell the operator to run `harness:finish` once merged (two-merge: finish opens
+  the chore PR). Surfaced dogfooding the post-PR path on one-shot.
 
 ## Risks
 

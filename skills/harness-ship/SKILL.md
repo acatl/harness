@@ -51,6 +51,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    substantive body (what / why / risk).
 7. **Report** the PR URL. Task tracker: set the `link` verb (`pullRequestUrl` + `branchName`) and fire
    the `PR open` stage hook (HARNESS.md) — **ask before writing to the tracker.**
+8. **Next pointer.** End by telling the operator: once the PR is **merged**, run `harness:finish` to
+   sync delta specs, archive the change, close the task, and backfill the run-log (two-merge mode:
+   `finish` opens the chore PR for the second merge). Closes the pipeline loop — don't leave it implicit.
 
 ## Don't
 - **Don't squash-merge yourself** unless asked — merging the auto-generated release PR is a separate,
