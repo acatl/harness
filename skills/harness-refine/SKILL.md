@@ -156,8 +156,8 @@ Companion states a *whole* feature needs but the operator skipped. Lenses (pick 
 
 Route each: **default Out-of-scope**; promote to AC only when core (feature is broken without it).
 **Never silent:** every routed companion — folded into AC OR captured as out-of-scope — is listed in the
-**Added for completeness** callout so the operator sees exactly what refine added and can veto it.
-Judgment calls additionally → the *Also worth considering* note.
+**➕ Added for completeness** callout, keyed `C1, C2, …`, so the operator sees exactly what refine added and
+can veto it **by key**. Judgment calls additionally → the **💡 Ideas** section.
 
 ### Expansion pass *(feature shape)* — thinking partner
 "What could this *also be* that the operator didn't picture?" **Generate freely, route conservatively.**
@@ -168,13 +168,14 @@ Propose the **2–4 strongest**, never a dump. Lenses:
 - **Adjacent capabilities** — filter, sort, search-within, group, export, deep-link to a state.
 - **Scale / power paths** — bulk action, presets, a settable default.
 
-Route (render the literal tag verbatim; route names are internal):
-- ***propose-AC*** — *rare*; only if core.
-- ***propose-out*** — *common*; captured as an explicit non-goal, not built.
-- ***propose-spin-off*** — really a separate feature; offer it (needs yes), don't auto-create.
+Route each idea by its recommended disposition — render as an icon, never jargon:
+- **⭐ pull in as a requirement** — *rare*; only if core.
+- **🛑 keep as a non-goal** — *common*; an explicit non-goal, not built.
+- **📋 spin off as its own task** — really a separate feature; needs a yes (a *different* ticket), never auto-create.
 
-These three are the only tags in *Also worth considering* (completeness judgment calls use them too).
-Surface all in one note — widen the thinking, don't bloat the task.
+These three dispositions are the only ones in the **💡 Ideas** section (completeness judgment calls use them
+too). Surface all in one section, keyed `I1, I2, …`, lead each with its icon — widen the thinking, don't
+bloat the task.
 
 ### Draft (feature shape)
 ```markdown
@@ -192,14 +193,19 @@ Surface all in one note — widen the thinking, don't bloat the task.
 **Out-of-scope:**
 - <adjacent/confusable features + unpromoted completeness cases>
 
-**Added for completeness:** *(companions refine folded in that you did NOT state — review / veto each)*
-- <companion> → AC | Out-of-scope
-<!-- list EVERY completeness promotion (to AC and to out-of-scope); omit the whole section only if none were added -->
+**➕ Added for completeness** *(auto-folded in — veto any by key):*
+- C1  <companion>  → AC
+- C2  <companion>  → Out-of-scope
+<!-- key every promotion C1,C2,…; list ALL (to AC and to out-of-scope); omit the section only if none were added -->
 
 **Why:** *(only if it adds signal beyond the story)*
 
-**Also worth considering:** *(only if judgment calls surfaced; feature shape only)*
-- <case or expansion idea> — *propose-AC* | *propose-out* | *propose-spin-off*
+**💡 Ideas** *(optional extras; feature shape only — omit if none. icon = recommended disposition):*
+*⭐ pull in as a requirement · 🛑 keep as a non-goal · 📋 spin off as its own task*
+- ⭐ I1  <idea>
+- 🛑 I2  <idea>
+- 📋 I3  <idea>
+<!-- key every idea I1,I2,…; lead with the disposition icon; order ⭐ then 🛑 then 📋 -->
 
 **Impl note:** *(only for a load-bearing default — named for visibility, not a requirement)*
 - <choice + why>
@@ -214,13 +220,17 @@ Surface all in one note — widen the thinking, don't bloat the task.
 - Flag an innocent-but-expensive criterion (one line, only if real) so OpenSpec sizes it early.
 
 ## 6. Iterate → commit
-- Show the draft, wait for **explicit approval** (directive verb — "yes"/"go ahead"/"do it"; not
-  "ok"/"makes sense"). Edits → step 5. This is a **one-line approval gate (yes / edit)**, not a fork —
-  don't dress it up. But the moment you offer **multiple next-step options** (e.g. "commit as-is /
-  tighten the impl note / keep discussing"), that IS a fork → render it as a walk-me-through card, never
-  ad-hoc prose `(a)/(b)/(c)`.
-- Approve → update the task (title + description; + type if it changed). Then emit the **pipeline trail**
-  for the `refine` end stop per `references/pipeline-map.md` (one line).
+- **No 💡 Ideas pending** → bare **one-line approval gate** (yes / edit). Edits → step 5. Not a fork; don't
+  dress it up or fire `AskUserQuestion`.
+- **💡 Ideas present** → the commit is a **fork → walk-me-through card** (`references/walk-me-through.md`):
+  - **A** — commit as drafted (Ideas stay as notes).
+  - **B** — fold the Ideas in, then commit: ⭐ → AC · 🛑 → Out-of-scope · 📋 → **confirm each** (a spin-off
+    is a *different* ticket — never auto-create; per active-ticket autonomy a new ticket always asks).
+  - **escape** — granular by key: e.g. `"B but only I1, I4"` · `"commit, drop C2"` · discuss.
+  Reply by letter (+ optional `I#`/`C#` keys); never `AskUserQuestion` or prose `(a)/(b)/(c)`.
+- Approve → apply the chosen Idea foldings + any keyed completeness vetoes, then update the task (title +
+  description; + type if it changed). Then emit the **pipeline trail** for the `refine` end stop per
+  `references/pipeline-map.md` (one line).
 - **Brainstorm / Sharpen — non-blocking suggestion (feature/idea only).** After the commit, end with a
   plain one-line suggestion the operator can ignore. **Do not open a fork here** (no card, no question) —
   the run ends once the task is persisted. Skip for bug/chore/non-functional.

@@ -492,6 +492,15 @@ From one-shot's first `harness:init` run:
   (step 6) stays operator-gated; finish still never *merges* the PR. NOTE: this is a deliberate, scoped
   exception to the global "pushing always confirms" posture — limited to sync+archive plumbing on a new
   chore branch.
+- **S — refine draft: scannable extras + actionable commit (operator-designed).** The thinking-partner
+  output was wordy and inert: section "Also worth considering", `propose-AC/out/spin-off` jargon, a bare
+  "approve to commit?" the operator couldn't act on granularly. Reworked: **💡 Ideas** section (icon =
+  recommended disposition — **⭐ pull in as a requirement · 🛑 keep as a non-goal · 📋 spin off as its own
+  task**, jargon gone) + one-line legend; sibling auto-fold section is **➕ Added for completeness**. Every
+  item is **keyed** (`I1…` ideas, `C1…` completeness). Step-6 commit becomes a fork-card when Ideas exist:
+  **A** commit as-is · **B** fold Ideas in (⭐→AC, 🛑→out, 📋→confirm each — spin-offs are new tickets,
+  always ask) · **escape** granular by key ("B but only I1, I4" / "drop C2"). Keys make the gate precise;
+  icons make disposition scannable.
 
 ## Risks
 
