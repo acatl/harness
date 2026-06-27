@@ -68,7 +68,8 @@ finalize through the open PR. Only the **task close (step 6)** asks. (`finish` n
 
 7. **Backfill the run-log.** Find this change's run-log row(s) (HARNESS.md › Observability) and fill
    the `[E]` reality fields from the PR host + tracker: `pr_url`, `merged`, `ci_passed`,
-   `review_comments`. Rewrite the line(s) in place, valid JSONL. Throttle bulk PR-host calls per
+   `review_comments`. **Read the run-log file first, then Edit the line(s) in place** (don't Write
+   blind — the editor requires a prior read), keep it valid JSONL. Throttle bulk PR-host calls per
    environment.
 
 8. **Out.** One line: change archived · merge mode · task-close state (or "no linked task") ·
