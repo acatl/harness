@@ -178,12 +178,15 @@ Category (one per finding, slug exact — enables future dedup):
 `separation` · `dependency` · `security` · `reuse-parity`.
 Tiebreaks: missing input validation → `validation-boundary` (even if also security); wrong-layer/framework-coupling → `separation` (even though harms testability); silent rebuild of a `reuse`/`extend` verdict → `reuse-parity` (over `evolvability`).
 
-Report = **summary only** (full detail delivered in the triage loop):
+Report = **summary only** (full detail delivered in the triage loop). **Mode-aware:** **autonomous** emits
+**findings only** — the 🔴/🟠/🟡 + Missing-Technical-Concerns tables (the auto-apply loop's input); **omit
+TL;DR, Strengths, Overall Assessment** (no reader mid-stream — pure tokens). **gated/standalone** emits the
+full template below.
 ```text
 # Architecture Review: [Change]
 > Specs reviewed: [...] · Architectural surface area: [1 sentence]
 
-## TL;DR
+## TL;DR  *(gated/standalone only — omit in autonomous)*
 [2–4 sentences: technical quality, themes, honest verdict. If well-considered, say so.]
 
 ## 🔴 Critical
@@ -198,9 +201,9 @@ Report = **summary only** (full detail delivered in the triage loop):
 ## Missing Technical Concerns
 | # | Concern | Category | Where it matters | Risk if absent |
 |---|---------|----------|------------------|----------------|
-## Strengths
+## Strengths  *(gated/standalone only)*
 - [specific thing done right]
-## Overall Assessment
+## Overall Assessment  *(gated/standalone only)*
 | Ready to apply | 🔴 Critical | 🟠 Recommended | 🟡 Nice-to-Have | MTC |
 |---|---|---|---|---|
 | Yes / No / With caveats | N | N | N | N |

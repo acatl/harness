@@ -418,6 +418,13 @@ From one-shot's first `harness:init` run:
   branch carried 2 bootstrap commits not on main). On the next finish run (`v7d73afb3`) the same
   origin/main-divergence check ran and resolved cleanly — "Feature landed on `origin/main`, create the chore
   branch off it", no stop. Situational (the first branch was cut 2-ahead of main); not a defect.
+- **N — fixed (token efficiency).** `harness:architecture` + `harness:design` always emitted the full
+  human report (TL;DR + severity tables + Strengths + Overall Assessment). In **autonomous** mode (how
+  `build` orchestrates them in-stream), the consumer is the auto-apply loop, which only needs the findings
+  tables — so TL;DR/Strengths/Overall-Assessment were ~300–600 pure-narrative tokens per build with no
+  reader. Made both reports **mode-aware:** autonomous emits findings tables only; gated/standalone emits
+  the full report unchanged (no value lost — narrative kept exactly where a human reads it). Operator-raised
+  during the finish-session efficiency review.
   - **Adjacent (noticed, not acted):** that A/B fork rendered as **prose**, not a walk-me-through card.
     `harness:ship` was **not** in the finding-I rollout — it had zero `AskUserQuestion` at grep time, so it
     was missed — but it clearly *does* fork (in prose). ship needs the walk-me-through format too. Surface

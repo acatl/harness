@@ -158,12 +158,14 @@ Category (one per finding, slug exact — enables future dedup):
 `form-ux` · `destructive-actions` · `feedback` · `accessibility` · `design-system` · `microcopy` ·
 `performance` · `evolvability`.
 
-Report = **summary only** (full detail in the triage loop):
+Report = **summary only** (full detail in the triage loop). **Mode-aware:** **autonomous** emits **findings
+only** — the 🔴/🟠/🟡 + Missing-Journeys tables (the auto-apply loop's input); **omit TL;DR, Strengths,
+Overall Assessment** (no reader mid-stream — pure tokens). **gated/standalone** emits the full template below.
 ```text
 # Design Review: [Change]
 > Specs reviewed: [...] · UI/UX surface area: [1 sentence]
 
-## TL;DR
+## TL;DR  *(gated/standalone only — omit in autonomous)*
 [2–4 sentences: design quality, themes, honest verdict. If well-considered, say so.]
 
 ## 🔴 Critical Gaps
@@ -178,9 +180,9 @@ Report = **summary only** (full detail in the triage loop):
 ## Missing Journeys
 | # | Journey | Category | Who needs it | Risk if absent |
 |---|---------|----------|--------------|----------------|
-## Strengths
+## Strengths  *(gated/standalone only)*
 - [specific thing done right]
-## Overall Assessment
+## Overall Assessment  *(gated/standalone only)*
 | Ready to apply | 🔴 Critical | 🟠 Recommended | 🟡 Nice-to-Have | Missing Journeys |
 |---|---|---|---|---|
 | Yes / No / With caveats | N | N | N | N |
