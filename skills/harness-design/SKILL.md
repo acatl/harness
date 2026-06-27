@@ -168,17 +168,22 @@ Report = **summary only** (full detail in the triage loop):
 
 ## 🔴 Critical Gaps
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## 🟠 Recommended Improvements
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## 🟡 Nice-to-Have
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## Missing Journeys
 | # | Journey | Category | Who needs it | Risk if absent |
+|---|---------|----------|--------------|----------------|
 ## Strengths
 - [specific thing done right]
 ## Overall Assessment
-| Ready to apply | Yes / No / With caveats |
-| 🔴 N | 🟠 N | 🟡 N | Missing Journeys N |
+| Ready to apply | 🔴 Critical | 🟠 Recommended | 🟡 Nice-to-Have | Missing Journeys |
+|---|---|---|---|---|
+| Yes / No / With caveats | N | N | N | N |
 ```
 After the report, transition straight into the triage loop — don't wait.
 

@@ -409,6 +409,11 @@ From one-shot's first `harness:init` run:
     build, design, explore, finish, recon). Each bundles `references/walk-me-through.md` via sync; every
     `AskUserQuestion` reference converted to a walk-me-through card (incl. the address-pr-comments 5d wizard
     and build/design's "card above the picker" hybrids — now pure-text). No native picker remains.
+- **J — fixed.** `harness:design` (and identically `harness:architecture`) emitted **malformed report tables**:
+  the per-severity tables and the *Overall Assessment* block were authored as header rows / pseudo-rows with
+  no `|---|` separator, so they rendered as raw `|` pipes (operator screenshot). Fixed both templates — every
+  report table now has a header + separator + data row; Overall Assessment is one clean 5-column table
+  (Ready-to-apply + severity counts) instead of two header-less rows. Surfaced during the finding-I rollout.
 
 ## Risks
 

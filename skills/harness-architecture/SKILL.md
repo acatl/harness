@@ -188,17 +188,22 @@ Report = **summary only** (full detail delivered in the triage loop):
 
 ## 🔴 Critical
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## 🟠 Recommended
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## 🟡 Nice-to-Have
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## Missing Technical Concerns
 | # | Concern | Category | Where it matters | Risk if absent |
+|---|---------|----------|------------------|----------------|
 ## Strengths
 - [specific thing done right]
 ## Overall Assessment
-| Ready to apply | Yes / No / With caveats |
-| 🔴 N | 🟠 N | 🟡 N | MTC N |
+| Ready to apply | 🔴 Critical | 🟠 Recommended | 🟡 Nice-to-Have | MTC |
+|---|---|---|---|---|
+| Yes / No / With caveats | N | N | N | N |
 ```
 After the report, transition straight into the triage loop — don't wait.
 
