@@ -521,6 +521,14 @@ From one-shot's first `harness:init` run:
   - **X — breadcrumb hash enforced (no `vTBD`).** The yolo build emitted `▶ harness:build vTBD` — the agent
     punted on computing `git hash-object`, breaking version attribution. Strengthened the breadcrumb line in
     all 12 skills (sed): "compute it (run the command); never emit a placeholder (`vTBD`/`<hash8>`/a guess)."
+  - **Y — `ship` auto-pushes on invocation (operator decision; supersedes M's scoping).** ship still asked
+    "push + open the PR? (yes/no)" — but push+open-PR IS ship's whole job, so invoking it is the consent
+    (same logic that made `finish` auto-push in M). Removed the push confirm: ship now **announces the
+    planned PR (title/body/bump — the squash title drives the release, so it stays visible) then pushes
+    immediately**; the **pre-push gate** is the guard, not a human y/n. Also dropped ship's pre-commit
+    confirm (step 3 now announces the diff + proceeds, stopping only on something clearly unintended) — ship
+    has **no internal yes/no gates**. Supersedes M's "standalone ship always confirms" — ship now auto-pushes
+    whether standalone or as finish's chore-PR step. Still: never force-push, never self-merge.
 - **T — added.** refine's end pointer now names the **build mode** so the operator sees the parameter values:
   `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each

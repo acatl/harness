@@ -5,8 +5,8 @@ description: >-
   Commit subjects and a Conventional squash-merge title (the version is derived from that title). Use
   when asked to ship / commit / open a PR / land a change — typically after harness:build reaches
   verified-not-shipped and you've tested, or as the chore-PR step of harness:finish. Encodes the branch
-  → format → test → commit → PR flow so a wrong subject never silently breaks the release. Confirms
-  before the high-blast-radius push.
+  → format → test → commit → PR flow so a wrong subject never silently breaks the release. Pushes +
+  opens the PR on invocation — no push yes/no (the pre-push gate is the guard).
 argument-hint: "[pr-title]"
 metadata:
   author: acatl
@@ -35,23 +35,27 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   parser/derivation/matcher/formatter without a test → stop, add one before shipping.
 - **Substantive PR body** — what (behavior), why (trajectory/prerequisites), risk surface. One-line
   bodies are defects on non-trivial changes.
-- **Forks are pure text.** Any ≥2-option decision put to the operator (e.g. PR-scoping) → a walk-me-through
-  fork card (`references/walk-me-through.md`), reply by letter; never `AskUserQuestion`. The push and
-  stage-review **confirms are bare yes/no gates — keep them one-line, not cards.**
+- **No internal yes/no gates.** Invoking `ship` is consent through commit → push → PR; **announce and
+  proceed, never gate** (no push confirm, no pre-commit confirm). A genuine ≥2-option fork (e.g. PR-scoping)
+  still renders as a walk-me-through fork card (`references/walk-me-through.md`), reply by letter; never
+  `AskUserQuestion`.
 
 ## Flow
 1. **Verify cleanliness & branch.** On the default branch → create one first (`<type>-<slug>` prefix
    per HARNESS.md). Never commit to the default branch.
 2. **Format.** Run the `format` sensor (HARNESS.md), re-stage. (The pre-push gate enforces strict lint
    + tests; formatting now avoids a blocked push.)
-3. **Stage & review.** `git add -A`, show the diff summary, confirm it matches intent before committing.
+3. **Stage & review (announce, don't gate).** `git add -A`, **show the diff summary** so what's being
+   committed is visible — then proceed (no confirm). If the summary surfaces something clearly unintended
+   (a stray/secret file), stop and surface that; otherwise commit.
 4. **Commit** with a Conventional subject; body explains *why* when not obvious. Add the
    `Co-Authored-By` trailer if the environment requires one.
-5. **Push** — high-blast-radius. **Confirm with the user before pushing.** The pre-push gate runs the
-   project's sensors; if it blocks, fix and retry — never bypass it.
-   - **Exception — invoked as `harness:finish`'s chore-PR step:** the `finish` invocation already
-     consented to this push (the chore PR carries only sync+archive plumbing), so **push without
-     re-confirming**. This waiver applies ONLY to that delegated call — **standalone `ship` always confirms.**
+5. **Announce, then push — no confirm (invoking `ship` IS consent).** Push + open-PR is ship's declared
+   purpose, so running it is the consent; **never ask a push yes/no.** First **announce the planned PR** —
+   the Conventional squash **title** (it drives the release bump), a one-line body summary, and the bump —
+   so the release-driving title is visible before it's public; then push immediately. The **pre-push gate**
+   runs automatically and is the real guard: if it blocks, fix and retry — never bypass. (Same consent
+   model whether standalone or as `finish`'s chore-PR step.)
 6. **Open the PR** (PR host per HARNESS.md, e.g. `gh pr create`). The **PR title MUST be a Conventional
    Commit** matching the intended release bump — it's the squash title the release tool reads. Write a
    substantive body (what / why / risk).
@@ -73,5 +77,5 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   deliberate act.
 - **Docs/CI-only → `docs:` / `ci:`** — those intentionally produce no release.
 - **Never hardcode or bump the version by hand** — the release tool owns the version source (HARNESS.md).
-- **Never push without the confirm** — except the `harness:finish` chore-PR step, which is pre-authorized
-  by the finish invocation (standalone ship still always confirms).
+- **No push yes/no** — invoking `ship` is consent to push + open the PR (the pre-push gate is the guard).
+  Still **never force-push** without an explicit request, and never squash-merge it yourself.
