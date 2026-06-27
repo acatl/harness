@@ -456,6 +456,16 @@ From one-shot's first `harness:init` run:
   `◦ next` stage (operator's call — keep focus on the immediate move, not the full downstream). Wired into
   refine, build (spec-review gate + verified-not-shipped), fine-tune, ship, address-pr-comments, finish;
   bundled via sync. Distinct from the machine `■` breadcrumb (that's transcript-grep; this is the human).
+- **Q — fixed (release the machine after behavioral-verify).** On a Swift app, behavioral-verify takes the
+  screen via computer-use to test — but held the operator's machine through the entire verify tail
+  (openspec-verify, code-review, run-log, report), long after screenshots were done. The binding contract
+  had no teardown step (ended at "verdict"). Added **step 4 "Release — hand the machine back"** to the
+  4-step contract (now 5: bring up → exercise → observe → **release** → verdict): the instant signals are
+  captured, tear down (quit app/processes, drop screen focus) **before** the verdict and any further
+  non-visual work. Added a `teardown` recipe key to the binding doc + HARNESS.md template; build Step F.2
+  now reads `bring up → exercise → observe → release → verdict` and releases before steps 3–4. Operator-
+  observed dogfooding one-shot. (Consuming `one-shot/docs/HARNESS.md` predates the new `teardown` row —
+  offer to add it; build still releases via the skill instruction even if the row is absent.)
   - **Adjacent (now resolved):** that A/B fork rendered as prose because `harness:ship` was missing from
     the first rollout (zero `AskUserQuestion` at grep time). Fixed in the completion pass below.
 - **L — fixed.** No skill pointed the operator to `harness:finish` after a PR merged — `harness:ship` ended

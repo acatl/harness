@@ -19,10 +19,18 @@ Every implementing skill (for example, `harness:build`) runs the same four steps
    declared readiness signal before proceeding.
 2. **Exercise** — drive the system to trigger the changed behavior, using the project's declared
    driver.
-3. **Observe** — collect signals across the tiers below.
-4. **Verdict** — pass only if: no liveness failure, no error-level log line during the exercise, and
-   (when checkable) the expected behavioral observations occurred. Otherwise fail → fix the cause →
-   re-run. A failure not caused by this change → STOP and surface (no patching around it).
+3. **Observe** — collect signals across the tiers below (logs, screenshots, liveness — everything the
+   verdict needs).
+4. **Release — hand the machine back.** The **instant** the signals are captured, tear down per the
+   project's `teardown` declaration: quit the launched app + stop any launched processes, and drop the
+   screen/computer-use focus. Do this **before computing the verdict and before any further
+   (non-visual) work** — the operator's machine is borrowed only for bring-up→observe, never held
+   through the build's tail (openspec-verify, code-review, run-log, report all run with the machine
+   free). A fail→fix→re-run brings the system up fresh.
+5. **Verdict** — from the captured signals (machine already released): pass only if no liveness
+   failure, no error-level log line during the exercise, and (when checkable) the expected behavioral
+   observations occurred. Otherwise fail → fix the cause → re-run. A failure not caused by this change
+   → STOP and surface (no patching around it).
 
 **Skip condition:** pure-logic-only changes (fully covered by unit tests, no runtime surface) skip
 this entirely — same rule as MermaidLens (`docs/RELIABILITY.md` "green" definition).
@@ -59,6 +67,7 @@ A `Runtime verification` section the project fills in. The agent reads it, doesn
 | liveness     | <how to detect alive / crashed> |
 | log source   | <where runtime logs go + what an error looks like> |
 | expected     | <events/observations that SHOULD appear when exercised> |
+| teardown     | <how to bring it down + release the screen, run right after Observe; e.g. `pkill -x OneShot` / the launch script's stop / close the browser tab> |
 ```
 
 ### Worked examples

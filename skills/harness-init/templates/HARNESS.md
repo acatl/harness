@@ -120,7 +120,10 @@ rationale: see the harness pipeline's runtime-verification binding contract. The
 | liveness     | `<how to detect alive vs crashed — always-on signal, no UI access needed>` |
 | log source   | `<where runtime logs go + what an error looks like>` |
 | expected     | `<events/observations that SHOULD appear when exercised>` |
+| teardown     | `<how to bring it down + release the screen, run right after Observe; e.g. pkill -x <App> / the launch script's stop / close the browser tab>` |
 
+- **Release the machine right after Observe** — `build` tears down per `teardown` the instant signals
+  are captured, so the verify tail (openspec-verify, review, run-log) never holds the operator's screen.
 - **Liveness is never best-effort** — it needs no UI access, so it runs even when the behavioral
   driver is unavailable. A green build + clean log is NOT proof the system stayed up.
 

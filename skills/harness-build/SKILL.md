@@ -226,9 +226,12 @@ At the gate, emit the **pipeline trail** for the `build · spec-review gate` sto
 Run in order; each must pass:
 1. **Sensors** (HARNESS.md › Sensors, in declared order — format → lint → test → build). Mirrors the
    pre-push gate.
-2. **Behavioral-verify** (HARNESS.md › Runtime verification): bring up → exercise → observe → verdict.
-   Liveness always; logs + behavioral per the binding. **Skip for pure-logic-only changes** (no runtime
-   surface). See `references/runtime-verification-binding.md`.
+2. **Behavioral-verify** (HARNESS.md › Runtime verification): bring up → exercise → observe → **release**
+   → verdict. Liveness always; logs + behavioral per the binding. **Release the operator's machine the
+   instant signals are captured** — tear down per HARNESS.md `teardown` (quit the app/processes, drop
+   computer-use/screen focus) **before** running steps 3–4 below; never hold the screen through the
+   verify tail. **Skip for pure-logic-only changes** (no runtime surface). See
+   `references/runtime-verification-binding.md`.
 3. **openspec-verify-change** (vendor skill) — spec conformance against the artifacts. Resolve gaps.
 4. **Skeptical review** (doer ≠ judge) — a distinct review pass against the project's QUALITY_SCORE
    rubric (HARNESS.md › Context docs). Scale to the diff (small/localized → one inline pass; large →
