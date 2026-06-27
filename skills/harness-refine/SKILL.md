@@ -231,6 +231,10 @@ bloat the task.
 - Approve → apply the chosen Idea foldings + any keyed completeness vetoes, then update the task (title +
   description; + type if it changed). Then emit the **pipeline trail** for the `refine` end stop per
   `references/pipeline-map.md` (one line).
+- **Next pointer — name the build mode** so the operator knows the parameter values:
+  `Next: /harness:build <task-id>` — **gated** (default): pauses at the spec-review gate so you review the
+  spec before code · append **yolo** (`/harness:build <task-id> yolo`): straight through, no spec gate
+  (still stops at genuine forks). Show both so the choice + what each does is explicit.
 - **Brainstorm / Sharpen — non-blocking suggestion (feature/idea only).** After the commit, end with a
   plain one-line suggestion the operator can ignore. **Do not open a fork here** (no card, no question) —
   the run ends once the task is persisted. Skip for bug/chore/non-functional.

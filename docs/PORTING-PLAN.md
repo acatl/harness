@@ -501,6 +501,10 @@ From one-shot's first `harness:init` run:
   **A** commit as-is · **B** fold Ideas in (⭐→AC, 🛑→out, 📋→confirm each — spin-offs are new tickets,
   always ask) · **escape** granular by key ("B but only I1, I4" / "drop C2"). Keys make the gate precise;
   icons make disposition scannable.
+- **T — added.** refine's end pointer now names the **build mode** so the operator sees the parameter values:
+  `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
+  through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
+  does at the handoff.
 
 ## Risks
 
