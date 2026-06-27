@@ -201,7 +201,7 @@ bloat the task.
 **Why:** *(only if it adds signal beyond the story)*
 
 **💡 Ideas** *(optional extras; feature shape only — omit if none. icon = recommended disposition):*
-*Legend — ⭐ pull in as a requirement · 🛑 keep as a non-goal · 📋 spin off as its own task*
+*Legend — ⭐ requirement → Acceptance Criteria (build) · 🛑 non-goal → Out-of-scope (recorded, not built) · 📋 spin off → its own ticket*
 - ⭐ I1  <idea>
 - 🛑 I2  <idea>
 - 📋 I3  <idea>
@@ -225,11 +225,15 @@ bloat the task.
 - **💡 Ideas present** → the commit is a **fork → walk-me-through card** (`references/walk-me-through.md`).
   **Each option must name the exact keys + destinations it commits — never a vague "fold ideas in"** so the
   operator reads precisely what lands. The draft + ➕ completeness items commit either way; the fork is only
-  *which 💡 Ideas to pull in*. Offer:
-  - **commit as drafted** — no Ideas pulled in (they stay recorded as notes).
-  - **pull in ⭐ only** — list them, e.g. `I1 → AC` (offer this option only when ≥1 ⭐ idea exists).
-  - **pull in all** — spell out every one: `I1 → AC · I2 → Out-of-scope · I3 → Out-of-scope · I4 → spin-off
-    (confirmed first)`. A 📋 spin-off is a *different* ticket — never auto-create; confirm before each.
+  *what to do with the 💡 Ideas*. **Every disposition writes the Idea INTO the ticket — just into different
+  sections:** ⭐ → Acceptance Criteria (will build) · 🛑 → Out-of-scope (a recorded decision *against*, not
+  built, not removed) · 📋 → its own ticket. Spell the **direction** in each option so "Out-of-scope" never
+  reads as "deleted". Offer:
+  - **commit as drafted** — none of the Ideas written in (they stay as loose notes).
+  - **+ ⭐ requirements** — add the ⭐ Ideas to the AC, e.g. `I1 → Acceptance Criteria (build)` (offer only when ≥1 ⭐ exists).
+  - **+ all Ideas, each per its icon** — `I1 → Acceptance Criteria (build)` · `I2, I3 → Out-of-scope
+    (recorded as deliberate non-goals — not built)` · `I4 → its own ticket (confirm first)`. A 📋 spin-off is
+    a *different* ticket — never auto-create; confirm before each.
   - **escape — pick exactly by key** — e.g. `"I1, I3 only"` · `"all but I4"` · `"drop C2"` · discuss.
   Recommend one. Reply by letter (+ optional `I#`/`C#` keys); never `AskUserQuestion` or prose `(a)/(b)/(c)`.
 - Approve → apply the chosen Idea foldings + any keyed completeness vetoes, then update the task (title +
