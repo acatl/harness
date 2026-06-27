@@ -448,6 +448,14 @@ From one-shot's first `harness:init` run:
   / Resolution** (every finding, applied AND skipped) + forks resolved. Written in FULL regardless of mode.
   Complements **N**: in-stream report is terse (autonomous), the on-disk record is always rich — terse in
   chat, full on disk.
+- **P — added (pipeline "you are here" trail).** Operator-requested: a one-line human-facing trail at the
+  end of each pipeline skill, before its `Next:` pointer, showing where they are. New bundled rule
+  `rules/pipeline-map.md` (canonical stages `refine → spec → review → implement → verify → ship → (address
+  comments) → finish` + render rule + per-stop position table). **Render rule:** show ALL completed stages
+  `✓` (real, from artifacts — not assumed), the `▸ <operator action> (you are here)`, and **exactly ONE**
+  `◦ next` stage (operator's call — keep focus on the immediate move, not the full downstream). Wired into
+  refine, build (spec-review gate + verified-not-shipped), fine-tune, ship, address-pr-comments, finish;
+  bundled via sync. Distinct from the machine `■` breadcrumb (that's transcript-grep; this is the human).
   - **Adjacent (now resolved):** that A/B fork rendered as prose because `harness:ship` was missing from
     the first rollout (zero `AskUserQuestion` at grep time). Fixed in the completion pass below.
 - **L — fixed.** No skill pointed the operator to `harness:finish` after a PR merged — `harness:ship` ended

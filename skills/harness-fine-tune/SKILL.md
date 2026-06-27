@@ -62,6 +62,8 @@ c. **Sync docs, then commit:** identify change-scoped docs (Doc-Sync Scope below
    reflect **all unsynced changes since the last commit** (not just this pass); commit with the
    Conventional type matching what was done; reset the unsynced-pass counter.
 d. **Ask what's next:** "What do you want to fine-tune next?" Wait. Done → exit (clear the marker).
+   Before this ask, emit the **pipeline trail** for the `fine-tune · loop pause` stop per
+   `references/pipeline-map.md` (one line) so the operator sees polish sits between verify and ship.
 
 ## Accumulation nudge
 Track approved passes without a sync-commit. After 4–5 (related or not), nudge: "You've got N unsynced

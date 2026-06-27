@@ -219,7 +219,8 @@ Surface all in one note — widen the thinking, don't bloat the task.
   don't dress it up. But the moment you offer **multiple next-step options** (e.g. "commit as-is /
   tighten the impl note / keep discussing"), that IS a fork → render it as a walk-me-through card, never
   ad-hoc prose `(a)/(b)/(c)`.
-- Approve → update the task (title + description; + type if it changed).
+- Approve → update the task (title + description; + type if it changed). Then emit the **pipeline trail**
+  for the `refine` end stop per `references/pipeline-map.md` (one line).
 - **Brainstorm / Sharpen — non-blocking suggestion (feature/idea only).** After the commit, end with a
   plain one-line suggestion the operator can ignore. **Do not open a fork here** (no card, no question) —
   the run ends once the task is persisted. Skip for bug/chore/non-functional.

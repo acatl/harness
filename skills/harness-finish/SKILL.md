@@ -73,7 +73,8 @@ finalize through the open PR. Only the **task close (step 6)** asks. (`finish` n
    environment.
 
 8. **Out.** One line: change archived · merge mode · task-close state (or "no linked task") ·
-   run-log backfilled.
+   run-log backfilled. Then the **pipeline trail** for the `finish` end stop (two-merge vs single-merge
+   row) per `references/pipeline-map.md`, before any final `Next:` line.
 
 ## Don't
 - **Don't merge the feature PR** — that's the human gate (two-merge) or it rides the PR (single-merge).

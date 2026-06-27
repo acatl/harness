@@ -155,6 +155,8 @@ reviews; not a blocker); `blocked` → surface the blocking artifact, don't call
 **gated:** present the reviewed spec + generated tasks; loop: operator reviews → requests edits (apply,
 re-show) or approves ("proceed"). Re-ask until approved. **yolo:** skip H2, go straight to impl.
 (This is the only operator gate the authoring half adds; reviews already ran autonomously.)
+At the gate, emit the **pipeline trail** for the `build · spec-review gate` stop per
+`references/pipeline-map.md` (one line) so the operator sees where this pause sits.
 
 ---
 
@@ -252,6 +254,7 @@ On any failure not caused by this change → STOP + surface (don't patch around 
    Reviews:   architecture — <outcome|n/a|skipped> · design — <outcome|n/a|skipped>
    Impl:      <N>/<total> tasks · <N> group commits · mode <gated|yolo>
    Verify:    sensors <pass> · behavioral <ran|skipped:reason|n/a> · openspec-verify <pass> · review <outcome>
+   <pipeline trail — `build · verified-not-shipped` stop, per references/pipeline-map.md>
    Next:      test it yourself · /harness:fine-tune to polish · /harness:ship when ready
    ```
 

@@ -40,6 +40,12 @@ MAP=(
   "rules/walk-me-through.md::skills/harness-init/references/walk-me-through.md"
   "rules/walk-me-through.md::skills/harness-fine-tune/references/walk-me-through.md"
   "rules/walk-me-through.md::skills/harness-review/references/walk-me-through.md"
+  "rules/pipeline-map.md::skills/harness-refine/references/pipeline-map.md"
+  "rules/pipeline-map.md::skills/harness-build/references/pipeline-map.md"
+  "rules/pipeline-map.md::skills/harness-fine-tune/references/pipeline-map.md"
+  "rules/pipeline-map.md::skills/harness-ship/references/pipeline-map.md"
+  "rules/pipeline-map.md::skills/harness-address-pr-comments/references/pipeline-map.md"
+  "rules/pipeline-map.md::skills/harness-finish/references/pipeline-map.md"
 )
 
 mode="${1:-sync}"
