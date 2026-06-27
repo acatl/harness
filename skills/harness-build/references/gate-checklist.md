@@ -20,7 +20,8 @@ project — the goal is classification, not term-matching:
 - **frontend** → routes to `harness:design` (and architecture if it also has component internals).
 - **backend** → routes to `harness:architecture`.
 - **mixed / full-stack** → both (run-when-in-doubt).
-- **docs-only / pure refactor / trivial** → may select no review.
+- **docs-only / trivial pure refactor** → may select no review.
+- **non-trivial pure refactor** → still architecture-eligible (route to architecture as applicable).
 
 ## Skip conditions (a surface legitimately needs no review)
 

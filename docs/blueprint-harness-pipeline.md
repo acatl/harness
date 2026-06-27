@@ -1,4 +1,4 @@
-Blueprint for Autonomous Engineering: Spec-Driven Development and Harness Architecture
+# Blueprint for Autonomous Engineering: Spec-Driven Development and Harness Architecture
 
 1. The Paradigm Shift: From Manual Implementation to Agent Steering
 

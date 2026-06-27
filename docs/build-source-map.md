@@ -172,7 +172,7 @@ flowchart TB
 - [+] **Auto-detect start state** via `openspec list --json`: 0 authored change → author (new path); change exists/authored → resume to impl (apply path); >1 open → AskUserQuestion to pick. Open (non-archived) only.
 - [+] **Recon wired in**: after proposal.md, before design.md (call `harness:recon`). (specd-new did NOT call recon — this is the gap-fix.)
 - [+] **Reviews**: architecture → design only (impeccable dropped). Drop the `.impeccable.md` precondition + impeccable routing/invocation/completion lines.
-- [+] **gated gate = the H2 spec-review stop**: after tasks generated, show the spec, loop "ready?" until operator approves or requests edits. yolo skips H2. (Reconcile with how mode forwards to reviews — see §F.)
+- [+] **gated gate = the H2 spec-review stop**: after tasks generated, show the spec, loop "ready?" until operator approves or requests edits. yolo skips H2. **Resolved:** reviews always run autonomous inside build — build's mode does **not** forward to them; the operator reviews the fully-reviewed spec once at H2 (see §F.1).
 - [+] **openspec-verify-change** called after implementation (apply didn't). Vendor skill.
 - [+] **Behavioral-verify binding** runs as part of impl verification when the change has a runtime surface (HARNESS.md › Runtime verification). Skip for pure-logic.
 - [+] **Stop at verified-not-shipped** — build does NOT ship/PR. (specd-apply's Phase 7 said "next /pr"; build ends earlier — ship is separate `harness:ship`.) Drop pr-body's "open PR" framing or reframe as handoff.
@@ -185,7 +185,7 @@ flowchart TB
 Every `[N]`/`[A]` line above lands somewhere in build, or is consciously dropped (impeccable lines).
 Open reconciliation points to resolve during assembly:
 
-1. **Mode semantics.** Build's `gated`/`yolo` must reconcile three things: new's mode-forwarding to reviews, apply's gated gates (Phase 1 checklist, Phase 5 ExitPlanMode, stop-on-failure), and the new H2 spec-review gate. Proposal: `gated` = forward gated to reviews + H2 spec-review stop + apply's stop-on-failure + Phase 5 approval; `yolo` = autonomous reviews + skip H2 + auto-fix. Confirm this mapping.
+1. **Mode semantics.** Build's `gated`/`yolo` reconcile new's mode-forwarding to reviews, apply's gated gates (Phase 1 checklist, Phase 5 ExitPlanMode, stop-on-failure), and the new H2 spec-review gate. **Resolved (see SKILL.md › Modes):** reviews **always run autonomous** — build's mode does **not** forward to them (operator reviews once at H2). `gated` = H2 spec-review stop + apply's stop-on-failure + Phase 5 plan-approval; `yolo` = skip H2 + auto-fix apply-caused failures. Both modes still stop at genuine forks (including a review's own fork).
 2. **Default flip.** Build defaults to gated; kino defaulted autonomous. Intentional (safer default).
 3. **Two resolve/status/assertDoing sequences** (new Phase A + apply Phase 0) collapse into one resolve at build start (auto-detect decides author-vs-resume); assertDoing → tracker `start` verb once.
 4. **Kino ticket lifecycle** (`assertDoing`/KINO-*) → HARNESS.md task-tracker `start`/per-stage hooks.

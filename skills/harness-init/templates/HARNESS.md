@@ -134,7 +134,7 @@ rationale: see the harness pipeline's runtime-verification binding contract. The
 
 | Key | Value |
 |-----|-------|
-| merge mode | `<two-merge | single-merge>` |
+| merge mode | `<two-merge \| single-merge>` |
 | two-merge  | feature PR is merged by a human, then `finish` opens a chore PR for sync+archive (second merge) |
 | single-merge | `finish` folds sync+archive into one landing — no second PR |
 

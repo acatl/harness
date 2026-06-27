@@ -111,13 +111,17 @@ Use `$OWNER/$NAME` from Phase 1. **jq safety:** use `select(.body | length > 0)`
 - **2a inline:** `gh api repos/$OWNER/$NAME/pulls/<n>/comments --paginate | jq '[.[] | {id,path,line,body,user:.user.login,in_reply_to_id,diff_hunk}] | map(select(.body|length>0))'`
 - **2b review bodies:** `gh api repos/$OWNER/$NAME/pulls/<n>/reviews --paginate | jq '[.[] | {id,body,state,user:.user.login}] | map(select(.body|length>0))'`
 - **2c issue comments:** `gh api repos/$OWNER/$NAME/issues/<n>/comments --paginate`
-- **2d review threads (GraphQL)** — map root comment `databaseId` → `threadId` for later resolve:
+- **2d review threads (GraphQL)** — map root comment `databaseId` → `threadId` for later resolve.
+  **Paginate** (`--paginate` + `pageInfo`/`$endCursor`): bare `first:100` silently drops threads past
+  page 1 on large PRs, leaving them unresolved. Collect all pages before treating this as the source of truth.
   ```bash
-  gh api graphql -f query='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){pullRequest(number:$number){reviewThreads(first:100){nodes{id isResolved isOutdated comments(first:1){nodes{databaseId}}}}}}}' -F owner=<owner> -F name=<name> -F number=<n>
+  gh api graphql --paginate -f query='query($owner:String!,$name:String!,$number:Int!,$endCursor:String){repository(owner:$owner,name:$name){pullRequest(number:$number){reviewThreads(first:100,after:$endCursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated comments(first:1){nodes{databaseId}}}}}}}' -F owner=<owner> -F name=<name> -F number=<n>
   ```
 **Processing:** group inline by `in_reply_to_id` → threads; `isResolved:true` → **ALREADY HANDLED**, skip
-entirely (one counted line in report); **prior agent reply** (any comment by `$GH_USER` whose body
-contains the trailer `[harness:address-pr-comments]`) → already handled, skip; reviewer-acknowledged
+entirely (one counted line in report); **prior agent reply** (a comment by `$GH_USER` whose body
+contains the trailer `[harness:address-pr-comments]`) → already handled, skip **only if** that reply is
+the thread's **latest substantive comment** (no newer reviewer comment after it). A reviewer comment
+posted *after* the agent reply re-opens the thread → re-triage, don't skip; reviewer-acknowledged
 closure ("done"/"thanks"/"lgtm now") → **ALREADY ADDRESSED** (→ `already:` reply + resolve); filter
 noise (LGTMs, bot status, empty bodies); dedup (keep inline over review-body repeat); group related
 (one finding, multiple locations); carry `threadId` to every finding.

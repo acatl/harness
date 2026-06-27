@@ -12,8 +12,8 @@ liveness/crash) into something that also serves a web app, an API server, or a t
 
 ## 1. The contract (stack-independent — owned by the skill)
 
-Every implementing skill (`apply`, `oneshot`) runs the same four steps. The skill knows the *shape*;
-the project supplies the *recipe* (§2).
+Every implementing skill (for example, `harness:build`) runs the same four steps. The skill knows the
+*shape*; the project supplies the *recipe* (§2).
 
 1. **Bring up** — start whatever must run, per the project's launch declaration. Wait for each
    declared readiness signal before proceeding.

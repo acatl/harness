@@ -13,9 +13,15 @@ the expected tool + how to detect it (config file / dep / script).
 `cargo build`, `go build`) — don't double-count, don't double-stop. type-check hard-stops only as a
 *separate* expected gate (`tsc`, `mypy`) when absent.
 
+**Untyped-stack rule:** the separate type-check gate is essential **only when the project actually
+declares typed tooling** — `tsconfig.json` for Node, a mypy/pyright config for Python. A plain-JS or
+untyped-Python repo has no type-check gate to miss → it is **N/A**, never a hard-stop. Detect the
+config first, then gate.
+
 ---
 
 ## Swift
+
 | sensor | tier | expected | detect |
 | --- | --- | --- | --- |
 | build | essential | `swift build` | `Package.swift` |
@@ -26,16 +32,18 @@ the expected tool + how to detect it (config file / dep / script).
 | logging | recommended (warn/ask) | `os.Logger` / structured log sink | no marker — ask |
 
 ## Node / TypeScript
+
 | sensor | tier | expected | detect |
 | --- | --- | --- | --- |
 | build | essential | build script / bundler | `package.json` `build` script / bundler config |
 | test | essential | jest / vitest / `node --test` | test config or `test` script / `__tests__` |
 | lint | essential | ESLint / Biome | `eslint.config.*` / `.eslintrc*` / `biome.json` |
-| type-check | essential (SEPARATE gate) | `tsc` | `tsconfig.json` |
+| type-check | essential **if TS** (separate gate); N/A for plain JS | `tsc` | `tsconfig.json` present → TS project, gate; absent → plain JS, skip |
 | format | recommended | Prettier | `.prettierrc*` |
 | logging | recommended (warn/ask) | logger dep (pino / winston) or console policy | dep or no marker — ask |
 
 ## Rust
+
 | sensor | tier | expected | detect |
 | --- | --- | --- | --- |
 | build | essential | `cargo build` | `Cargo.toml` |
@@ -46,6 +54,7 @@ the expected tool + how to detect it (config file / dep / script).
 | logging | recommended (warn/ask) | `log` / `tracing` crate | dep or no marker — ask |
 
 ## Go
+
 | sensor | tier | expected | detect |
 | --- | --- | --- | --- |
 | build | essential | `go build` | `go.mod` |
@@ -56,11 +65,12 @@ the expected tool + how to detect it (config file / dep / script).
 | logging | recommended (warn/ask) | `slog` | dep or no marker — ask |
 
 ## Python
+
 | sensor | tier | expected | detect |
 | --- | --- | --- | --- |
 | build | essential | build/package gate | `pyproject.toml` / `setup.py` |
 | test | essential | pytest / unittest | `pytest.ini` / `pyproject.toml` `[tool.pytest]` / `tests/` |
 | lint | essential | ruff / flake8 | `ruff.toml` / `.flake8` / `pyproject.toml` config |
-| type-check | essential (SEPARATE gate) | mypy / pyright | `mypy.ini` / `pyrightconfig.json` / `pyproject.toml` config |
+| type-check | essential **if typed** (separate gate); N/A if untyped | mypy / pyright | config present (`mypy.ini` / `pyrightconfig.json` / `pyproject.toml`) → gate; absent → skip |
 | format | recommended | black / ruff format | `pyproject.toml` `[tool.black]` / ruff config |
 | logging | recommended (warn/ask) | `logging` | no marker — ask |

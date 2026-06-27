@@ -203,11 +203,13 @@ For each skill being ported:
 ## Phases
 
 ### Phase 0 — Foundations ✅
+
 - [x] Read blueprint, both source projects, all named skills.
 - [x] Resolve duplications + orchestration gaps (verified against files).
 - [x] Lock decisions (namespace, binding model, ordering, drops). See Locked decisions.
 
 ### Phase 1 — Repo scaffolding + binding contract ✅
+
 The contract everything else depends on. Done before porting any skill.
 - [x] Repo layout (`skills/`, `rules/`, `docs/`, `templates/`, README) — see [README](../README.md).
 - [x] `docs/HARNESS.md` **template/schema** → [templates/HARNESS.md](../templates/HARNESS.md):
@@ -222,6 +224,7 @@ The contract everything else depends on. Done before porting any skill.
 - [x] README: purpose, namespace, pipeline table, dependencies, layout.
 
 ### Phase 2 — `harness:init` (foundation skill)
+
 - [x] Build the binding generator → [skills/harness-init/SKILL.md](../skills/harness-init/SKILL.md):
       scan/detect, confirm sensors, one-question-at-a-time interview, write `docs/HARNESS.md`,
       idempotent gap-fill, git-ignore scaffolding.
@@ -235,6 +238,7 @@ The contract everything else depends on. Done before porting any skill.
   the bed. Live edits; defers plugin packaging.
 
 ### Phase 3 — Spec pipeline (the prize)
+
 Port in dependency order. Each follows the Per-skill checklist.
 - [x] `harness:recon` — ported + genericized (kino monorepo paths → HARNESS.md bindings); writes
       verdicts to proposal.md + evidence to the change-state dir. Symlinked into both beds.
@@ -255,6 +259,7 @@ Port in dependency order. Each follows the Per-skill checklist.
       modes (HARNESS.md), run-log `[E]` backfill, chore-PR via `harness:ship` for two-merge.
 
 ### Phase 4 — Surrounding skills
+
 - [x] `harness:refine` — ported kino logic (richest: verdict taxonomy, completeness + expansion passes,
       quality pass) + genericized (tracker ops, context docs, ids; richer-than-5-verb tracker ops noted).
       Judgment kept full per style rule.
@@ -274,6 +279,7 @@ Port in dependency order. Each follows the Per-skill checklist.
       standalone skill.
 
 ### Phase 5 — Cross-cutting + cleanup
+
 - [x] `recon-first` rule promoted into `rules/recon-first.md` (genericized).
 - [x] Consistency pass: scan clean — only intentional mentions (`nx` = verify-derivation fallback;
       `e.g. Kino` = illustrative backend; `/opsx:explore` = deliberately-kept native command).
@@ -282,6 +288,7 @@ Port in dependency order. Each follows the Per-skill checklist.
       build; review in the observability loop; impeccable absent. No drift.
 
 ### Phase 6 — Validation (prove stack-agnosticism)
+
 - [ ] Dry-run the binding model against MermaidLens (Swift) — does a HARNESS.md drive the skills?
 - [ ] Dry-run against a web target — same skills, different bindings.
 - [ ] Fix any remaining hardcoded leaks found by the dry-runs.

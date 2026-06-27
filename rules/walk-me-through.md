@@ -8,7 +8,7 @@ operator to weigh blind.
 
 ## Per-fork card (render exactly this shape)
 
-```
+```text
 **<Q-counter>: <short fork title>**
 
 **TLDR:** <one-sentence framing of the decision>
