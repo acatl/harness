@@ -501,6 +501,13 @@ From one-shot's first `harness:init` run:
   **A** commit as-is · **B** fold Ideas in (⭐→AC, 🛑→out, 📋→confirm each — spin-offs are new tickets,
   always ask) · **escape** granular by key ("B but only I1, I4" / "drop C2"). Keys make the gate precise;
   icons make disposition scannable.
+  - **Validated live (ONEST-10, v5ec578d4):** the new render works — `Legend —`, keyed ➕/💡 sections, the
+    `What it writes into the ticket` column, the direction fix ("Out-of-scope = recorded non-goal, not
+    deleted"), and **adaptive options** (no ⭐ ideas → the "+ ⭐ requirements" option was correctly omitted).
+  - **U — blessed the lighter commit card.** The commit selection renders as a **commit-specific card**, not
+    the full walk-me-through ceremony (no `Q#`-counter / `Cost if` / `Escape:`/`Pick:` lines — those are noise
+    for a terminal subset-selection). Made intentional in step 6 so it's not read as drift from the
+    walk-me-through rule (which stays strict for between-alternatives forks). Still pure text, never a picker.
 - **T — added.** refine's end pointer now names the **build mode** so the operator sees the parameter values:
   `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each

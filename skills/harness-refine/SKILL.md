@@ -222,14 +222,17 @@ bloat the task.
 ## 6. Iterate → commit
 - **No 💡 Ideas pending** → bare **one-line approval gate** (yes / edit). Edits → step 5. Not a fork; don't
   dress it up or fire `AskUserQuestion`.
-- **💡 Ideas present** → the commit is a **fork → walk-me-through card** (`references/walk-me-through.md`).
-  **Each option must name the exact keys + destinations it commits — never a vague "fold ideas in"** so the
-  operator reads precisely what lands. The draft + ➕ completeness items commit either way; the fork is only
+- **💡 Ideas present** → the commit becomes a **commit-specific selection card** — a deliberately *lighter*
+  form than the full walk-me-through ceremony: **no `Q<N> of <total>` counter, no `Cost if` / `Escape:` /
+  `Pick:` lines** (this is a terminal subset-selection, not a between-alternatives fork — the ceremony would
+  be noise). Render a table with a single **`What it writes into the ticket`** column + a one-line
+  **Recommendation** + "reply by letter" (escape is an option *in* the table). Still pure text — never
+  `AskUserQuestion`. **Each option names the exact keys + destinations — never a vague "fold ideas in"** so the
+  operator reads precisely what lands. The draft + ➕ completeness items commit either way; the choice is only
   *what to do with the 💡 Ideas*. **Every disposition writes the Idea INTO the ticket — just into different
   sections:** ⭐ → Acceptance Criteria (will build) · 🛑 → Out-of-scope (a recorded decision *against*, not
   built, not removed) · 📋 → its own ticket. Spell the **direction** in each option so "Out-of-scope" never
-  reads as "deleted". **For this fork, replace the card's Pros/Cons columns with a single
-  `What it writes into the ticket` column** — for a subset-selection that's clearer than pros/cons. Offer:
+  reads as "deleted". Offer:
   - **commit as drafted** — none of the Ideas written in (they stay as loose notes).
   - **+ ⭐ requirements** — add the ⭐ Ideas to the AC, e.g. `I1 → Acceptance Criteria (build)` (offer only when ≥1 ⭐ exists).
   - **+ all Ideas, each per its icon** — `I1 → Acceptance Criteria (build)` · `I2, I3 → Out-of-scope
