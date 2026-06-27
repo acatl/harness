@@ -228,7 +228,8 @@ bloat the task.
   *what to do with the 💡 Ideas*. **Every disposition writes the Idea INTO the ticket — just into different
   sections:** ⭐ → Acceptance Criteria (will build) · 🛑 → Out-of-scope (a recorded decision *against*, not
   built, not removed) · 📋 → its own ticket. Spell the **direction** in each option so "Out-of-scope" never
-  reads as "deleted". Offer:
+  reads as "deleted". **For this fork, replace the card's Pros/Cons columns with a single
+  `What it writes into the ticket` column** — for a subset-selection that's clearer than pros/cons. Offer:
   - **commit as drafted** — none of the Ideas written in (they stay as loose notes).
   - **+ ⭐ requirements** — add the ⭐ Ideas to the AC, e.g. `I1 → Acceptance Criteria (build)` (offer only when ≥1 ⭐ exists).
   - **+ all Ideas, each per its icon** — `I1 → Acceptance Criteria (build)` · `I2, I3 → Out-of-scope
