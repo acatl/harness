@@ -42,7 +42,7 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   name. `gated` substring inside a name ≠ mode token. No token → autonomous.
 
 ## Genuine forks — stop in BOTH modes
-- **TRADEOFF / UNCLEAR** (Step 6): a genuine design choice / an underspecified spec. Surface via `AskUserQuestion` before the report.
+- **TRADEOFF / UNCLEAR** (Step 6): a genuine design choice / an underspecified spec. Surface as a walk-me-through fork card (`references/walk-me-through.md`) before the report.
 - **Options-mode findings** (Step 7): a finding with a real choice or a `→ Downstream` annotation.
 - Else (one clearly correct fix) → auto-applied (autonomous) / walked (gated).
 
@@ -133,7 +133,7 @@ Check for TRADEOFF / UNCLEAR:
 - **UNCLEAR** — spec too underspecified to evaluate a lens (form described but no fields listed;
   status change specced but user-facing label undefined; API called but no error states).
 
-Found any → `AskUserQuestion` now, severity order:
+Found any → surface as walk-me-through fork cards (`references/walk-me-through.md`) now, severity order:
 - TRADEOFF: title + 2–3 concrete options (label = approach; desc = upside/downside/rough effort); mark "(Recommended)".
 - UNCLEAR: "spec doesn't define [X] — intended behavior?"; 2–4 likely options + "Not sure — leave as spec gap".
 Fold answers into findings (chose "leave as gap" → brief note in the relevant lens section). None → write report.
@@ -148,7 +148,7 @@ Fold answers into findings (chose "leave as gap" → brief note in the relevant 
 - **Short beats padded** — 4 real findings > 15 marginal.
 
 ## Output — structured markdown review
-Finding types resolved via AskUserQuestion **before** report (Step 6): ⚠️ Tradeoff · ❓ Unclear.
+Finding types resolved via walk-me-through fork cards **before** report (Step 6): ⚠️ Tradeoff · ❓ Unclear.
 Severities in the report: 🔴 Critical Gap (meaningfully hurts users / confusion / operational-business
 risk — address before launch) · 🟠 Recommended (before launch, won't fail immediately) · 🟡 Nice-to-Have.
 Number findings sequentially (#1…); Missing Journeys separately (J1…). **Omit empty sections — never write "None".**

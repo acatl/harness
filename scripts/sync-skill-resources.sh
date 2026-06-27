@@ -29,6 +29,13 @@ MAP=(
   "docs/runtime-verification-binding.md::skills/harness-init/references/runtime-verification-binding.md"
   "docs/runtime-verification-binding.md::skills/harness-build/references/runtime-verification-binding.md"
   "rules/walk-me-through.md::skills/harness-refine/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-address-pr-comments/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-architecture/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-build/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-design/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-explore/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-finish/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-recon/references/walk-me-through.md"
 )
 
 mode="${1:-sync}"

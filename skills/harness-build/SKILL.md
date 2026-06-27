@@ -59,10 +59,10 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   proceeds without a stop.
 
 ## Asking the user to choose between options
-Pick-between-alternatives (not yes/no): one question/turn, card above the picker — TLDR, one line on
-why it matters, options table (terse Pros/Cons), then Recommendation (pick + one-line reasoning +
-concrete cost) below the table; then `AskUserQuestion` with **options only** ("Other" = escape hatch).
-Yes/no gates (H2, plan-approval) and plain selections stay one line.
+Pick-between-alternatives (not yes/no): render a walk-me-through fork card (`references/walk-me-through.md`)
+— one per turn, `Q<N> of <total>`, TLDR + why-it-matters + options table (terse Pros/Cons) + grounded
+Recommendation + `Cost if` + `Escape:` + `Pick:`; operator replies by letter. **Never `AskUserQuestion`
+or any native picker.** Yes/no gates (H2, plan-approval) and plain selections stay one line.
 
 ---
 
@@ -77,7 +77,7 @@ Yes/no gates (H2, plan-approval) and plain selections stay one line.
      Step A's loop skips `done` artifacts.
    - Change exists, apply-ready or in-progress (`HELD`/tasks present) → **IMPL** (Step E) — skip authoring.
    - `state: all_done` → congratulate, suggest `harness:finish`, stop.
-   - >1 open change and ambiguous which → `AskUserQuestion` pick (open/non-archived only). Never guess.
+   - >1 open change and ambiguous which → walk-me-through fork card pick (open/non-archived only). Never guess.
 4. Announce `Using change: <name>` + how to override.
 5. **Task tracker:** `start` verb (HARNESS.md › Task tracker) — move to in-progress; fire the
    `building` stage hook. No-op if not configured / no linked task.

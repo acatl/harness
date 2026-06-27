@@ -29,12 +29,12 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 - **end:** `■ harness:recon → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
 **Where:** `harness:build` invokes it after `proposal.md`, before `design.md`. Also runs standalone.
-**Input:** optional change name; if omitted, infer from context, else `openspec list --json` + AskUserQuestion.
+**Input:** optional change name; if omitted, infer from context, else `openspec list --json` + a walk-me-through fork card (`references/walk-me-through.md`).
 
 ## Steps
 1. **Resolve change.** Announce `Using change: <name>`. `openspec status --change "<name>" --json`.
    No `proposal` artifact → stop: "Recon needs a proposal; author it first (`openspec new` / `harness:build`)."
-2. **Seam check.** `design.md` exists → prevention impossible → AskUserQuestion `[R] Review-only` /
+2. **Seam check.** `design.md` exists → prevention impossible → a walk-me-through fork card (`references/walk-me-through.md`): `[R] Review-only` /
    `[S] Stop`. Existing `harness:recon` block in proposal → re-run, replace in place.
 3. **Extract capabilities.** Read `proposal.md`. List implied behaviors, **concept-level not
    file-level** (e.g. "rank tasks in a project"). Per capability: label, domain nouns, verb, likely
@@ -81,7 +81,7 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    <!-- harness:recon:end -->
    ```
 7. **Confirm.** Show verdict tally. Any judgment call (contested `extend` vs `build-new`, a coupling
-   decision) → AskUserQuestion `[Y] Accept` / `[A] Adjust` / `[D] Discuss`. On A/D, revise + rewrite both.
+   decision) → a walk-me-through fork card: `[Y] Accept` / `[A] Adjust` / `[D] Discuss`. On A/D, revise + rewrite both.
 
 ## Output
 ```text

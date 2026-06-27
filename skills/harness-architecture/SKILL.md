@@ -43,7 +43,7 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 
 ## Genuine forks — stop in BOTH modes
 - **TRADEOFF / UNCLEAR / RISK** (Step 6): real technical choice / underspecified spec / committed
-  risk. Surface via `AskUserQuestion` before the report.
+  risk. Surface as a walk-me-through fork card (`references/walk-me-through.md`) before the report.
 - **Options-mode findings** (Step 7): finding with a real choice or a `→ Downstream` annotation.
 - Else (one clearly correct fix) → auto-applied (autonomous) / walked (gated).
 
@@ -150,7 +150,7 @@ Check for TRADEOFF / UNCLEAR / RISK:
 - **UNCLEAR** — spec too underspecified to evaluate a lens (migration referenced not described; retry behavior undefined; error contract unspecified).
 - **RISK** — chosen approach carries known risk, no alternative being weighed (table-locking migration no downtime plan; TOCTOU no coordination; sync external call no timeout/breaker).
 
-Found any → `AskUserQuestion` now, severity order:
+Found any → surface as walk-me-through fork cards (`references/walk-me-through.md`) now, severity order:
 - TRADEOFF: title + 2–3 concrete options (label = approach; desc = upside/downside/rough effort); mark "(Recommended)".
 - UNCLEAR: "spec doesn't define [X] — intended behavior?"; 2–4 likely options + "Not sure — leave as spec gap".
 - RISK: "Mitigate before apply" / "Accept with documented TODO" / "Explain more".
@@ -166,7 +166,7 @@ Fold answers into findings. None → write report.
 - Short beats padded — 4 real findings > 15 marginal.
 
 ## Output — structured markdown review
-Finding types resolved via AskUserQuestion **before** report (Step 6): ⚠️ Tradeoff · ❓ Unclear · 🔺 Risk.
+Finding types resolved via walk-me-through fork cards **before** report (Step 6): ⚠️ Tradeoff · ❓ Unclear · 🔺 Risk.
 Severities in the report: 🔴 Critical (correctness/security/data-loss/ops failure — fix before apply) ·
 🟠 Recommended (fix before apply, won't fail immediately; compounding debt) · 🟡 Nice-to-Have (polish/edge/future).
 Number findings sequentially (#1, #2…); Missing Technical Concerns separately (T1, T2…). **Omit empty sections — never write "None".**

@@ -56,8 +56,8 @@ decisions where they belong (the user decides — don't auto-capture).
 
 ## Digestible output (the rule)
 One thread per turn · 2–4 directions max · short blocks, diagram over prose · end with one focused
-question or a small pick. If a stop needs a pick between alternatives, use the option-card +
-`AskUserQuestion` format.
+question or a small pick. If a stop needs a pick between alternatives, render it as a walk-me-through
+fork card (`references/walk-me-through.md`) — pure text, operator replies by letter; never `AskUserQuestion`.
 
 ## Ending
 No required ending — flow into a proposal, update artifacts, leave the user with clarity, or continue

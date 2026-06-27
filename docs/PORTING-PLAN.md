@@ -399,8 +399,16 @@ From one-shot's first `harness:init` run:
     Card format **not yet exercised** — the task was clear so no clarify-fork triggered, and the one
     options-offer (the iterate gate's "commit / tighten / discuss") rendered as ad-hoc prose `(a)/(b)/(c)`
     instead of a card. **Gap closed:** the fork contract now governs *any* ≥2-option offer (incl. the
-    iterate gate); only the bare yes/edit approval stays a one-line gate. **Pending:** re-run refine on a
-    deliberately ambiguous task to confirm the card actually renders, then roll out to the other 7.
+    iterate gate); only the bare yes/edit approval stays a one-line gate.
+  - **Re-test (ambiguous intent, 2026-06-26):** card rendered correctly — options table A/B/C + D=Discuss
+    escape, grounded rec, no dialog, no prose `(a)/(b)/(c)`. Three cosmetic deviations (no `Q1 of 1`
+    counter, cost merged into Cons column, escape as table-row + "reply with a letter"); operator chose to
+    **tighten the rule** rather than accept loose rendering — counter now mandatory, the 3 deviations are
+    explicit anti-patterns in `rules/walk-me-through.md`.
+  - **Rollout DONE.** Fork format rolled out to all 8 skills (refine + address-pr-comments, architecture,
+    build, design, explore, finish, recon). Each bundles `references/walk-me-through.md` via sync; every
+    `AskUserQuestion` reference converted to a walk-me-through card (incl. the address-pr-comments 5d wizard
+    and build/design's "card above the picker" hybrids — now pure-text). No native picker remains.
 
 ## Risks
 

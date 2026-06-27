@@ -35,7 +35,7 @@ operator decides whether the task is actually done. Sync + archive proceed witho
 ## Steps
 
 1. **Resolve the change.** Passed arg if present; else infer from branch / conversation (same
-   resolution as `harness:build` Step 0); else `openspec list --json` + `AskUserQuestion`. Announce
+   resolution as `harness:build` Step 0); else `openspec list --json` + a walk-me-through fork card (`references/walk-me-through.md`). Announce
    `Finishing change: <name>`. Read the merge mode from HARNESS.md.
 
 2. **Merge-gate (confirmable — never a hard wall).**
