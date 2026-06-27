@@ -297,8 +297,13 @@ Port in dependency order. Each follows the Per-skill checklist.
 
 ## Notes to resolve when we get there
 
+- **Potential `harness:walk-me-through` skill (deferred — not now).** The fork format is currently a bundled
+  *rule* (`rules/walk-me-through.md`), read by skills, not invokable. Optional future addition: a thin
+  `harness:walk-me-through` *skill* pointing at the same rule, so it's also a manual entry point
+  (`/harness:walk-me-through`) and harness-namespaced/portable. Not needed for the forks (they use the rule);
+  add only if a manual invocation is wanted. Keep the rule as the single source either way.
 - **Spec auto-detection in `build`** — `openspec list --json` (active, most-recent first). 0 open →
-  author. ≥1 open → `AskUserQuestion` to pick (kino `specd-apply` already does this; reuse).
+  author. ≥1 open → a walk-me-through fork card to pick (kino `specd-apply` already does this; reuse).
   Open/non-archived only. `openspec status --change <name> --json` gives state for author-vs-resume.
 - **Build's progress/resume file** — design the exact file + format (build on kino's `.specd/`:
   `surface-map.md` + `decisions.md` + resume check). Must let build know which tasks are done and
