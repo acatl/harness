@@ -34,8 +34,17 @@ When a decision is made, update these files in the same change — they are the 
 - **Skills are project-agnostic.** Each skill names the binding it needs ("run the `test` sensor
   declared in HARNESS.md"), never the literal command. The agent reads HARNESS.md — it is prose, not
   machine config.
+- **Skill bodies are telegraphic.** Author SKILL.md bodies + references per
+  [docs/SKILL-STYLE.md](docs/SKILL-STYLE.md) — structured, deduplicated, zero rhetoric, every
+  decision-bearing datum kept. Only a machine reads them. The frontmatter `description` stays
+  natural-language and trigger-rich (the router reads it).
 - **State files:** agent-read state (resume/progress) → Markdown; machine-aggregated telemetry
   (the run-log) → JSONL. See [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md).
+- **Skills are self-contained.** A skill reads only inputs bundled in its own dir (`templates/` for
+  files it emits, `references/` for files it reads) — never repo-root `templates/`/`docs/` at runtime
+  (skills are symlinked/copied into other projects). Repo root is canonical; bundles are kept in sync by
+  `scripts/sync-skill-resources.sh`. After editing a canonical template/doc, run it. See
+  [docs/SKILL-STYLE.md](docs/SKILL-STYLE.md) › Bundled resources.
 
 ## Layout
 

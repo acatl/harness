@@ -1,0 +1,97 @@
+# Harness Pipeline — End-to-End Chain
+
+The full skill chain, ticket → merged change. Edit this diagram freely; it's the canonical view of
+the pipeline. Legend:
+
+- **blue** = a `harness:*` command the operator invokes
+- **purple** = an internal step / sub-skill / agent
+- **green** = a vendor OpenSpec skill (assumed present, not shipped here)
+- **grey** = the binding layer (config the skills read)
+- **gold (diamond)** = an automatic decision branch
+- **gold (rounded)** = a human gate
+
+```mermaid
+flowchart TB
+  classDef cmd fill:#1f6feb,stroke:#0b3a8a,color:#fff,font-weight:bold
+  classDef sub fill:#8957e5,stroke:#4b277a,color:#fff
+  classDef vendor fill:#1a7f37,stroke:#0a4a1f,color:#fff
+  classDef cfg fill:#6e7681,stroke:#3a3f44,color:#fff
+  classDef human fill:#bf8700,stroke:#7a5600,color:#fff,font-weight:bold
+  classDef dec fill:#d29922,stroke:#7a5600,color:#000,font-weight:bold
+
+  INIT["/harness:init<br/>scan project · interview · write docs/HARNESS.md"]:::cmd --> HN["docs/HARNESS.md (binding layer)<br/>sensors · paths · conventions · gates · task-tracker verbs+stage-hooks · runtime-verification"]:::cfg
+  HN -. "read by every skill" .-> R
+
+  R["/harness:refine<br/>ticket → well-formed task"]:::cmd --> H1(["👤 task ready"]):::human
+  H1 --> XP["/harness:explore<br/>(optional · digestible thinking partner · improved)"]:::cmd --> B
+  H1 --> B["/harness:build [gated*|yolo]<br/>keeps a progress file → resumable"]:::cmd
+
+  B --> DET{"authored spec exists?<br/>openspec list --json"}:::dec
+  DET -- "no → author" --> NP["proposal.md"]:::vendor
+  NP --> NR["recon"]:::sub --> ND["design.md + specs"]:::vendor --> NRA["architecture review"]:::sub --> NRD["design review"]:::sub --> NT["tasks.md"]:::vendor --> MODE
+  DET -- "yes → resume (>1 open → ask which)" --> MODE{"mode?"}:::dec
+
+  MODE -- "gated (default): review spec · edit→loop · proceed→go" --> HG(["👤 operator reviews spec"]):::human --> CORE
+  MODE -- "yolo: straight through" --> CORE
+
+  subgraph CORE["implement-and-verify core · stop-on-fork"]
+    direction TB
+    AE["implement · grouped local commits"]:::sub --> ASN["sensors (HARNESS.md)"]:::sub --> AB["behavioral-verify (binding)"]:::sub --> AV["openspec-verify (vendor)"]:::vendor --> ARV["code-review (doer ≠ judge)"]:::sub
+  end
+
+  CORE --> HT(["👤 verified locally — NOT shipped<br/>test it yourself"]):::human
+  HT -. "needs polish" .-> FT["/harness:fine-tune<br/>fix → test → approve → commit loop"]:::cmd -.-> HT
+  HT -- "ready to ship" --> SH["/harness:ship<br/>push + open PR"]:::cmd
+
+  SH --> H3(["👤 review + MERGE PR"]):::human
+  SH -. "PR has comments" .-> APC["/harness:address-pr-comments<br/>triage · auto-fix · reply · resolve"]:::cmd -.-> H3
+  H3 --> F["/harness:finish<br/>sync-specs + archive · merge-gate is CONFIRMABLE<br/>two-merge (chore PR) | single-merge (configurable)"]:::cmd --> H4(["👤 final gate<br/>merge chore PR — or skipped in single-merge"]):::human
+
+  %% observability loop — the harness improves itself from data
+  CORE -- "append run row" --> LOG[("run-log · JSONL<br/>git-ignored telemetry")]:::cfg
+  F -. "backfill reality fields (merged, ci, comments)" .-> LOG
+  LOG --> RV["/harness:review<br/>aggregate · surface friction · propose edits"]:::cmd
+  RV -. "human-approved edits to skills / config" .-> HN
+```
+
+## Notes on the chain
+
+- **`harness:build` is the workhorse** — one skill, two modes:
+  - It first auto-detects whether an authored OpenSpec change already exists (`openspec list --json`).
+    None → it authors one (proposal → recon → design → reviews → tasks). Exists → it resumes straight
+    to implementation (your hand-authored / authored-earlier / interrupted case). More than one open
+    change → it asks which.
+  - `gated` (default) stops after tasks, shows you the spec, and loops "ready?" until you approve or
+    request edits. `yolo` skips that gate. **Both still stop on a genuine fork** (decision fork,
+    design-level problem, scope drift, uncaused sensor/verify failure).
+  - It keeps **its own progress file** under the change dir so it always knows where it left off —
+    resumable across sessions (builds on kino's `.specd/` pattern).
+- **Nothing ships automatically.** The core ends at *verified locally, not shipped*. You test it
+  yourself; iterate with `harness:fine-tune` if needed. `harness:ship` (push + open PR) is a separate,
+  deliberate step you trigger when ready.
+- **`harness:fine-tune`** is the polish loop (fix → test → approve → commit), reused as-is except its
+  test step binds to HARNESS.md sensors and it hands off to `harness:ship` when you're done. Commits
+  are local; ship owns push + PR. **It is a sticky mode** (like OpenSpec Explore): it re-anchors
+  every turn, survives nested skills (runs them, then resumes the loop), and exits ONLY on an explicit
+  "exit" or an asked-and-confirmed yes — backed by a small "fine-tune active" marker so it never
+  forgets it was fine-tuning.
+- **`harness:finish` merge-gate is confirmable, not a wall.** Default = two-merge (feature PR, then a
+  chore PR for sync+archive). If it can't confirm the feature merged, it ASKS ("already merged /
+  tested in prod / single-merge flow?") rather than hard-stopping. **Single-merge mode** is
+  configurable per project (folds sync+archive into one landing, no second PR).
+- **`harness:explore`** is the improved OpenSpec Explore — thinking partner with digestible,
+  one-thread-at-a-time output (no more walls of text). Optional; used before `build` on big codebases.
+  The native `/opsx:explore` remains available too.
+- **Behavioral-verify** is a HARNESS.md binding (bring up → exercise → observe → verdict) — the Swift
+  `run` skill generalized. See [runtime-verification-binding.md](runtime-verification-binding.md).
+- **Task-tracker touchpoints** run through the verb contract **+ configurable per-stage hooks**: at
+  each stage (refined / building / verified / PR-open / merged) the project's HARNESS.md can map a
+  tracker action — move column, set status, add label. All optional, all project-configured.
+- **Gate H3** = review + merge the PR (the real review). **`address-pr-comments`** is a side-loop on
+  the open PR, not a linear stage.
+- **Observability loop (self-improvement).** `build` appends one JSONL row per run to the run-log
+  (sensors, failures, iterations, interventions, outcome — keystone `skill_version`). `finish`/`review`
+  backfill reality fields (merged, ci, comments). `harness:review` aggregates it and **proposes**
+  (human-approved, never auto-applied) edits back to the skills/config. Schema:
+  [harness-runs.SCHEMA.md](../templates/harness-runs.SCHEMA.md). JSONL because a script aggregates it.
+- **Vendor (green)** nodes assume the consuming project has OpenSpec installed.

@@ -27,9 +27,16 @@ when shared. See [docs/PORTING-PLAN.md](docs/PORTING-PLAN.md) for the rationale.
 | `harness:address-pr-comments` | Triage + resolve PR review comments. |
 | `harness:review` | Aggregate the harness run-log, surface recurring friction, propose harness improvements (data-backed, never auto-applied). |
 
+`harness:build` calls three **review sub-skills** during authoring — `harness:recon` (prior-art reuse
+ledger), `harness:architecture` (engineering gate), `harness:design` (UX gate) — each with its own full
+lenses reference. They're invoked by `build` but also run standalone.
+
 The pipeline is **self-observing**: `harness:build` logs each run to a JSONL run-log; `harness:review`
 turns that data into concrete improvements to the skills/config. Schema in
 [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md).
+
+Shared rule: [rules/recon-first.md](rules/recon-first.md) — search for prior art before authoring any
+exported/shared symbol (the contributor-level twin of `harness:recon`).
 
 Full chain with all forks and gates: [docs/pipeline.md](docs/pipeline.md).
 
