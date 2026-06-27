@@ -56,7 +56,10 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    Commit** matching the intended release bump — it's the squash title the release tool reads. Write a
    substantive body (what / why / risk).
 7. **Report** the PR URL. Task tracker: set the `link` verb (`pullRequestUrl` + `branchName`) and fire
-   the `PR open` stage hook (HARNESS.md) — **ask before writing to the tracker.**
+   the `PR open` stage hook (HARNESS.md). **Active-ticket tracker writes are autonomous** — invoking
+   `ship` is consent to drive *its own* ticket through the pipeline; fire the `link` verb + `PR open` hook
+   without asking. (Only mutations to a *different* ticket, or creating/closing tickets outside this one,
+   need a confirm.)
 8. **Pipeline trail + Next pointer.** Emit the "you are here" trail for the `ship` end stop per
    `references/pipeline-map.md` (one line), then the `Next:` pointer: once the PR is **merged**, run
    `harness:finish` to sync delta specs, archive the change, close the task, and backfill the run-log

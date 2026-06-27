@@ -3,11 +3,11 @@ name: harness:finish
 description: >-
   One-command closeout for a completed OpenSpec change: syncs the delta specs into the main specs,
   archives the change, lands that per the project's merge mode (single-merge rides the feature PR;
-  two-merge opens a chore PR), then (operator-confirmed) marks the linked task done, and backfills the
-  run-log's reality fields. Use when the work is verified and you want to finalize without hand-running
-  sync + archive and tidying the tracker. Triggers on "/harness:finish", "finish this change", "close
-  it out", "sync and archive", "wrap up the change". Never closes the task without asking; the
-  merge-gate asks rather than hard-stopping when it can't confirm the change landed.
+  two-merge opens a chore PR), marks the linked task done, and backfills the run-log's reality fields.
+  Use when the work is verified and you want to finalize without hand-running sync + archive and tidying
+  the tracker. Triggers on "/harness:finish", "finish this change", "close it out", "sync and archive",
+  "wrap up the change". Runs autonomously on its own ticket; the merge-gate (asks rather than
+  hard-stopping when it can't confirm the change landed) is the only guard before the task closes.
 argument-hint: "[change-name]"
 metadata:
   author: acatl
@@ -28,10 +28,11 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 - **start:** `▶ harness:finish v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
 - **end:** `■ harness:finish → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
-The done-move is **operator-gated by design** — review comments can still land after sync, so the
-operator decides whether the task is actually done. Everything up to and including **opening the chore PR**
-(sync + archive + commit + the chore-PR push) proceeds without a confirm — invoking `finish` is consent to
-finalize through the open PR. Only the **task close (step 6)** asks. (`finish` never *merges* the PR.)
+`finish` runs **fully autonomously on its own ticket** — invoking it is consent to finalize. Everything
+(sync + archive + commit + chore-PR push + the task close) proceeds without a confirm. The one protection
+on the close is the **merge-gate (step 2)**: the task moves to `done` only once the change is confirmed
+landed (or the operator overrode the gate) — never a premature close. (`finish` never *merges* the PR, and
+mutations to any ticket other than the one being finished still ask.)
 
 ## Steps
 
@@ -62,9 +63,10 @@ finalize through the open PR. Only the **task close (step 6)** asks. (`finish` n
      chore PR, so the delegated `ship` call pushes without re-asking (it carries only sync+archive
      plumbing). Report the chore-PR URL when done. (Don't merge it — that's the human's final act.)
 
-6. **Close the linked task (operator-confirmed).** Ask whether to mark the task `done` + clear any
-   in-review label. On yes → task-tracker `done` verb + `merged` stage hook (HARNESS.md). On no →
-   leave as-is. No-op (no prompt) if no linked task.
+6. **Close the linked task (autonomous — active ticket).** The merge-gate (step 2) already confirmed the
+   change landed, so fire the `done` verb + `merged` stage hook + clear any in-review label **without
+   asking** — invoking `finish` is consent to close its own ticket. No-op (no prompt) if no linked task.
+   Never close a ticket whose change the merge-gate could not confirm landed.
 
 7. **Backfill the run-log.** Find this change's run-log row(s) (HARNESS.md › Observability) and fill
    the `[E]` reality fields from the PR host + tracker: `pr_url`, `merged`, `ci_passed`,

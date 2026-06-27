@@ -466,6 +466,15 @@ From one-shot's first `harness:init` run:
   now reads `bring up → exercise → observe → release → verdict` and releases before steps 3–4. Operator-
   observed dogfooding one-shot. (Consuming `one-shot/docs/HARNESS.md` predates the new `teardown` row —
   offer to add it; build still releases via the skill instruction even if the row is absent.)
+- **R — changed by operator decision (active-ticket tracker autonomy).** Skills asked before tracker writes
+  on the ticket being worked (ship: "Want me to write the PR link + In Review to kino?"; finish: "mark the
+  task done?") — friction the operator doesn't want for their *own* ticket. New policy: **active-ticket
+  verbs + stage hooks fire without asking** — invoking a skill is consent to drive its own ticket
+  (start → link → review → done). ship now auto-fires link + PR-open hook; finish auto-closes (the
+  merge-gate stays the one guard — `done` fires only once the change is confirmed landed). build already
+  fired its hooks autonomously. Policy stated in the HARNESS.md template task-tracker section. Confirms
+  still required for a *different* ticket or creating/closing tickets outside the active one. (Deliberate,
+  scoped exception to the global confirm-external-writes posture — limited to the active ticket.)
   - **Adjacent (now resolved):** that A/B fork rendered as prose because `harness:ship` was missing from
     the first rollout (zero `AskUserQuestion` at grep time). Fixed in the completion pass below.
 - **L — fixed.** No skill pointed the operator to `harness:finish` after a PR merged — `harness:ship` ended
