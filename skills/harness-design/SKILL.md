@@ -221,12 +221,32 @@ Skipped: #2, #5
 - autonomous: print same summary, then write directly (invocation = consent). A fork the operator
   never answered → recorded skipped, never auto-decided.
 
-Then write the gate artifact `<change-state-dir>/reviews/design.md`:
+Then write the gate artifact `<change-state-dir>/reviews/design.md` — the **durable verification record**.
+Write it in FULL **regardless of mode**: the in-stream report may be terse (Output mode-awareness), but this
+file always carries every finding's detail so a reader can verify each one and see its value. **Never reduce
+it to a bare count stamp** — embed the findings table AND per-finding detail (applied and skipped):
 ```text
 # Design Review Gate
-Date: <ISO> · Skill: harness:design
-Outcome: <N critical, M recommended, K nice-to-have, J missing journeys>
-Changes written: <N> · Skipped: <finding numbers>
+Date: <ISO> · Skill: harness:design · Change: <name>
+Outcome: <N critical, M recommended, K nice-to-have, J missing journeys> · Changes written: <N> · Skipped: <finding #s>
+
+## Findings
+| # | Sev | Lens | Category | Spec | Summary |
+|---|-----|------|----------|------|---------|
+| 1 | 🟠 | <lens> | <category> | `<spec>` | <one-line> |
+<one row per finding, 🔴 first; include Missing Journeys as J1…>
+
+## Detail
+**#1 — <title>** · <🔴/🟠/🟡> · `<category>` · `<spec path>`
+- **Problem:** <what's wrong / missing>
+- **Impact:** <user-facing / second-order consequence — why it's worth fixing>
+- **Evidence:** <the spec quote or screen/flow that grounds the finding>
+- **Resolution:** <exact language written to the spec> — or **Skipped:** <reason>
+---
+<repeat for EVERY finding, applied and skipped — nothing reduced to a count>
+
+## Forks resolved
+<TRADEOFF / UNCLEAR title → chosen option + one-line rationale> — omit the section if none
 ```
 Final one-line: "Done — N changes written, M skipped." List skipped numbers so nothing vanishes.
 

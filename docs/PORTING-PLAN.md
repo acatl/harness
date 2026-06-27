@@ -440,6 +440,14 @@ From one-shot's first `harness:init` run:
   reader. Made both reports **mode-aware:** autonomous emits findings tables only; gated/standalone emits
   the full report unchanged (no value lost — narrative kept exactly where a human reads it). Operator-raised
   during the finish-session efficiency review.
+- **O — fixed.** The persisted review artifacts (`<change-state-dir>/reviews/{architecture,design}.md`) were
+  a **bare 4-line count stamp** (Date · Outcome counts · Changes-written · Skipped) — the actual findings,
+  tables, evidence, and resolutions lived only in the ephemeral session, so a reader of the file couldn't
+  verify findings or see their value (operator caught this on `bare-harness`'s reviews). Enriched both gate
+  artifacts to a **durable verification record**: findings table + per-finding **Problem / Impact / Evidence
+  / Resolution** (every finding, applied AND skipped) + forks resolved. Written in FULL regardless of mode.
+  Complements **N**: in-stream report is terse (autonomous), the on-disk record is always rich — terse in
+  chat, full on disk.
   - **Adjacent (now resolved):** that A/B fork rendered as prose because `harness:ship` was missing from
     the first rollout (zero `AskUserQuestion` at grep time). Fixed in the completion pass below.
 - **L — fixed.** No skill pointed the operator to `harness:finish` after a PR merged — `harness:ship` ended
