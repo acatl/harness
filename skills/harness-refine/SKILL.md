@@ -34,7 +34,7 @@ task** — never create an OpenSpec change/spec or propose a technical approach 
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:refine v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **start:** `▶ harness:refine v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars. **Compute it (run the command); never emit a placeholder (`vTBD`, `<hash8>`, or a guess).**
 - **end:** `■ harness:refine → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
 **Posture:** challenge framing, scope, duplication — never *feasibility* ("we can't build that" is

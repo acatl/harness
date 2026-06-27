@@ -25,7 +25,7 @@ extend instead of building new?** Records *what exists* + *the reuse verdict* �
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:recon v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **start:** `▶ harness:recon v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars. **Compute it (run the command); never emit a placeholder (`vTBD`, `<hash8>`, or a guess).**
 - **end:** `■ harness:recon → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
 **Where:** `harness:build` invokes it after `proposal.md`, before `design.md`. Also runs standalone.

@@ -22,7 +22,7 @@ Lightweight session state machine for iterative polishing after a change is impl
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:fine-tune v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **start:** `▶ harness:fine-tune v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars. **Compute it (run the command); never emit a placeholder (`vTBD`, `<hash8>`, or a guess).**
 - **end:** `■ harness:fine-tune → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
 ## Sticky mode (load-bearing)

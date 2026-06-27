@@ -23,7 +23,7 @@ silently**. This skill exists so that never happens.
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:ship v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **start:** `▶ harness:ship v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars. **Compute it (run the command); never emit a placeholder (`vTBD`, `<hash8>`, or a guess).**
 - **end:** `■ harness:ship → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
 ## Contract (load-bearing)
@@ -61,10 +61,12 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    without asking. (Only mutations to a *different* ticket, or creating/closing tickets outside this one,
    need a confirm.)
 8. **Pipeline trail + Next pointer.** Emit the "you are here" trail for the `ship` end stop per
-   `references/pipeline-map.md` (one line), then the `Next:` pointer: once the PR is **merged**, run
-   `harness:finish` to sync delta specs, archive the change, close the task, and backfill the run-log
-   (two-merge mode: `finish` opens the chore PR for the second merge). Closes the loop — don't leave it
-   implicit.
+   `references/pipeline-map.md` (one line) — its `◦ finish` label carries the after-merge step, so the loop
+   isn't silent. Then a `Next:` line naming **only the immediately-runnable action: review + merge the PR**
+   (a human action — no command to run yet). **Do NOT print `/harness:finish` or "then run X after merge"
+   here** — finish is premature until the PR merges, and naming a not-yet-runnable command invites a
+   mis-fire (one runnable command rule, `references/pipeline-map.md`). finish surfaces as the trail's
+   `◦ finish` label only.
 
 ## Don't
 - **Don't squash-merge yourself** unless asked — merging the auto-generated release PR is a separate,

@@ -27,7 +27,7 @@ from current branch; else list open PRs and ask.
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:address-pr-comments v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **start:** `▶ harness:address-pr-comments v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars. **Compute it (run the command); never emit a placeholder (`vTBD`, `<hash8>`, or a guess).**
 - **end:** `■ harness:address-pr-comments → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
 Act as a Principal Engineer. Every valid finding gets fixed, every invalid finding refuted, every
@@ -169,7 +169,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 - **6h re-request review:** if `CHANGES_REQUESTED` and ≥1 fix — bots auto `gh pr edit <n> --add-reviewer <user>`; humans → suggest in report.
 
 ## Final report (rendered markdown, never a code fence; omit zero-count rows)
-Lead (bold, one line): `✅ PR #N — <title> · X fixed · Y resolved · pushed <sha7>` (⚠️ + failure count if anything failed). Then: **Outcome table** (status/count/detail — 🔧 Fixed · 🤔 Decided · 🚫 Declined · ✅ Already · ❓ Unclear · ⏭️ Deferred · ⏭️ Skipped); **Decisions table** (only if ≥1 operator decision); **Verification + GitHub** (Typecheck/Lint/Tests ✅/❌/➖ · Threads resolved · Replies posted · Stale reviews dismissed · Re-request review · CI run link); **Files touched** (clickable bullets); **Tail** (cascading auto-fixes if any). **Failures block** (only if non-empty): `> ⚠️` callout + fenced bash of copy-paste retry commands. **Pipeline trail** (one line, before the next pointer): the "you are here" trail for the `address-pr-comments` end stop per `references/pipeline-map.md`. **Next pointer** (one line): once the PR is approved + **merged**, run `harness:finish` to sync specs, archive, close the task, backfill the run-log (two-merge: `finish` opens the chore PR) — don't leave the loop's last step implicit.
+Lead (bold, one line): `✅ PR #N — <title> · X fixed · Y resolved · pushed <sha7>` (⚠️ + failure count if anything failed). Then: **Outcome table** (status/count/detail — 🔧 Fixed · 🤔 Decided · 🚫 Declined · ✅ Already · ❓ Unclear · ⏭️ Deferred · ⏭️ Skipped); **Decisions table** (only if ≥1 operator decision); **Verification + GitHub** (Typecheck/Lint/Tests ✅/❌/➖ · Threads resolved · Replies posted · Stale reviews dismissed · Re-request review · CI run link); **Files touched** (clickable bullets); **Tail** (cascading auto-fixes if any). **Failures block** (only if non-empty): `> ⚠️` callout + fenced bash of copy-paste retry commands. **Pipeline trail** (one line, before the next pointer): the "you are here" trail for the `address-pr-comments` end stop per `references/pipeline-map.md` — its `◦ finish` label carries the after-merge step. **Next pointer** (one line): name **only the immediately-runnable action — review + merge the PR** (human action, no command yet). **Do NOT print `/harness:finish` or "run X after merge"** — premature, mis-fire risk (one runnable command rule); finish surfaces as the trail's `◦ finish` label only.
 
 ## Principles
 Correctness over scope · standards are authority · auto-fix is default (Decision Gate is the filter) ·

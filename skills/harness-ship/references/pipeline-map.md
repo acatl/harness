@@ -26,6 +26,18 @@ grep; this is for the human).
 - Join with ` → `. One line. Conditional stages in (parens). The `◦ next` is the trail-level echo of the
   concrete command in the `Next:` line that follows.
 
+## One runnable command (no premature commands)
+**Show a runnable `/harness:<cmd>` ONLY for the immediately-executable next step.** Critical foot-gun rule:
+an operator reflexively runs a command they see — even one tagged "later" / "after merge". So:
+- If the next step is a **human action** (review + merge the PR, test the app), the `Next:` line names the
+  **action**, not a command — show **no** `/harness:` token.
+- A stage **gated behind** that action (e.g. `finish` after a merge) appears **only** as the trail's
+  `◦ <stage>` label — **never** as a `/harness:` command and **never** as "then run X after Y". The label
+  keeps the handoff non-silent without inviting a misfire; the command surfaces when that stage is actually next.
+- Net: every `/harness:<cmd>` shown must be runnable **right now**; a step gated behind a future action
+  never appears as a command. (Multiple genuinely-runnable-now alternatives — e.g. `fine-tune` vs `ship` at
+  verified — are fine; the ban is only on premature/gated commands.)
+
 Example (build at the spec-review gate):
 ```text
 ✓ refine → ✓ spec → ✓ review → ▸ read the review docs (you are here) → ◦ implement

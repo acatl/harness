@@ -28,7 +28,7 @@ verified-not-shipped** — never pushes, never opens a PR (that's `harness:ship`
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:build v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
+- **start:** `▶ harness:build v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars. **Compute it (run the command); never emit a placeholder (`vTBD`, `<hash8>`, or a guess).**
 - **end:** `■ harness:build → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
 ## Modes
@@ -257,9 +257,12 @@ On any failure not caused by this change → STOP + surface (don't patch around 
    Reviews:   architecture — <outcome|n/a|skipped> · design — <outcome|n/a|skipped>
    Impl:      <N>/<total> tasks · <N> group commits · mode <gated|yolo>
    Verify:    sensors <pass> · behavioral <ran|skipped:reason|n/a> · openspec-verify <pass> · review <outcome>
-   <pipeline trail — `build · verified-not-shipped` stop, per references/pipeline-map.md>
    Next:      test it yourself · /harness:fine-tune to polish · /harness:ship when ready
    ```
+   **Then emit the pipeline trail** (REQUIRED — a real line below the summary, not a placeholder) for the
+   `build · verified-not-shipped` stop per `references/pipeline-map.md`. Per the one-runnable-command rule,
+   the `Next:` line names only commands runnable now (`fine-tune`/`ship`) — **never `/harness:finish`** (it's
+   premature until the PR merges; `◦ finish` is a trail label, not a command here).
 
 ---
 

@@ -508,6 +508,19 @@ From one-shot's first `harness:init` run:
     the full walk-me-through ceremony (no `Q#`-counter / `Cost if` / `Escape:`/`Pick:` lines — those are noise
     for a terminal subset-selection). Made intentional in step 6 so it's not read as drift from the
     walk-me-through rule (which stays strict for between-alternatives forks). Still pure text, never a picker.
+  - **V — never name a premature command (foot-gun).** Operator's eye grabbed `/harness:finish` in ship's
+    "run it after merge" handoff and ran it prematurely (finish's merge-gate caught it — good — but it never
+    should have been printed). New **one-runnable-command rule** in `rules/pipeline-map.md`: show a
+    `/harness:<cmd>` ONLY for the immediately-runnable step; a step gated behind a human action (merge, test)
+    shows the *action*, no command; downstream stages appear ONLY as `◦ <stage>` trail labels (keeps the
+    handoff non-silent per finding L, without a misfire-able command). Fixed ship step-8 + address-pr final
+    report: `Next:` = "review + merge the PR", no `/harness:finish`; finish rides the `◦ finish` trail label.
+  - **W — pipeline trail now fires (finding P was under-firing).** The trail had rendered in zero runs: refine
+    always paused pre-commit, and build's trail was a *placeholder line inside the completion-summary code
+    block* (agents skip those). Pulled it out into an explicit REQUIRED emit step after the summary.
+  - **X — breadcrumb hash enforced (no `vTBD`).** The yolo build emitted `▶ harness:build vTBD` — the agent
+    punted on computing `git hash-object`, breaking version attribution. Strengthened the breadcrumb line in
+    all 12 skills (sed): "compute it (run the command); never emit a placeholder (`vTBD`/`<hash8>`/a guess)."
 - **T — added.** refine's end pointer now names the **build mode** so the operator sees the parameter values:
   `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
