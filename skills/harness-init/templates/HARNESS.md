@@ -82,6 +82,12 @@ locally; never bypass. Should no-op in unrelated repos (guard on a project marke
 
 The backend is reached through a stable **verb contract** so skills never name a specific tracker.
 
+**Active-ticket autonomy:** skills fire the verbs + stage hooks on the **ticket being worked** without
+asking — invoking a skill is consent to drive *its own* ticket through the pipeline (start → link → review
+→ done). A confirm is needed only for mutations to a *different* ticket, or creating/closing tickets
+outside the active one. (`finish`'s merge-gate still guards the `done` close — it fires only once the
+change is confirmed landed.)
+
 | Key | Value |
 |-----|-------|
 | backend | `<kino / jira / linear / github-issues>` |
