@@ -394,6 +394,13 @@ From one-shot's first `harness:init` run:
   **Added for completeness** draft callout lists every auto-promotion (to AC and to out-of-scope) for
   operator veto. **Still using `AskUserQuestion`** (roll the format out next): address-pr-comments,
   architecture, build, design, explore, finish, recon.
+  - **Dogfood run (ONEST-1, 2026-06-26):** dialog removal **proven** (`AskUserQuestion` fired 0×); the
+    *Added for completeness* callout **proven** (rendered 4 promotions split AC/out-of-scope for veto).
+    Card format **not yet exercised** — the task was clear so no clarify-fork triggered, and the one
+    options-offer (the iterate gate's "commit / tighten / discuss") rendered as ad-hoc prose `(a)/(b)/(c)`
+    instead of a card. **Gap closed:** the fork contract now governs *any* ≥2-option offer (incl. the
+    iterate gate); only the bare yes/edit approval stays a one-line gate. **Pending:** re-run refine on a
+    deliberately ambiguous task to confirm the card actually renders, then roll out to the other 7.
 
 ## Risks
 
