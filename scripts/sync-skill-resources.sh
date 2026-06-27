@@ -36,6 +36,10 @@ MAP=(
   "rules/walk-me-through.md::skills/harness-explore/references/walk-me-through.md"
   "rules/walk-me-through.md::skills/harness-finish/references/walk-me-through.md"
   "rules/walk-me-through.md::skills/harness-recon/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-ship/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-init/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-fine-tune/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-review/references/walk-me-through.md"
 )
 
 mode="${1:-sync}"

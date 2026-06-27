@@ -24,8 +24,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 > `references/runtime-verification-binding.md`. Read before generating.
 
 **Principle: detect → confirm → ask only what can't be inferred.** Never interrogate for what the repo
-already states. One question at a time (tight question, indexed options, recommendation + escape hatch).
-Never block on optional capabilities.
+already states. One question at a time, each rendered as a walk-me-through fork card
+(`references/walk-me-through.md`) — indexed options + grounded recommendation + escape; never
+`AskUserQuestion`. Bare yes/no confirms stay one-line. Never block on optional capabilities.
 
 ## Steps
 

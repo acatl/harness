@@ -409,6 +409,12 @@ From one-shot's first `harness:init` run:
     build, design, explore, finish, recon). Each bundles `references/walk-me-through.md` via sync; every
     `AskUserQuestion` reference converted to a walk-me-through card (incl. the address-pr-comments 5d wizard
     and build/design's "card above the picker" hybrids — now pure-text). No native picker remains.
+  - **Completion pass — ALL 12 skills now on the rule.** Folded in the four stragglers that fork in prose:
+    `ship` (PR-scoping → card; push/stage confirms stay one-line yes/no), `init` (the whole detect→confirm
+    interview → cards), `review` (which-proposals-to-apply → card), `fine-tune` (option choices → card;
+    yes/no asks stay one-line). Each bundles `references/walk-me-through.md`. **DRY:** no skill invokes the
+    external walk-me-through *skill* — single canonical `rules/walk-me-through.md`, bundled per-skill via the
+    sync manifest, drift-guarded by `check`.
 - **J — fixed.** `harness:design` (and identically `harness:architecture`) emitted **malformed report tables**:
   the per-severity tables and the *Overall Assessment* block were authored as header rows / pseudo-rows with
   no `|---|` separator, so they rendered as raw `|` pipes (operator screenshot). Fixed both templates — every
@@ -425,10 +431,8 @@ From one-shot's first `harness:init` run:
   reader. Made both reports **mode-aware:** autonomous emits findings tables only; gated/standalone emits
   the full report unchanged (no value lost — narrative kept exactly where a human reads it). Operator-raised
   during the finish-session efficiency review.
-  - **Adjacent (noticed, not acted):** that A/B fork rendered as **prose**, not a walk-me-through card.
-    `harness:ship` was **not** in the finding-I rollout — it had zero `AskUserQuestion` at grep time, so it
-    was missed — but it clearly *does* fork (in prose). ship needs the walk-me-through format too. Surface
-    only; fold into a later fork-format follow-up.
+  - **Adjacent (now resolved):** that A/B fork rendered as prose because `harness:ship` was missing from
+    the first rollout (zero `AskUserQuestion` at grep time). Fixed in the completion pass below.
 - **L — fixed.** No skill pointed the operator to `harness:finish` after a PR merged — `harness:ship` ended
   at the PR-URL report and `harness:address-pr-comments` never mentioned finish, so the pipeline's last
   handoff (`… → merge → finish`) was silent. Operator merged the first PR of a two-PR phase and got no

@@ -52,7 +52,9 @@ Wait for the answer before implementing.
 Run the affected sensors (HARNESS.md). If tests need updating because of the change, update them now —
 don't leave red and hand back.
 ### 3. Ask for approval
-Brief summary of what changed → "Does this look good?" Wait. Don't proceed until yes.
+Brief summary of what changed → "Does this look good?" Wait. Don't proceed until yes. (These asks are bare
+yes/no / open prompts — keep them one-line. Any ≥2-option choice → a walk-me-through fork card,
+`references/walk-me-through.md`, reply by letter; never `AskUserQuestion`.)
 ### 4. On approval
 a. **Verify clean** — sensors green; fix anything red first.
 b. **Ask to sync & commit:** "Sync docs and commit?" yes → c; no → d (track that unsynced passes are accumulating).

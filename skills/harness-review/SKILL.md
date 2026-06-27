@@ -67,8 +67,9 @@ For each **recurring** friction pattern (not one-offs):
 ### 5. Output
 - Short report: the aggregates (grouped by `skill_version`), the top 1–3 friction patterns, the proposed
   edits with their justifying rows.
-- Ask which proposals to apply. Apply only the approved ones; if a proposal edits a skill, note that the
-  next run's `skill_version` changes so the effect is measurable.
+- Ask which proposals to apply — as a walk-me-through fork card (`references/walk-me-through.md`), one per
+  turn, reply by letter; never `AskUserQuestion`. Apply only the approved ones; if a proposal edits a skill,
+  note that the next run's `skill_version` changes so the effect is measurable.
 
 ## Don't
 - **Propose, don't auto-apply** — these edits change every future run.

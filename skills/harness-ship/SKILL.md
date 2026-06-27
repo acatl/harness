@@ -35,6 +35,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   parser/derivation/matcher/formatter without a test → stop, add one before shipping.
 - **Substantive PR body** — what (behavior), why (trajectory/prerequisites), risk surface. One-line
   bodies are defects on non-trivial changes.
+- **Forks are pure text.** Any ≥2-option decision put to the operator (e.g. PR-scoping) → a walk-me-through
+  fork card (`references/walk-me-through.md`), reply by letter; never `AskUserQuestion`. The push and
+  stage-review **confirms are bare yes/no gates — keep them one-line, not cards.**
 
 ## Flow
 1. **Verify cleanliness & branch.** On the default branch → create one first (`<type>-<slug>` prefix
