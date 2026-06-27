@@ -414,6 +414,17 @@ From one-shot's first `harness:init` run:
   no `|---|` separator, so they rendered as raw `|` pipes (operator screenshot). Fixed both templates — every
   report table now has a header + separator + data row; Overall Assessment is one clean 5-column table
   (Ready-to-apply + severity counts) instead of two header-less rows. Surfaced during the finding-I rollout.
+- **K — OBSERVED, unconfirmed (do NOT act yet; watch for repeat).** On a one-shot run, at the **ship/push
+  pre-flight** step (branch `feat-window-chrome`), the skill found the branch carried **2 commits not on
+  `main`/`origin/main`** (the harness bootstrap: `.claude/` + `docs/HARNESS.md` + `openspec/`), because the
+  branch was cut from a HEAD 2 ahead of main. It surfaced an A/B fork (one PR carrying bootstrap+feature, vs
+  split into two PRs) and stopped for the operator — which is arguably *correct* (it caught that the PR
+  bundles plumbing + feature), but the operator flagged it as weird/unexpected. **Pending:** re-run a build/
+  ship to see if it repeats before deciding whether anything's wrong.
+  - **Adjacent (noticed, not acted):** that A/B fork rendered as **prose**, not a walk-me-through card.
+    `harness:ship` was **not** in the finding-I rollout — it had zero `AskUserQuestion` at grep time, so it
+    was missed — but it clearly *does* fork (in prose). ship needs the walk-me-through format too. Surface
+    only; fold into a later fork-format follow-up.
 
 ## Risks
 
