@@ -14,9 +14,11 @@ the expected tool + how to detect it (config file / dep / script).
 *separate* expected gate (`tsc`, `mypy`) when absent.
 
 **Untyped-stack rule:** the separate type-check gate is essential **only when the project actually
-declares typed tooling** — `tsconfig.json` for Node, a mypy/pyright config for Python. A plain-JS or
+declares typed tooling** — `tsconfig.json` for Node, an *explicit* typing config for Python (`mypy.ini`
+/ `pyrightconfig.json` / a `[tool.mypy]` or `[tool.pyright]` table in `pyproject.toml`). A bare
+`pyproject.toml` (packaging or lint config only) is **not** a typing signal. A plain-JS or
 untyped-Python repo has no type-check gate to miss → it is **N/A**, never a hard-stop. Detect the
-config first, then gate.
+typing config first, then gate.
 
 ---
 
@@ -71,6 +73,6 @@ config first, then gate.
 | build | essential | build/package gate | `pyproject.toml` / `setup.py` |
 | test | essential | pytest / unittest | `pytest.ini` / `pyproject.toml` `[tool.pytest]` / `tests/` |
 | lint | essential | ruff / flake8 | `ruff.toml` / `.flake8` / `pyproject.toml` config |
-| type-check | essential **if typed** (separate gate); N/A if untyped | mypy / pyright | config present (`mypy.ini` / `pyrightconfig.json` / `pyproject.toml`) → gate; absent → skip |
+| type-check | essential **if typed** (separate gate); N/A if untyped | mypy / pyright | explicit typing config (`mypy.ini` / `pyrightconfig.json` / `[tool.mypy]` or `[tool.pyright]` in `pyproject.toml`) → gate; bare `pyproject.toml` (packaging/lint only) does **not** count → skip |
 | format | recommended | black / ruff format | `pyproject.toml` `[tool.black]` / ruff config |
 | logging | recommended (warn/ask) | `logging` | no marker — ask |
