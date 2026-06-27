@@ -386,10 +386,14 @@ From one-shot's first `harness:init` run:
   survive future copy/plugin packaging — resolving the runtime half of finding **B**.
 - **I — refine done; 7 skills pending rollout.** Harness forks used `AskUserQuestion` (native dialog) — the
   operator wants the **pure-text `walk-me-through` format** everywhere (card: TLDR + why + options table +
-  grounded rec + concrete cost + escape; reply by letter; one per turn; never a native picker). The global
-  `walk-me-through` skill is not bundled and can't be invoked skill-to-skill, so the format is now a
-  **harness-owned shared rule** `rules/walk-me-through.md`, bundled into the skill via sync (finding-H
-  pattern). **`harness:refine` converted as the proof** (all 3 forks → cards; `references/walk-me-through.md`
+  grounded rec + concrete cost + escape; reply by letter; one per turn; never a native picker). The format
+  is a **harness-owned shared rule** `rules/walk-me-through.md` (NOT a skill — read as a bundled reference,
+  never invoked), bundled into each skill's `references/` via sync (finding-H pattern). **Why a rule, not a
+  Skill-tool call:** explicit `Skill`-tool invocation IS reliable (build/finish call recon/architecture/
+  design/openspec-* that way) — but (a) the global `walk-me-through` skill isn't bundled with the harness, so
+  a consuming project may not have it to invoke, and (b) forks fire many times per run, so a per-fork
+  Skill-tool round-trip (re-loading instructions each time) is heavier than a once-read reference. Router
+  *auto-activation* of another skill mid-procedure is the unreliable thing — not Skill-tool calls. **`harness:refine` converted as the proof** (all 3 forks → cards; `references/walk-me-through.md`
   bundled). Also fixed in refine: completeness promotions are no longer folded in silently — a dedicated
   **Added for completeness** draft callout lists every auto-promotion (to AC and to out-of-scope) for
   operator veto. **Still using `AskUserQuestion`** (roll the format out next): address-pr-comments,
