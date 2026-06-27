@@ -50,11 +50,14 @@ ambition with no grounding/verdict, that's a brainstorm/idea tool, not refine.
 - **One task per invocation.** Each invocation fresh — re-resolve, re-ground, re-verdict; carry no
   draft/verdict/pending spin-off from a prior run.
 - **Tracker is source of truth.** All reads/writes via the tracker ops (HARNESS.md). Resolve the
-  project/board first if the backend needs it (one match = default, several = `AskUserQuestion`; never
-  guess or ask blind).
+  project/board first if the backend needs it (one match = default, several = a walk-me-through fork;
+  never guess or ask blind).
 - **Scope = the one task** named/created this invocation. Any other mutation (spike, extra task,
   move/close) needs an explicit yes.
 - **Surface before solving** — charter conflicts, already-built, load-bearing defaults named first.
+- **Forks are pure text** — every operator decision is rendered as a walk-me-through fork card
+  (`references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
+  operator replies by letter. **Never `AskUserQuestion` or any native picker.**
 
 ---
 
@@ -116,8 +119,8 @@ fork the operator decides ("extend, or net-new alongside?"), never a silent shri
   clarify on a task that won't be (re-)drafted. Don't let actor-ambiguity drag you into drafting a
   banned feature.
 - Clear enough → **ask nothing**.
-- Else ≤2–3, load-bearing only, **one per turn**, via `AskUserQuestion` (indexed options, pros/cons,
-  grounded rec, escape hatch; use `walk-me-through` if available). Categories:
+- Else ≤2–3, load-bearing only, **one per turn**, each as a walk-me-through fork card
+  (`references/walk-me-through.md`) — pure text, operator replies by letter; never `AskUserQuestion`. Categories:
   - **Actor** — human / agent / system (watch "two wearing one coat").
   - **Problem vs solution** — solution stated, real problem unclear.
   - **Scope boundary** — one capability or three.
@@ -150,7 +153,9 @@ Companion states a *whole* feature needs but the operator skipped. Lenses (pick 
 - **Feedback / attribution** — confirmation? mutation attributed (human vs agent)?
 
 Route each: **default Out-of-scope**; promote to AC only when core (feature is broken without it).
-Obvious companions fold in silently; judgment calls → the *Also worth considering* note.
+**Never silent:** every routed companion — folded into AC OR captured as out-of-scope — is listed in the
+**Added for completeness** callout so the operator sees exactly what refine added and can veto it.
+Judgment calls additionally → the *Also worth considering* note.
 
 ### Expansion pass *(feature shape)* — thinking partner
 "What could this *also be* that the operator didn't picture?" **Generate freely, route conservatively.**
@@ -185,6 +190,10 @@ Surface all in one note — widen the thinking, don't bloat the task.
 **Out-of-scope:**
 - <adjacent/confusable features + unpromoted completeness cases>
 
+**Added for completeness:** *(companions refine folded in that you did NOT state — review / veto each)*
+- <companion> → AC | Out-of-scope
+<!-- list EVERY completeness promotion (to AC and to out-of-scope); omit the whole section only if none were added -->
+
 **Why:** *(only if it adds signal beyond the story)*
 
 **Also worth considering:** *(only if judgment calls surfaced; feature shape only)*
@@ -207,8 +216,8 @@ Surface all in one note — widen the thinking, don't bloat the task.
   "ok"/"makes sense"). Edits → step 5.
 - Approve → update the task (title + description; + type if it changed).
 - **Brainstorm / Sharpen — non-blocking suggestion (feature/idea only).** After the commit, end with a
-  plain one-line suggestion the operator can ignore. **Do not fire `AskUserQuestion` here** — the run
-  ends once the task is persisted. Skip for bug/chore/non-functional.
+  plain one-line suggestion the operator can ignore. **Do not open a fork here** (no card, no question) —
+  the run ends once the task is persisted. Skip for bug/chore/non-functional.
 - **already-well-formed** → nothing to commit; confirm ready, stop.
 - **already-done** + agree → write the reason into the task description (where the tracker persists it),
   then close (`done`). If created this invocation (collision check missed it) → say so, close `done`

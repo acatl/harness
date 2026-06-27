@@ -28,6 +28,7 @@ MAP=(
   "templates/harness-runs.SCHEMA.md::skills/harness-review/references/harness-runs.SCHEMA.md"
   "docs/runtime-verification-binding.md::skills/harness-init/references/runtime-verification-binding.md"
   "docs/runtime-verification-binding.md::skills/harness-build/references/runtime-verification-binding.md"
+  "rules/walk-me-through.md::skills/harness-refine/references/walk-me-through.md"
 )
 
 mode="${1:-sync}"

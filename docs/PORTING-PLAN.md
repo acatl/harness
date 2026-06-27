@@ -377,6 +377,16 @@ From one-shot's first `harness:init` run:
   (`sync` copies canonical→bundle; `check` fails on drift — wire into pre-push/CI). Convention documented in
   `docs/SKILL-STYLE.md › Bundled resources` + `CLAUDE.md`. This makes skills work over a bare symlink **and**
   survive future copy/plugin packaging — resolving the runtime half of finding **B**.
+- **I — refine done; 7 skills pending rollout.** Harness forks used `AskUserQuestion` (native dialog) — the
+  operator wants the **pure-text `walk-me-through` format** everywhere (card: TLDR + why + options table +
+  grounded rec + concrete cost + escape; reply by letter; one per turn; never a native picker). The global
+  `walk-me-through` skill is not bundled and can't be invoked skill-to-skill, so the format is now a
+  **harness-owned shared rule** `rules/walk-me-through.md`, bundled into the skill via sync (finding-H
+  pattern). **`harness:refine` converted as the proof** (all 3 forks → cards; `references/walk-me-through.md`
+  bundled). Also fixed in refine: completeness promotions are no longer folded in silently — a dedicated
+  **Added for completeness** draft callout lists every auto-promotion (to AC and to out-of-scope) for
+  operator veto. **Still using `AskUserQuestion`** (roll the format out next): address-pr-comments,
+  architecture, build, design, explore, finish, recon.
 
 ## Risks
 
