@@ -201,7 +201,7 @@ bloat the task.
 **Why:** *(only if it adds signal beyond the story)*
 
 **💡 Ideas** *(optional extras; feature shape only — omit if none. icon = recommended disposition):*
-*⭐ pull in as a requirement · 🛑 keep as a non-goal · 📋 spin off as its own task*
+*Legend — ⭐ pull in as a requirement · 🛑 keep as a non-goal · 📋 spin off as its own task*
 - ⭐ I1  <idea>
 - 🛑 I2  <idea>
 - 📋 I3  <idea>
@@ -222,12 +222,16 @@ bloat the task.
 ## 6. Iterate → commit
 - **No 💡 Ideas pending** → bare **one-line approval gate** (yes / edit). Edits → step 5. Not a fork; don't
   dress it up or fire `AskUserQuestion`.
-- **💡 Ideas present** → the commit is a **fork → walk-me-through card** (`references/walk-me-through.md`):
-  - **A** — commit as drafted (Ideas stay as notes).
-  - **B** — fold the Ideas in, then commit: ⭐ → AC · 🛑 → Out-of-scope · 📋 → **confirm each** (a spin-off
-    is a *different* ticket — never auto-create; per active-ticket autonomy a new ticket always asks).
-  - **escape** — granular by key: e.g. `"B but only I1, I4"` · `"commit, drop C2"` · discuss.
-  Reply by letter (+ optional `I#`/`C#` keys); never `AskUserQuestion` or prose `(a)/(b)/(c)`.
+- **💡 Ideas present** → the commit is a **fork → walk-me-through card** (`references/walk-me-through.md`).
+  **Each option must name the exact keys + destinations it commits — never a vague "fold ideas in"** so the
+  operator reads precisely what lands. The draft + ➕ completeness items commit either way; the fork is only
+  *which 💡 Ideas to pull in*. Offer:
+  - **commit as drafted** — no Ideas pulled in (they stay recorded as notes).
+  - **pull in ⭐ only** — list them, e.g. `I1 → AC` (offer this option only when ≥1 ⭐ idea exists).
+  - **pull in all** — spell out every one: `I1 → AC · I2 → Out-of-scope · I3 → Out-of-scope · I4 → spin-off
+    (confirmed first)`. A 📋 spin-off is a *different* ticket — never auto-create; confirm before each.
+  - **escape — pick exactly by key** — e.g. `"I1, I3 only"` · `"all but I4"` · `"drop C2"` · discuss.
+  Recommend one. Reply by letter (+ optional `I#`/`C#` keys); never `AskUserQuestion` or prose `(a)/(b)/(c)`.
 - Approve → apply the chosen Idea foldings + any keyed completeness vetoes, then update the task (title +
   description; + type if it changed). Then emit the **pipeline trail** for the `refine` end stop per
   `references/pipeline-map.md` (one line).
