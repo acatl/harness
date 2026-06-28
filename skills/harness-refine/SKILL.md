@@ -243,6 +243,10 @@ committing to NOT build. Object to any line if it's wrong."` Awareness, not a ga
   (label = feature, description = the why), the operator checks any / all / none. **Submitting = approve +
   commit** with the checked ones folded in (AC, or a spin-off ticket with a yes — a *different* ticket,
   never auto-created); unchecked = discarded. `"Other"` (auto) = edit / discuss instead of committing.
+  - **Reconcile a conflict:** if a checked improvement overlaps a `✂️` Out-of-scope line — the operator is
+    pulling in something refine had suggested excluding — **remove that exclusion**, fold the improvement
+    into AC, and **say so** ("moved *cross-run search* from Out-of-scope → AC"). Never leave the ticket both
+    requiring and excluding the same thing.
 - **No improvements** → no checkbox; a bare one-line `yes / edit` approval. Submitting yes commits.
 
 **c. Commit + close out (after b).** Update the task (title + description; + type if changed). Then, and only
