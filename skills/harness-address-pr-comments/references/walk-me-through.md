@@ -32,11 +32,12 @@ Pick: A / B / <escape-letter>?
 ```
 
 ## Rules
-- **Every option states its concrete outcome — no ambiguity.** The operator must predict the result from
-  the label alone: spell out exactly what each option writes / creates / discards and **where**. Ban vague
-  words that hide the effect — "notes", "handle it", "etc.", "as appropriate". If an option discards or
-  drops something, say so plainly (e.g. "not saved anywhere — lost after this turn"), never imply a phantom
-  save. The most-default option deserves the most-deterministic wording, not the vaguest.
+- **Every option states its concrete outcome — no ambiguity, no exceptions.** Hold **all** options to this
+  bar equally — A, B, …, and the escape alike; the default is not exempt and gets no special treatment. For
+  each, the operator must predict the result from the label alone: spell out exactly what it writes /
+  creates / discards and **where**. Ban vague words that hide the effect — "notes", "handle it", "etc.",
+  "as appropriate". If an option discards or drops something, say so plainly (e.g. "not saved anywhere —
+  lost after this turn"), never imply a phantom save.
 - **One fork per turn.** Wait for the answer before the next. No wall of forks.
 - **Counter (mandatory):** open every card with `Q<N> of <total>` — even a lone fork is `Q1 of 1`. Never omit it.
 - **Index by letter** (A, B, …); always add one extra letter as the escape hatch (`discuss / propose other`).
