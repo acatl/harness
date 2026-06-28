@@ -51,6 +51,9 @@ MAP=(
   "rules/decision-log.md::skills/harness-design/references/decision-log.md"
   "rules/decision-log.md::skills/harness-build/references/decision-log.md"
   "rules/decision-log.md::skills/harness-address-pr-comments/references/decision-log.md"
+  "rules/pr-summary.md::skills/harness-build/references/pr-summary.md"
+  "rules/pr-summary.md::skills/harness-ship/references/pr-summary.md"
+  "rules/pr-summary.md::skills/harness-address-pr-comments/references/pr-summary.md"
 )
 
 mode="${1:-sync}"

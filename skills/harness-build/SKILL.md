@@ -247,10 +247,16 @@ On any failure not caused by this change → STOP + surface (don't patch around 
 
 ## Step G — Stop at verified-not-shipped
 **Do not ship, push, or open a PR.**
-1. Emit `<change-state-dir>/pr-body.md` (handoff for `harness:ship`): Summary (bullet per group),
-   Changes (files/tasks/commits counts), Decisions made (`decisions.md` verbatim if non-empty, else
-   omit), Deferred (operator-owned groups), Verification (sensors + behavioral + openspec-verify +
-   review outcomes).
+1. Emit `<change-state-dir>/pr-body.md` (handoff for `harness:ship`) by **folding the committed
+   artifacts** per `references/pr-summary.md` — never re-analyze the diff. Sections: Title+lead
+   (`proposal.md`) · **Architecture** (≤4 lines from `design.md` decisions + the 🔴 story from
+   `architecture-review.md`) · Diagram (link iff `design.md` authored one — never synthesize) · What
+   changed (group/task/commit counts) · Decisions made (`decisions.md` verbatim if non-empty, else omit)
+   · Verification (sensors + behavioral + openspec-verify + review outcomes) · Deferred. Each section
+   ends `<sub>Sources:…</sub>` (cite-or-cut); empty input → omit the section. Wrap the whole body in the
+   `<!-- harness:pr-summary START/END -->` managed region and end it with the **provenance footer**
+   (`folded-against` = `git rev-parse HEAD`; `generated-by: harness:build v<hash8>`; `artifacts:` list)
+   per the rule.
 2. **Task tracker:** fire the `verified` stage hook (HARNESS.md). Do not move to a review/done state —
    that's ship/finish.
 3. **Append one run-log row** to the run-log (HARNESS.md › Observability; schema:

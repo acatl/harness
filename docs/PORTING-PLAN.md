@@ -605,6 +605,36 @@ From one-shot's first `harness:init` run:
   forks anywhere → `👤` entries. `refine` stays as-is (its decisions live in the ticket). build still folds
   the log verbatim into `pr-body.md` → rides into the PR. Decided: stage-level attribution (not sub-agent);
   keep the name `decisions.md`; reviews are pointed-to, not duplicated.
+- **AD — PR summary is a refreshable FOLD over committed artifacts (operator idea).** Operator wants the
+  PR to carry a digestible "what happened / architecture changes / decisions + why" summary, **cheap +
+  zero-assumption**. Key reframe: this is ~80% already built — `build` emits `<change-state-dir>/pr-body.md`
+  and folds `decisions.md` verbatim. AD sharpens it into a **deterministic fold** (composition, never
+  diff re-analysis — that's what makes it cheap *and* assumption-free at once): new shared rule
+  `rules/pr-summary.md` (the precedent: `decision-log.md`/`pipeline-map.md`/`walk-me-through.md` — one
+  canonical rule, bundled per-skill via `scripts/sync-skill-resources.sh`, drift-guarded). Contract:
+  section→source table (every section ends `<sub>Sources:…</sub>` — **cite-or-cut**, the zero-assumption
+  enforcer); **empty input→omit**; **new Architecture section** (≤4 lines prose distilled from `design.md`
+  decisions + the 🔴 story from `architecture-review.md` — the altitude a commit-group summary lacks);
+  **diagram link-only** (link iff `design.md` authored one — never synthesize); a **managed region**
+  (`<!-- harness:pr-summary START/END -->` — refresh rewrites only inside; human edits outside survive);
+  a **provenance footer** (machine block `folded-against`/`generated-by v<hash8>`/`artifacts` + one human
+  staleness line — matches the machine/human split). **Refreshable, not one-shot** (answers operator's
+  "the summary needs to be updated"): `build` emits initially; `ship` re-folds then opens the PR;
+  `address-pr-comments`/`fine-tune` re-fold + `gh pr edit --body` after a batch. **`folded-against` (HEAD
+  SHA at fold time) is the idempotency key** — not stale → refresh is a **no-op, skip the fold** (zero
+  tokens when source didn't move); staleness is a deterministic 2-line git check (`merge-base
+  --is-ancestor` for rebases + `diff --quiet` excluding `**/pr-body.md`). Optional `harness:finish`
+  pre-check offers a refresh before merge so the body can't silently rot. Validated as a sample fold over
+  one-shot's `2026-06-28-web-core` (every line traced to an artifact). **Wiring DONE:** `rules/pr-summary.md`
+  authored; added to the sync `MAP` for **build/ship/address-pr-comments** (bundled, drift-checked);
+  `build` Step G.1 rewritten to fold per the rule (managed region + footer); `ship` step 6 re-folds on PR
+  open (idempotency-key skip when HEAD unmoved); `address-pr-comments` final-report re-folds + `gh pr edit
+  --body-file` after a batch lands (gated on a `harness/` dir + a commit this run). **Narrowed from the
+  original next-step list (depth call):** `fine-tune` **dropped** — local-only by contract ("Don't push or
+  open a PR") and always precedes `ship`, which re-folds and picks up its commits via the idempotency key;
+  wiring it = redundant. `finish` pre-check **dropped** — `finish` runs at/after the feature PR merges, too
+  late to help a reviewer; freshness is already guaranteed by ship (fold-on-open) + address-pr-comments
+  (re-fold-on-batch). Touch set = 3 (build authors · ship re-folds · address-pr-comments re-folds).
 
 ## Risks
 
