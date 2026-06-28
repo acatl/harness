@@ -548,6 +548,16 @@ From one-shot's first `harness:init` run:
     build; object to any line") invites prose objections without a per-item veto. No card, no bundles, no
     table, no disposition icons. `➕ Added for completeness` (needs, auto-folded) stays distinct from
     `✨ Improvements` (wants, opt-in); both objectable in prose, neither a prompted gate.
+  - **AA-final (the decision put back at the center).** Root cause, found by reading kino's refine: it had the
+    SAME `propose-AC/propose-out/propose-spin-off` "Also worth considering" list — additions + exclusions
+    mixed under cryptic in/out tags ("spec in/out"). That tag-soup was the real trip-up, in kino *and* early
+    ours. Our ✨/✂️ split fixed it; but we then buried the decision under a separate ➕ section, `I#/C#` keys,
+    opt-in-vs-veto mechanics, and a commit card. Final model: **completeness folds INLINE with a `+` prefix**
+    (no separate section — `+` line in AC/Out-of-scope = "refine added this"); **✨ Improvements is the ONE
+    decision** — numbered `✨ 1/✨ 2` lines (what + why), opt in by number (`"add 1"`/`"none"`), default none;
+    Out-of-scope is its own `✂️`-headed section (read it, object in prose). No keys, no tags, no card, no
+    separate completeness section — the kino "here are suggestions, yes/no" feel, with additions and
+    exclusions cleanly separated.
   `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
   does at the handoff.

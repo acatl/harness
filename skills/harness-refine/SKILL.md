@@ -155,10 +155,10 @@ Companion states a *whole* feature needs but the operator skipped. Lenses (pick 
 - **Feedback / attribution** — confirmation? mutation attributed (human vs agent)?
 
 Route each: **default Out-of-scope**; promote to AC only when core (feature is broken without it).
-**Never silent:** every routed companion — folded into AC OR captured as out-of-scope — is listed in the
-**➕ Added for completeness** callout, keyed `C1, C2, …`, so the operator sees exactly what refine added and
-can veto it **by key**. (Optional enhancements that aren't *needs* belong in the expansion pass's
-**✨ Improvements**, not here.)
+**Fold inline, mark with `+`:** a completeness companion goes straight onto its AC or Out-of-scope line,
+prefixed `+` so the operator can spot "refine added this." **No separate section.** Not a decision — it's
+refine doing the ticket right; the operator can object to any `+` line in prose. (Optional enhancements that
+aren't *needs* belong in the expansion pass's **✨ Improvements**, not here.)
 
 ### Expansion pass *(feature shape)* — thinking partner
 Two questions, two streams: **"how could this be better than asked?"** (additive) and **"what doesn't belong
@@ -170,17 +170,16 @@ here?"** (subtractive). Generate freely; propose the **2–4 strongest** per str
 - **Scale / power paths** — bulk action, presets, a settable default.
 
 Route each into ONE of two streams:
-- **✨ Improvements (additive) — opt-in, default NOT included.** Ways to make it better than asked. Keyed
-  `I1, I2, …`. The operator accepts by key → refine folds it in (an Acceptance Criterion, or — if it's really
-  a separate feature — a spin-off ticket, which needs a yes since it's a *different* ticket). Nothing is
-  added unless the operator opts in.
-- **Subtractive ("doesn't belong") — into the ✂️ Out-of-scope section.** Scope refine would cut/exclude goes
-  straight into Out-of-scope as **plain lines** (no per-item marker — the section header carries the ✂️).
-  Shown for awareness, **not a per-item decision**; the operator objects in prose if a line is wrong.
+- **✨ Improvements (additive) — THE decision.** Ways to make it better than you asked — things the operator
+  didn't picture, *on top of* completeness. One **numbered** line each, prefixed `✨`, stating **what + why it
+  helps**. Default NOT included; the operator opts in by number → refine folds it in (an Acceptance Criterion,
+  or — if it's really a separate feature — a spin-off ticket, which needs a yes since it's a *different* ticket).
+- **Subtractive ("doesn't belong") — into the Out-of-scope section.** Scope refine would cut/exclude goes
+  straight into Out-of-scope (refine-added lines marked `+`). Shown for awareness, objected to in prose — not a decision.
 
-**The only active pick at commit is ✨ Improvements** — keep the human's decision on the highest-value choice
-(what extra to build). Out-of-scope + completeness are refine's confident calls: shown for review, objectable
-in prose, never a per-item gate. Widen the thinking, don't bloat the task — no icons, no bundles.
+**✨ Improvements is the operator's one active pick** — the highest-value choice (what extra to build).
+Completeness (`+` lines) and Out-of-scope are refine's confident calls: shown, objectable in prose, never a
+gate. **No `propose-in/out` tags, no keys, no bundles** — a plain "want any? add by number" menu.
 
 ### Draft (feature shape)
 ```markdown
@@ -190,28 +189,22 @@ in prose, never a per-item gate. Widen the thinking, don't bloat the task — no
 <!-- story line: feature/idea only; omit for bug/chore/non-functional -->
 
 **Acceptance criteria:**
-- **Given** <context> **When** <action> **Then** <observable outcome>.
-- … include promoted completeness states (empty/clear/composition), not just the happy path.
-<!-- bug: Given <repro> When <action> Then <correct behavior>, + a guarding test. -->
+- **Given** <context> **When** <action> **Then** <observable outcome>.   <!-- plain `-` = from the operator's ask -->
++ **Given** <completeness state — empty/clear/composition> **When** … **Then** …   <!-- `+` = refine added for completeness -->
+<!-- bug: Given <repro> When <action> Then <correct behavior>, plus a guarding test. -->
 <!-- non-functional: a measurable threshold vs the NFR doc (+ telemetry open question). -->
 
 **✂️ Out-of-scope:** *(your committed boundary — read this before you commit)*
-- <adjacent/confusable features + unpromoted completeness cases + anything refine judged doesn't belong>
-<!-- plain lines, NO per-item markers — the ✂️ brands the section header, not the rows. refine's suggested
-     exclusions go straight in here (its call); the operator reviews the whole section at commit and objects
-     to any line in prose. Not a per-item decision. -->
-
-**➕ Added for completeness** *(auto-folded in — veto any by key):*
-- C1  <companion>  → AC
-- C2  <companion>  → Out-of-scope
-<!-- key every promotion C1,C2,…; list ALL (to AC and to out-of-scope); omit the section only if none were added -->
+- <adjacent/confusable feature the operator implied>
++ <refine-added: a completeness case or a scope refine judged doesn't belong>
+<!-- `-` = operator-implied boundary · `+` = refine added it. Objected to in prose at commit, not a per-item gate. -->
 
 **Why:** *(only if it adds signal beyond the story)*
 
-**✨ Improvements** *(optional — opt in to any; default: none included. feature shape only — omit if none):*
-- I1  <improvement — a way this could be better than you asked>
-- I2  <improvement>
-<!-- key every improvement I1,I2,…; these are NOT in the ticket yet — the operator accepts by key -->
+**✨ Improvements** *(on top of your ask — want any? feature shape only; omit if none):*
+✨ 1  <improvement — what it is + why it helps>
+✨ 2  <improvement — what it is + why it helps>
+<!-- numbered; default NONE; operator opts in by number ("add 1" / "1 and 2" / "none"). NOT in the ticket until accepted. -->
 
 **Impl note:** *(only for a load-bearing default — named for visibility, not a requirement)*
 - <choice + why>
@@ -226,18 +219,17 @@ in prose, never a per-item gate. Widen the thinking, don't bloat the task — no
 - Flag an innocent-but-expensive criterion (one line, only if real) so OpenSpec sizes it early.
 
 ## 6. Iterate → commit
-The draft + `➕` completeness items commit either way (veto a `C#` if wrong). Two light touches before commit
-— **no card, no bundles, no disposition table:**
-- **✨ Improvements — opt in (default: none).** If any were surfaced, ask one plain line: which to pull in —
-  `"add I1"` · `"add I1 I3"` · `"none"`. Accepted → folded into the ticket (an AC, or a spin-off ticket with
-  a yes — a spin-off is a *different* ticket, never auto-created). None surfaced → skip this entirely.
-- **Scope reminder — always, before committing.** One line: **"⚠️ Read the ✂️ Out-of-scope section — that's
-  what you're committing to NOT build. Object to any line if it's wrong."** This is the deliberate "know what
-  you're committing to" check — awareness, not a per-item gate.
-- **Approve → commit.** Apply accepted Improvements + any prose objections (an Out-of-scope line or a `C#`
-  the operator flagged), update the task (title + description; + type if changed), then emit the **pipeline
-  trail** for the `refine` end stop per `references/pipeline-map.md` (one line). No ✨ Improvements → a bare
-  one-line `yes / edit` approval. Never `AskUserQuestion`.
+The draft (incl. `+` completeness lines) commits either way — the operator objects to any `+` line in prose if
+it's wrong. **One decision, one reminder — no card, no bundles, no keys:**
+- **✨ Improvements — want any? (default: none).** If any were surfaced, one plain line: `"add 1"` ·
+  `"1 and 2"` · `"none"`. Accepted → folded into the ticket (an AC, or a spin-off ticket with a yes — a
+  *different* ticket, never auto-created). None surfaced → skip this entirely.
+- **Scope reminder — always, before committing.** One line: **"⚠️ Read the ✂️ Out-of-scope — that's what
+  you're committing to NOT build. Object to any line if it's wrong."** Awareness, not a per-item gate.
+- **Approve → commit.** Apply accepted Improvements + any prose objections, update the task (title +
+  description; + type if changed), then emit the **pipeline trail** for the `refine` end stop per
+  `references/pipeline-map.md` (one line). No ✨ Improvements → a bare one-line `yes / edit` approval. Never
+  `AskUserQuestion`.
 - **Next pointer — name the build mode** so the operator knows the parameter values:
   `Next: /harness:build <task-id>` — **gated** (default): pauses at the spec-review gate so you review the
   spec before code · append **yolo** (`/harness:build <task-id> yolo`): straight through, no spec gate
