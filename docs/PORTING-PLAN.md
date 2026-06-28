@@ -28,21 +28,30 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   warn formatter; warn/ask logging), config-seed against the known spec-driven shape (no probing).
   **Finding H (self-contained skills):** skills now bundle their runtime inputs in-dir (`templates/` +
   `references/`); repo root canonical, drift-guarded by `scripts/sync-skill-resources.sh`.
-- **Current micro-state (resume here):** one-shot baseline committed (`5db4d03`, `.vscode/` ignored, all
-  5 context docs authored — no template markers). The clean re-init was **blocked by finding H** — the
-  symlinked init skill couldn't see its bundled templates/docs (they lived only at harness repo root).
-  **Now fixed** (this change): bundles created in-dir, refs rewritten, validated readable through
-  one-shot's symlink. one-shot still has **no `openspec/`, no `docs/HARNESS.md`** (wiped) — ready for a
-  clean init.
-- **Next action — the operator runs, in a one-shot session:** (1) `openspec init --tools claude`
-  (initializes OpenSpec — installs the vendor `openspec-*`/`opsx:*` skills the harness *needs*; don't
-  remove them); (2) `/harness:init` (the bundle now resolves over the symlink). Then, from a harness-pipeline session,
-  **review the run:** read the **newest** transcript by mtime in
-  `~/.claude/projects/-Users-acatl-workspace-one-shot/*.jsonl` (ignore the 2 pre-wipe ones; confirm
-  it has this run's `▶ harness:init`), grep `▶ harness:`/`■ harness:`, cross-check
-  `one-shot/.claude/harness/runs.jsonl`, diagnose friction, edit skills here (live via symlink),
-  commit on `feat/harness-foundation`.
-- **Last updated:** 2026-06-26
+- **Current micro-state (resume here):** init validated clean; **the full pipeline is proven end-to-end on
+  one-shot** — `settings-keychain` (ONEST-3) shipped + merged + finished; `window-chrome` archived;
+  `web-core` (ONEST-4) currently at **verified-not-shipped**. A large dogfood wave landed (findings **H–AD**),
+  most of it driven by live runs: walk-me-through **fork format** across all fork skills; **pipeline trail**
+  ("you are here"); refine reworked to **✨ Improvements as a checkbox** (`AskUserQuestion multiSelect`) +
+  `+`-marked inline completeness + commit decision split from next-steps + product-altitude improvements;
+  **committed `openspec/changes/<change>/harness/` dir** (retired legacy `.specd/`); **pipeline-wide
+  `decisions.md` ledger** (every load-bearing call, attributed; folded into `pr-body.md` → PR); **ship auto-
+  pushes** + uses build's `pr-body.md`; **finish auto-pushes** the chore PR; **active-ticket tracker writes
+  autonomous**; **behavioral-verify releases the machine** after Observe; new read-only **`harness:status`**.
+  Both repos clean: harness-pipeline @ `b320252` on `feat/harness-foundation` (local, unpushed by choice);
+  one-shot has `web-core` mid-flight with its `harness/` artifacts committed.
+- **Next action — VALIDATE the recent wave (it's committed but largely unexercised live).** findings ~R–AD
+  (ship/finish auto-push, no-premature-commands, trail firing, breadcrumb-hash enforce, harness/ dir,
+  decision-log, ship→pr-body handoff, harness:status, refine checkbox flow) are skill-instruction changes
+  that need a real run to confirm they fire (new instructions historically under-fire first time). Cheapest
+  test: in one-shot, **`/harness:ship ONEST-4`** then **`/harness:finish`** — confirm: ship auto-pushes (no
+  confirm) + the PR body carries the **decision log** (via `pr-body.md`); the close-out order (build pointer
+  LAST); `harness/decisions.md` actually filled; `/harness:status` derives the right position. Then review the
+  newest one-shot transcript (by mtime), grep `▶/■ harness:`, fix friction, commit on `feat/harness-foundation`.
+  **Biggest unproven claim:** cross-stack — the Node/TS bed (`harness-test-web`) has never run the full pipeline.
+- **Deferred (in "Notes to resolve"):** ADRs at refine (opt-in), a `harness:walk-me-through` skill, a
+  doc-health audit skill, plugin packaging (finding B's full form), the per-run breadcrumb-hash-compute call.
+- **Last updated:** 2026-06-28
 
 ### Test beds (external sibling repos)
 
