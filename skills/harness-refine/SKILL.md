@@ -233,7 +233,10 @@ bloat the task.
   sections:** ⭐ → Acceptance Criteria (will build) · 🛑 → Out-of-scope (a recorded decision *against*, not
   built, not removed) · 📋 → its own ticket. Spell the **direction** in each option so "Out-of-scope" never
   reads as "deleted". Offer:
-  - **commit as drafted** — none of the Ideas written in (they stay as loose notes).
+  - **commit as drafted** — the Ideas are **discarded: not written to the ticket or any file.** They live
+    only in this conversation, so `build` (which reads the ticket + spec, never the chat) **will not pick
+    them up.** Pick B or escape to keep any. State this outcome plainly in the option — never call them
+    "notes" (implies a save that doesn't happen).
   - **+ ⭐ requirements** — add the ⭐ Ideas to the AC, e.g. `I1 → Acceptance Criteria (build)` (offer only when ≥1 ⭐ exists).
   - **+ all Ideas, each per its icon** — `I1 → Acceptance Criteria (build)` · `I2, I3 → Out-of-scope
     (recorded as deliberate non-goals — not built)` · `I4 → its own ticket (confirm first)`. A 📋 spin-off is

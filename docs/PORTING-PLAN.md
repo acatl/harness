@@ -529,6 +529,13 @@ From one-shot's first `harness:init` run:
     confirm (step 3 now announces the diff + proceeds, stopping only on something clearly unintended) — ship
     has **no internal yes/no gates**. Supersedes M's "standalone ship always confirms" — ship now auto-pushes
     whether standalone or as finish's chore-PR step. Still: never force-push, never self-merge.
+  - **Z — options must be deterministic (no ambiguous messages).** refine's commit-card option A read
+    "Ideas stay as loose notes" — but they're written nowhere, so "notes" implied a save that never happens;
+    the operator couldn't tell if `build` would pick them up (it won't — build reads the ticket/spec, never
+    chat). Fixed A to state the outcome plainly: **"discarded — not written to the ticket or any file; build
+    won't pick them up; pick B/escape to keep any."** Generalized to a **walk-me-through rule**: every option
+    spells out exactly what it writes/creates/**discards** and where — banned vague words ("notes", "handle
+    it", "etc."); a discard says so plainly; the most-default option gets the most-deterministic wording.
 - **T — added.** refine's end pointer now names the **build mode** so the operator sees the parameter values:
   `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
