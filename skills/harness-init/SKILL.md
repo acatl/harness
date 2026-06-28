@@ -100,7 +100,9 @@ pre-existing bindings. OpenSpec CLI + `openspec/` init are Step-1 preconditions 
   - **Hard gate + resume:** ANY of the four author-required roles unauthored after templating → **STOP this pass.** Print the list of files needing authorship + their confirmed paths; tell the operator: author them (remove the `<!-- HARNESS TEMPLATE` marker line when done), then **re-run `/harness:init`** to continue. Do NOT write `docs/HARNESS.md` or seed `openspec/config.yaml` in a stopped pass. On re-run, a role is satisfied when its confirmed file exists and the marker line is gone; all four authored → proceed.
   - Record all confirmed role→file paths in HARNESS.md › Context docs. Never overwrite an authored doc — link it.
 - **Seed the OpenSpec feedforward** (only when `openspec/config.yaml` exists — it's a Step-1 precondition). If its `context:` is empty, author it against the standard OpenSpec spec-driven config shape — do NOT probe the CLI for a schema: `schema: spec-driven`; `context: |` a block distilled from the confirmed context docs (north-star + IS/IS-NOT + tech constraints + key invariants + task-tracker note); `rules:` per artifact (proposal: enforce non-goals/scope guard; design: dependency + architecture invariants, no speculative abstractions; tasks: final task is the HARNESS.md sensor gate, pure-logic ships with tests, non-unit-tested surfaces get a runtime-verify task). Preserve any non-`context` keys already present.
-- Git-ignore the run-log path, app runtime-log path, build progress dir (append to `.gitignore`).
+- Git-ignore the run-log path + app runtime-log path (append to `.gitignore`). **Do NOT git-ignore the
+  change-state dir** (`openspec/changes/<change>/harness/`) — it's committed so teammates see the reviews +
+  recon + decisions.
 - Optional pre-push gate stub if wanted.
 
 ### 6. Report

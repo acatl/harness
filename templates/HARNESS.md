@@ -43,7 +43,7 @@ Each must pass before the next. This set also defines the pre-push gate (see *Ga
 | sources dir | `<path>` | |
 | tests dir   | `<path>` | |
 | rules dir   | `<path, e.g. .claude/rules/>` | convention files skills pre-load |
-| change state dir | `<path, e.g. openspec/changes/<change>/.specd/>` | where `build` keeps its progress/resume files |
+| change state dir | `openspec/changes/<change>/harness/` | **committed** (not git-ignored) so teammates see it. Home for **all** per-change harness artifacts: reviews (`architecture-review.md`, `design-review.md`), `recon.md`, `progress.md`, `decisions.md`, `pr-body.md`, `surface-map.md`. (The cross-change run-log is separate — see *Observability*.) |
 | <other load-bearing configs> | `<path>` | |
 
 ## Conventions

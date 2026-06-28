@@ -221,7 +221,8 @@ Skipped: #2, #5
 - autonomous: print same summary, then write directly (invocation = consent). A fork the operator
   never answered → recorded skipped, never auto-decided.
 
-Then write the gate artifact `<change-state-dir>/reviews/design.md` — the **durable verification record**.
+Then write the gate artifact `<change-state-dir>/design-review.md` (committed, flat under the change's
+`harness/` dir — not a `reviews/` subfolder) — the **durable verification record**.
 Write it in FULL **regardless of mode**: the in-stream report may be terse (Output mode-awareness), but this
 file always carries every finding's detail so a reader can verify each one and see its value. **Never reduce
 it to a bare count stamp** — embed the findings table AND per-finding detail (applied and skipped):

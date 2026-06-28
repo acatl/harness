@@ -64,8 +64,10 @@ flowchart TB
   - `gated` (default) stops after tasks, shows you the spec, and loops "ready?" until you approve or
     request edits. `yolo` skips that gate. **Both still stop on a genuine fork** (decision fork,
     design-level problem, scope drift, uncaused sensor/verify failure).
-  - It keeps **its own progress file** under the change dir so it always knows where it left off —
-    resumable across sessions (builds on kino's `.specd/` pattern).
+  - It keeps **its own progress file** under the change's committed `harness/` dir
+    (`openspec/changes/<change>/harness/`) so it always knows where it left off — resumable across sessions.
+    (All per-change harness artifacts — reviews, recon, decisions, pr-body — live there, committed so the
+    team sees them. Supersedes the legacy `.specd/` from kino.)
 - **Nothing ships automatically.** The core ends at *verified locally, not shipped*. You test it
   yourself; iterate with `harness:fine-tune` if needed. `harness:ship` (push + open PR) is a separate,
   deliberate step you trigger when ready.

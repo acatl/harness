@@ -139,8 +139,9 @@ Run only selected reviews, order **architecture → design**. Skip excluded. Seq
 - Each review auto-applies unambiguous findings, stops on its own forks (may fire before its report +
   per Options finding). Let the review drive its own questions; don't pre-empt.
 - **Completion contract:** a review completes by (a) writing its gate artifact
-  `<change-state-dir>/reviews/<review>.md` + final summary line, **or** (b) self-calibrating to
-  out-of-scope/minimal and printing a one-line skip note (no gate artifact). Treat either as complete.
+  `<change-state-dir>/<review>-review.md` (committed, flat under `harness/`) + final summary line, **or**
+  (b) self-calibrating to out-of-scope/minimal and printing a one-line skip note (no gate artifact). Treat
+  either as complete.
   On completion, **proceed to the next review without yielding to the user** (even after a fork answer,
   even on self-skip). Don't wait for a gate artifact a self-skip never writes. Chain isn't complete
   until every selected review completed + Step D ran. Pause once per genuine fork.
@@ -254,7 +255,10 @@ On any failure not caused by this change → STOP + surface (don't patch around 
    ```text
    ## harness:build complete — <change> (verified, NOT shipped)
    Authored:  <artifacts | resumed existing>
-   Reviews:   architecture — <outcome|n/a|skipped> · design — <outcome|n/a|skipped>
+   Reviews:   architecture <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/architecture-review.md
+              design <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/design-review.md   (n/a|skipped if so)
+   <!-- ALWAYS cite the artifact path so the reviews are findable. If any 🔴 critical was found and
+        auto-applied (esp. in yolo, where it happened silently), call it out: "⚠️ 1🔴 auto-applied — read it." -->
    Impl:      <N>/<total> tasks · <N> group commits · mode <gated|yolo>
    Verify:    sensors <pass> · behavioral <ran|skipped:reason|n/a> · openspec-verify <pass> · review <outcome>
    Next:      test it yourself · /harness:fine-tune to polish · /harness:ship when ready

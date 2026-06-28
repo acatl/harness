@@ -578,6 +578,18 @@ From one-shot's first `harness:init` run:
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
   does at the handoff.
 
+- **AB — per-change harness artifacts → committed `harness/` dir (replaces `.specd/`).** Operator ran yolo,
+  reviews ran (arch 7 applied incl. a real 🔴, design 5) but were **undiscoverable**: written to the hidden
+  `.specd/reviews/`, and yolo auto-applied them so the operator was never pointed there — a silently-fixed
+  critical was invisible. Fix: the **change-state dir is now `openspec/changes/<change>/harness/`,
+  committed** (not git-ignored) so teammates see it in the PR; it's the home for **all** per-change harness
+  output — reviews (`architecture-review.md`/`design-review.md`, flat — no `reviews/` subfolder), `recon.md`,
+  `progress.md`, `decisions.md`, `pr-body.md`, `surface-map.md`. `.specd/` (kino legacy) is retired. build's
+  completion summary now **cites the review paths** and **flags a 🔴 auto-applied in yolo** ("read it"). init
+  no longer git-ignores the change-state dir. The cross-change **run-log stays separate** (`.claude/harness/
+  runs.jsonl`, git-ignored telemetry — not per-change). Skills were already binding-driven (`<change-state-dir>`),
+  so flipping the HARNESS.md binding + flattening the two review paths did most of it.
+
 ## Risks
 
 - **Liveness binding** is the hardest genericization (macOS crash-report mechanism is deeply
