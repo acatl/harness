@@ -297,6 +297,11 @@ Port in dependency order. Each follows the Per-skill checklist.
 
 ## Notes to resolve when we get there
 
+- **ADRs at refine level (deferred — operator idea).** refine's decisions currently live in the refined
+  ticket (not the change decision-log, which starts at build). Future option: refine could **offer to emit an
+  ADR** (Architecture Decision Record) for a refine-level load-bearing call (verdict, a scope fork), and the
+  operator decides whether to store it. Distinct from `harness/decisions.md` (per-change, impl-lifecycle) —
+  ADRs would be project-level, longer-lived. Not now; revisit if the team wants durable design-rationale docs.
 - **Potential `harness:walk-me-through` skill (deferred — not now).** The fork format is currently a bundled
   *rule* (`rules/walk-me-through.md`), read by skills, not invokable. Optional future addition: a thin
   `harness:walk-me-through` *skill* pointing at the same rule, so it's also a manual entry point
@@ -589,6 +594,17 @@ From one-shot's first `harness:init` run:
   no longer git-ignores the change-state dir. The cross-change **run-log stays separate** (`.claude/harness/
   runs.jsonl`, git-ignored telemetry — not per-change). Skills were already binding-driven (`<change-state-dir>`),
   so flipping the HARNESS.md binding + flattening the two review paths did most of it.
+- **AC — decision log expanded to a pipeline-wide ledger.** Operator loved `decisions.md` and wanted it to
+  capture **every load-bearing decision by anyone** (LLM, human, agents) across the change, so a PR reviewer
+  reads the whole "why is it like this" trail. New shared rule `rules/decision-log.md`: per-change committed
+  `harness/decisions.md`, **lightweight** entries (`## D<N> · <👤 human|🤖 stage> · <decision>` + one why-line
+  + optional `More:` pointer), **load-bearing bar kept high** (routine/rule/spec-dictated/mechanical never
+  logged — widen *stages*, not the noise threshold). Wired: recon (contested verdicts), architecture/design
+  (resolved forks + auto-applied 🔴, pointer to the review — no re-dump), build (impl gaps + deferrals, today's
+  content reframed), address-pr-comments (decline/defer + human picks, when the PR maps to a change). Human
+  forks anywhere → `👤` entries. `refine` stays as-is (its decisions live in the ticket). build still folds
+  the log verbatim into `pr-body.md` → rides into the PR. Decided: stage-level attribution (not sub-agent);
+  keep the name `decisions.md`; reviews are pointed-to, not duplicated.
 
 ## Risks
 

@@ -249,6 +249,11 @@ Outcome: <N critical, M recommended, K nice-to-have, J missing journeys> · Chan
 ## Forks resolved
 <TRADEOFF / UNCLEAR title → chosen option + one-line rationale> — omit the section if none
 ```
+After the gate artifact, append load-bearing calls to the **decision log** (`<change-state-dir>/decisions.md`,
+per `references/decision-log.md`): each **fork resolved** (TRADEOFF/UNCLEAR — the human's pick → `👤 human`)
+and any **auto-applied 🔴 critical** (→ `🤖 design`) — one line + `More: design-review.md #<n>`. Don't
+re-dump 🟠/🟡 findings; the review holds those.
+
 Final one-line: "Done — N changes written, M skipped." List skipped numbers so nothing vanishes.
 
 ## Don't

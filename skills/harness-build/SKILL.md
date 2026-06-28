@@ -218,9 +218,10 @@ At the gate, emit the **pipeline trail** for the `build · spec-review gate` sto
    - **Red mid-group:** **gated** stop+surface (failing task, error, completed tasks)+await; **yolo**
      agent resolves its own failure + continues; stop only on a genuine fork / unrecoverable failure.
    - **Design gap mid-task** (fork both modes): stop the task, surface (what / where / what the spec
-     would need); offer (A) update the spec artifact now + continue, or (B) note in
-     `<change-state-dir>/decisions.md` (the choice made) + proceed. Never silently invent. Routine
-     spec/rule-dictated choices are not logged — `decisions.md` is for genuine gaps only.
+     would need); offer (A) update the spec artifact now + continue, or (B) append the call to the
+     **decision log** (`<change-state-dir>/decisions.md`, format + bar per `references/decision-log.md` —
+     `## D<N> · 🤖 build · <decision>`) + proceed. Never silently invent. Routine spec/rule-dictated choices
+     are not logged — the log is **load-bearing only**. A fork the **human** resolves here → log as `👤 human`.
    - Update `progress.md` as each group commits. Repeat per group.
 
 ## Step F — Verify (the harness verification core)
@@ -231,7 +232,11 @@ Run in order; each must pass:
    → verdict. Liveness always; logs + behavioral per the binding. **Release the operator's machine the
    instant signals are captured** — tear down per HARNESS.md `teardown` (quit the app/processes, drop
    computer-use/screen focus) **before** running steps 3–4 below; never hold the screen through the
-   verify tail. **Skip for pure-logic-only changes** (no runtime surface). See
+   verify tail. **Minimize the borrow window** (interactive drivers): batch exercise+capture into the
+   fewest driver round-trips (one `computer_batch`: type+key+screenshot — not serial calls), and make
+   `teardown` the **literal next action after the final capture** (read logs / compute verdict only
+   after Release — nothing, incl. a Keychain dialog, between capture and teardown). **Skip for
+   pure-logic-only changes** (no runtime surface). See
    `references/runtime-verification-binding.md`.
 3. **openspec-verify-change** (vendor skill) — spec conformance against the artifacts. Resolve gaps.
 4. **Skeptical review** (doer ≠ judge) — a distinct review pass against the project's QUALITY_SCORE

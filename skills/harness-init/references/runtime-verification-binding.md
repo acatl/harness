@@ -27,6 +27,19 @@ Every implementing skill (for example, `harness:build`) runs the same four steps
    (non-visual) work** — the operator's machine is borrowed only for bring-up→observe, never held
    through the build's tail (openspec-verify, code-review, run-log, report all run with the machine
    free). A fail→fix→re-run brings the system up fresh.
+
+   **Minimize the borrow window (interactive drivers only).** When the driver holds the operator's
+   screen — computer-use (native) or browser automation — the held window is the *number of
+   round-trips*, not just where Release sits in the sequence. Two rules collapse it:
+   - **Batch** exercise + final capture into the fewest driver calls. One `computer_batch`
+     (type + key + screenshot), **not** serial `screenshot → type → screenshot → key → screenshot` —
+     each serial call is a model↔API round-trip with the launched app frontmost the whole time.
+   - **Teardown is the literal next action after the final capture.** Nothing between the last
+     screenshot and `teardown`: no log read, no verdict reasoning, no waiting on a system dialog
+     (e.g. a Keychain prompt). Reading signals and computing the verdict are non-visual (§1.5) and
+     run *after* Release.
+
+   HTTP/curl drivers hold no screen — this is moot for them.
 5. **Verdict** — from the captured signals (machine already released): pass only if no liveness
    failure, no error-level log line during the exercise, and (when checkable) the expected behavioral
    observations occurred. Otherwise fail → fix the cause → re-run. A failure not caused by this change

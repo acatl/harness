@@ -82,6 +82,8 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    ```
 7. **Confirm.** Show verdict tally. Any judgment call (contested `extend` vs `build-new`, a coupling
    decision) → a walk-me-through fork card: `[Y] Accept` / `[A] Adjust` / `[D] Discuss`. On A/D, revise + rewrite both.
+   A *contested* verdict that's resolved → append one line to the **decision log** (`<change-state-dir>/decisions.md`,
+   per `references/decision-log.md` — `🤖 recon`, or `👤 human` if the human picked). Obvious verdicts: not logged.
 
 ## Output
 ```text
