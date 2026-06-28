@@ -161,18 +161,26 @@ refine doing the ticket right; the operator can object to any `+` line in prose.
 aren't *needs* belong in the expansion pass's **✨ Improvements**, not here.)
 
 ### Expansion pass *(feature shape)* — thinking partner
-Two questions, two streams: **"how could this be better than asked?"** (additive) and **"what doesn't belong
-here?"** (subtractive). Generate freely; propose the **2–4 strongest** per stream, never a dump. Lenses:
-- **Alternative entry affordances** — click → keyboard shortcut, command palette, toolbar, context menu,
-  MCP tool / CLI for the agent path.
+Ask: **"what could this do FOR THE USER that they didn't picture?"** — improvements at the **product / WHAT
+altitude**, phrased the way a PM or designer would (a capability or experience the user gets), not how it's built.
+- ⛔ **NOT engineering concerns.** No implementation, reliability, observability, performance-plumbing, or
+  internal-seam ideas — *boot races, bridge handshakes/self-checks, tripwire diff output, retries, caches,
+  schema/migration safety.* Those are real but belong to **architecture / design / build**, which surface
+  them later. If an idea is about *how it's built* rather than *what the user gets*, **drop it here.**
+- ✅ **Test:** could a non-engineer product person say it, and would a user notice it? e.g. "syntax
+  highlighting in the prompt", "auto-save the draft", "a keyboard shortcut to send", "search past runs".
+
+Generate freely; propose the **2–4 strongest**, never a dump. User-facing lenses:
+- **Alternative entry affordances** — keyboard shortcut, command palette, toolbar, context menu, an agent/CLI path.
 - **Richer interaction modes** — expand/collapse, resize, layouts, density toggle, pin/persist, peek vs full.
 - **Adjacent capabilities** — filter, sort, search-within, group, export, deep-link to a state.
 - **Scale / power paths** — bulk action, presets, a settable default.
 
 Route each into ONE of two streams:
-- **✨ Improvements (additive) — THE decision.** Ways to make it better than you asked — things the operator
-  didn't picture, *on top of* completeness. One **numbered** line each, prefixed `✨`, stating **what + why it
-  helps**. Default NOT included; the operator opts in by number → refine folds it in (an Acceptance Criterion,
+- **✨ Improvements (additive) — THE decision.** User-facing ways to make it better than you asked — things
+  the operator didn't picture, *on top of* completeness. One **numbered** line each, prefixed `✨`, stating
+  **what the user gets + why it helps them** (product altitude — pass the test above). Default NOT included;
+  the operator opts in by number → refine folds it in (an Acceptance Criterion,
   or — if it's really a separate feature — a spin-off ticket, which needs a yes since it's a *different* ticket).
 - **Subtractive ("doesn't belong") — into the Out-of-scope section.** Scope refine would cut/exclude goes
   straight into Out-of-scope (refine-added lines marked `+`). Shown for awareness, objected to in prose — not a decision.
@@ -202,9 +210,11 @@ gate. **No `propose-in/out` tags, no keys, no bundles** — a plain "want any? a
 **Why:** *(only if it adds signal beyond the story)*
 
 **✨ Improvements** *(on top of your ask — want any? feature shape only; omit if none):*
-✨ 1  <improvement — what it is + why it helps>
-✨ 2  <improvement — what it is + why it helps>
-<!-- numbered; default NONE; operator opts in by number ("add 1" / "1 and 2" / "none"). NOT in the ticket until accepted. -->
+  - ✨ **1** — <user-facing improvement: what the user gets + why it helps them>
+  - ✨ **2** — <user-facing improvement: what the user gets + why it helps them>
+<!-- INDENTED list items (nested under the header). Numbered; product/WHAT altitude — never engineering
+     concerns (those go to architecture/design/build). Default NONE; opt in by number ("add 1" / "1 and 2" /
+     "none"). NOT in the ticket until accepted. -->
 
 **Impl note:** *(only for a load-bearing default — named for visibility, not a requirement)*
 - <choice + why>

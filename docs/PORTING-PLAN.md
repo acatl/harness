@@ -558,6 +558,13 @@ From one-shot's first `harness:init` run:
     Out-of-scope is its own `✂️`-headed section (read it, object in prose). No keys, no tags, no card, no
     separate completeness section — the kino "here are suggestions, yes/no" feel, with additions and
     exclusions cleanly separated.
+  - **AA-altitude (improvements are product-level, not engineering).** Live run surfaced ✨ Improvements at
+    the *implementation* altitude (boot-race handshake, bridge self-check, tripwire diff output) — wrong for
+    a *product* refiner. Added an altitude guard to the expansion pass: improvements are **user-facing WHAT**
+    (what the user gets, PM/designer phrasing), with a ⛔ ban on engineering concerns (reliability /
+    observability / seams / perf-plumbing / migration safety — those belong to architecture/design/build) and
+    a ✅ test ("could a non-engineer say it, would a user notice it?"). Also indented the ✨ lines (list items
+    nested under the header) — they were rendering flush-left.
   `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
   does at the handoff.
