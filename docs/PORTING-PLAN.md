@@ -16,7 +16,8 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 6 — **live harness iteration** (building of the harness is done). All 12 skills + the
+- **Phase:** 6 — **live harness iteration** (building of the harness is done). **13 skills** (12 + the new
+  read-only `harness:status`) + the
   `recon-first` rule are ported, telegraphic, genericized, namespaced `harness:<name>` (frontmatter
   colon, dir dashed), with **start/end breadcrumbs**. harness repo on `feat/harness-foundation`
   (local, unpushed by the user's choice). `harness:init` hardened across `c2d59e7 → cfdb00b`
@@ -635,6 +636,17 @@ From one-shot's first `harness:init` run:
   wiring it = redundant. `finish` pre-check **dropped** — `finish` runs at/after the feature PR merges, too
   late to help a reviewer; freshness is already guaranteed by ship (fold-on-open) + address-pr-comments
   (re-fold-on-batch). Touch set = 3 (build authors · ship re-folds · address-pr-comments re-folds).
+
+- **AD — new `harness:status` skill (derived "where am I / what's next").** Operator wanted a cold-start
+  answer to "what's the next step?" — none existed (the pipeline trail is emitted at run-end, lives in the
+  transcript). Built a **read-only** `harness:status`: **derives** the position from ground truth every time
+  (tracker column · `openspec status` · which `harness/` artifacts exist · git/PR state) — never a persisted
+  pointer (those drift). Renders the pipeline trail (reuses `rules/pipeline-map.md`) with a `✓` + evidence
+  per done stage, the `▸ here`, and the **one** runnable `◦ next` (human-action steps shown as the action,
+  per the one-runnable-command rule). No arg → lists all in-flight changes + each next step; arg → details
+  one. Flags anomalies (later stage done, earlier missing). 13th skill; meta/query (off the linear pipeline,
+  like `review`). Symlinked into one-shot. **Deferred:** `harness:status` not yet bundled into other
+  projects' `.claude/skills` beyond one-shot (operator's symlink/plugin step).
 
 ## Risks
 

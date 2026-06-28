@@ -46,6 +46,7 @@ MAP=(
   "rules/pipeline-map.md::skills/harness-ship/references/pipeline-map.md"
   "rules/pipeline-map.md::skills/harness-address-pr-comments/references/pipeline-map.md"
   "rules/pipeline-map.md::skills/harness-finish/references/pipeline-map.md"
+  "rules/pipeline-map.md::skills/harness-status/references/pipeline-map.md"
   "rules/decision-log.md::skills/harness-recon/references/decision-log.md"
   "rules/decision-log.md::skills/harness-architecture/references/decision-log.md"
   "rules/decision-log.md::skills/harness-design/references/decision-log.md"
