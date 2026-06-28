@@ -174,11 +174,13 @@ Route each into ONE of two streams:
   `I1, I2, …`. The operator accepts by key → refine folds it in (an Acceptance Criterion, or — if it's really
   a separate feature — a spin-off ticket, which needs a yes since it's a *different* ticket). Nothing is
   added unless the operator opts in.
-- **✂️ Doesn't belong (subtractive) — folded into Out-of-scope, veto on review.** Scope refine would
-  cut/exclude. Surfaced as **✂️-marked lines inside the Out-of-scope section** (option A — one scope section,
-  no parallel one). Recorded as non-goals by default; the operator rejects any on review to keep it in scope.
+- **Subtractive ("doesn't belong") — into the ✂️ Out-of-scope section.** Scope refine would cut/exclude goes
+  straight into Out-of-scope as **plain lines** (no per-item marker — the section header carries the ✂️).
+  Shown for awareness, **not a per-item decision**; the operator objects in prose if a line is wrong.
 
-Widen the thinking, don't bloat the task. No disposition icons on improvements, no bundles — a plain opt-in menu.
+**The only active pick at commit is ✨ Improvements** — keep the human's decision on the highest-value choice
+(what extra to build). Out-of-scope + completeness are refine's confident calls: shown for review, objectable
+in prose, never a per-item gate. Widen the thinking, don't bloat the task — no icons, no bundles.
 
 ### Draft (feature shape)
 ```markdown
@@ -193,10 +195,11 @@ Widen the thinking, don't bloat the task. No disposition icons on improvements, 
 <!-- bug: Given <repro> When <action> Then <correct behavior>, + a guarding test. -->
 <!-- non-functional: a measurable threshold vs the NFR doc (+ telemetry open question). -->
 
-**Out-of-scope:** *(your committed boundary — read this before you commit)*
-- <adjacent/confusable features + unpromoted completeness cases>
-- ✂️ <refine's suggested exclusion — recorded as a non-goal; reject on review to keep it in scope>
-<!-- plain line = decided boundary · ✂️ = refine suggests excluding this (rejectable) -->
+**✂️ Out-of-scope:** *(your committed boundary — read this before you commit)*
+- <adjacent/confusable features + unpromoted completeness cases + anything refine judged doesn't belong>
+<!-- plain lines, NO per-item markers — the ✂️ brands the section header, not the rows. refine's suggested
+     exclusions go straight in here (its call); the operator reviews the whole section at commit and objects
+     to any line in prose. Not a per-item decision. -->
 
 **➕ Added for completeness** *(auto-folded in — veto any by key):*
 - C1  <companion>  → AC
@@ -228,13 +231,13 @@ The draft + `➕` completeness items commit either way (veto a `C#` if wrong). T
 - **✨ Improvements — opt in (default: none).** If any were surfaced, ask one plain line: which to pull in —
   `"add I1"` · `"add I1 I3"` · `"none"`. Accepted → folded into the ticket (an AC, or a spin-off ticket with
   a yes — a spin-off is a *different* ticket, never auto-created). None surfaced → skip this entirely.
-- **Scope reminder — always, before committing.** One line: **"⚠️ Read the Out-of-scope section — that's
-  what you're committing to NOT build, including my ✂️ suggestions. Tell me if any is wrong."** This is the
-  deliberate "know what you're committing to" check; reject a `✂️` line to keep it in scope.
-- **Approve → commit.** Apply accepted Improvements + any `C#`/`✂️` vetoes, update the task (title +
-  description; + type if changed), then emit the **pipeline trail** for the `refine` end stop per
-  `references/pipeline-map.md` (one line). No ✨ Improvements + no vetoes → a bare one-line `yes / edit`
-  approval. Never `AskUserQuestion`.
+- **Scope reminder — always, before committing.** One line: **"⚠️ Read the ✂️ Out-of-scope section — that's
+  what you're committing to NOT build. Object to any line if it's wrong."** This is the deliberate "know what
+  you're committing to" check — awareness, not a per-item gate.
+- **Approve → commit.** Apply accepted Improvements + any prose objections (an Out-of-scope line or a `C#`
+  the operator flagged), update the task (title + description; + type if changed), then emit the **pipeline
+  trail** for the `refine` end stop per `references/pipeline-map.md` (one line). No ✨ Improvements → a bare
+  one-line `yes / edit` approval. Never `AskUserQuestion`.
 - **Next pointer — name the build mode** so the operator knows the parameter values:
   `Next: /harness:build <task-id>` — **gated** (default): pauses at the spec-review gate so you review the
   spec before code · append **yolo** (`/harness:build <task-id> yolo`): straight through, no spec gate
