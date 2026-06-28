@@ -249,14 +249,16 @@ committing to NOT build. Object to any line if it's wrong."` Awareness, not a ga
     requiring and excluding the same thing.
 - **No improvements** → no checkbox; a bare one-line `yes / edit` approval. Submitting yes commits.
 
-**c. Commit + close out (after b).** Update the task (title + description; + type if changed). Then, and only
-then, emit:
-- the **pipeline trail** (`refine` end stop, `references/pipeline-map.md`) — `✓ refine → ▸ build → ◦ build`;
-- the **build pointer**: `Next: /harness:build <task-id>` — **gated** (default: pauses at the spec-review
-  gate) · or `yolo` (straight through, still stops at real forks).
-- **Brainstorm / Sharpen — non-blocking suggestion (feature/idea only).** After the commit, end with a
-  plain one-line suggestion the operator can ignore. **Do not open a fork here** (no card, no question) —
-  the run ends once the task is persisted. Skip for bug/chore/non-functional.
+**c. Commit + close out (after b).** Update the task (title + description; + type if changed). Then emit the
+closing block **in THIS order — the build pointer is LAST so it's the clear final step, nothing below it:**
+  1. `Committed.` + what folded (one line).
+  2. **Out:** a one-line summary of this run (verdict · key reshape · ACs added · improvements folded).
+  3. *(optional, feature/idea only)* **thinking-partner note** — one plain line the operator can ignore
+     (e.g. "worth a quick `/harness:explore` first to pressure-test X"). Clearly optional; not a fork.
+  4. `■ harness:refine → <outcome>` — the end breadcrumb.
+  5. **pipeline trail, then the build pointer (LAST):** `✓ refine → ▸ build → ◦ build`, then
+     `Next: /harness:build <task-id>` — **gated** (default: pauses at the spec-review gate) · or `yolo`
+     (straight through, still stops at real forks). **Nothing after this** — it's the operator's next move.
 - **already-well-formed** → nothing to commit; confirm ready, stop.
 - **already-done** + agree → write the reason into the task description (where the tracker persists it),
   then close (`done`). If created this invocation (collision check missed it) → say so, close `done`
