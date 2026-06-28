@@ -157,25 +157,28 @@ Companion states a *whole* feature needs but the operator skipped. Lenses (pick 
 Route each: **default Out-of-scope**; promote to AC only when core (feature is broken without it).
 **Never silent:** every routed companion — folded into AC OR captured as out-of-scope — is listed in the
 **➕ Added for completeness** callout, keyed `C1, C2, …`, so the operator sees exactly what refine added and
-can veto it **by key**. Judgment calls additionally → the **💡 Ideas** section.
+can veto it **by key**. (Optional enhancements that aren't *needs* belong in the expansion pass's
+**✨ Improvements**, not here.)
 
 ### Expansion pass *(feature shape)* — thinking partner
-"What could this *also be* that the operator didn't picture?" **Generate freely, route conservatively.**
-Propose the **2–4 strongest**, never a dump. Lenses:
+Two questions, two streams: **"how could this be better than asked?"** (additive) and **"what doesn't belong
+here?"** (subtractive). Generate freely; propose the **2–4 strongest** per stream, never a dump. Lenses:
 - **Alternative entry affordances** — click → keyboard shortcut, command palette, toolbar, context menu,
   MCP tool / CLI for the agent path.
 - **Richer interaction modes** — expand/collapse, resize, layouts, density toggle, pin/persist, peek vs full.
 - **Adjacent capabilities** — filter, sort, search-within, group, export, deep-link to a state.
 - **Scale / power paths** — bulk action, presets, a settable default.
 
-Route each idea by its recommended disposition — render as an icon, never jargon:
-- **⭐ pull in as a requirement** — *rare*; only if core.
-- **🛑 keep as a non-goal** — *common*; an explicit non-goal, not built.
-- **📋 spin off as its own task** — really a separate feature; needs a yes (a *different* ticket), never auto-create.
+Route each into ONE of two streams:
+- **✨ Improvements (additive) — opt-in, default NOT included.** Ways to make it better than asked. Keyed
+  `I1, I2, …`. The operator accepts by key → refine folds it in (an Acceptance Criterion, or — if it's really
+  a separate feature — a spin-off ticket, which needs a yes since it's a *different* ticket). Nothing is
+  added unless the operator opts in.
+- **✂️ Doesn't belong (subtractive) — folded into Out-of-scope, veto on review.** Scope refine would
+  cut/exclude. Surfaced as **✂️-marked lines inside the Out-of-scope section** (option A — one scope section,
+  no parallel one). Recorded as non-goals by default; the operator rejects any on review to keep it in scope.
 
-These three dispositions are the only ones in the **💡 Ideas** section (completeness judgment calls use them
-too). Surface all in one section, keyed `I1, I2, …`, lead each with its icon — widen the thinking, don't
-bloat the task.
+Widen the thinking, don't bloat the task. No disposition icons on improvements, no bundles — a plain opt-in menu.
 
 ### Draft (feature shape)
 ```markdown
@@ -190,8 +193,10 @@ bloat the task.
 <!-- bug: Given <repro> When <action> Then <correct behavior>, + a guarding test. -->
 <!-- non-functional: a measurable threshold vs the NFR doc (+ telemetry open question). -->
 
-**Out-of-scope:**
+**Out-of-scope:** *(your committed boundary — read this before you commit)*
 - <adjacent/confusable features + unpromoted completeness cases>
+- ✂️ <refine's suggested exclusion — recorded as a non-goal; reject on review to keep it in scope>
+<!-- plain line = decided boundary · ✂️ = refine suggests excluding this (rejectable) -->
 
 **➕ Added for completeness** *(auto-folded in — veto any by key):*
 - C1  <companion>  → AC
@@ -200,12 +205,10 @@ bloat the task.
 
 **Why:** *(only if it adds signal beyond the story)*
 
-**💡 Ideas** *(optional extras; feature shape only — omit if none. icon = recommended disposition):*
-*Legend — ⭐ requirement → Acceptance Criteria (build) · 🛑 non-goal → Out-of-scope (recorded, not built) · 📋 spin off → its own ticket*
-- ⭐ I1  <idea>
-- 🛑 I2  <idea>
-- 📋 I3  <idea>
-<!-- key every idea I1,I2,…; lead with the disposition icon; order ⭐ then 🛑 then 📋 -->
+**✨ Improvements** *(optional — opt in to any; default: none included. feature shape only — omit if none):*
+- I1  <improvement — a way this could be better than you asked>
+- I2  <improvement>
+<!-- key every improvement I1,I2,…; these are NOT in the ticket yet — the operator accepts by key -->
 
 **Impl note:** *(only for a load-bearing default — named for visibility, not a requirement)*
 - <choice + why>
@@ -220,32 +223,18 @@ bloat the task.
 - Flag an innocent-but-expensive criterion (one line, only if real) so OpenSpec sizes it early.
 
 ## 6. Iterate → commit
-- **No 💡 Ideas pending** → bare **one-line approval gate** (yes / edit). Edits → step 5. Not a fork; don't
-  dress it up or fire `AskUserQuestion`.
-- **💡 Ideas present** → the commit becomes a **commit-specific selection card** — a deliberately *lighter*
-  form than the full walk-me-through ceremony: **no `Q<N> of <total>` counter, no `Cost if` / `Escape:` /
-  `Pick:` lines** (this is a terminal subset-selection, not a between-alternatives fork — the ceremony would
-  be noise). Render a table with a single **`What it writes into the ticket`** column + a one-line
-  **Recommendation** + "reply by letter" (escape is an option *in* the table). Still pure text — never
-  `AskUserQuestion`. **Each option names the exact keys + destinations — never a vague "fold ideas in"** so the
-  operator reads precisely what lands. The draft + ➕ completeness items commit either way; the choice is only
-  *what to do with the 💡 Ideas*. **Every disposition writes the Idea INTO the ticket — just into different
-  sections:** ⭐ → Acceptance Criteria (will build) · 🛑 → Out-of-scope (a recorded decision *against*, not
-  built, not removed) · 📋 → its own ticket. Spell the **direction** in each option so "Out-of-scope" never
-  reads as "deleted". Offer:
-  - **commit as drafted** — the Ideas are **discarded: not written to the ticket or any file.** They live
-    only in this conversation, so `build` (which reads the ticket + spec, never the chat) **will not pick
-    them up.** Pick B or escape to keep any. State this outcome plainly in the option — never call them
-    "notes" (implies a save that doesn't happen).
-  - **+ ⭐ requirements** — add the ⭐ Ideas to the AC, e.g. `I1 → Acceptance Criteria (build)` (offer only when ≥1 ⭐ exists).
-  - **+ all Ideas, each per its icon** — `I1 → Acceptance Criteria (build)` · `I2, I3 → Out-of-scope
-    (recorded as deliberate non-goals — not built)` · `I4 → its own ticket (confirm first)`. A 📋 spin-off is
-    a *different* ticket — never auto-create; confirm before each.
-  - **escape — pick exactly by key** — e.g. `"I1, I3 only"` · `"all but I4"` · `"drop C2"` · discuss.
-  Recommend one. Reply by letter (+ optional `I#`/`C#` keys); never `AskUserQuestion` or prose `(a)/(b)/(c)`.
-- Approve → apply the chosen Idea foldings + any keyed completeness vetoes, then update the task (title +
-  description; + type if it changed). Then emit the **pipeline trail** for the `refine` end stop per
-  `references/pipeline-map.md` (one line).
+The draft + `➕` completeness items commit either way (veto a `C#` if wrong). Two light touches before commit
+— **no card, no bundles, no disposition table:**
+- **✨ Improvements — opt in (default: none).** If any were surfaced, ask one plain line: which to pull in —
+  `"add I1"` · `"add I1 I3"` · `"none"`. Accepted → folded into the ticket (an AC, or a spin-off ticket with
+  a yes — a spin-off is a *different* ticket, never auto-created). None surfaced → skip this entirely.
+- **Scope reminder — always, before committing.** One line: **"⚠️ Read the Out-of-scope section — that's
+  what you're committing to NOT build, including my ✂️ suggestions. Tell me if any is wrong."** This is the
+  deliberate "know what you're committing to" check; reject a `✂️` line to keep it in scope.
+- **Approve → commit.** Apply accepted Improvements + any `C#`/`✂️` vetoes, update the task (title +
+  description; + type if changed), then emit the **pipeline trail** for the `refine` end stop per
+  `references/pipeline-map.md` (one line). No ✨ Improvements + no vetoes → a bare one-line `yes / edit`
+  approval. Never `AskUserQuestion`.
 - **Next pointer — name the build mode** so the operator knows the parameter values:
   `Next: /harness:build <task-id>` — **gated** (default): pauses at the spec-review gate so you review the
   spec before code · append **yolo** (`/harness:build <task-id> yolo`): straight through, no spec gate

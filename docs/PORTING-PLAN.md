@@ -536,7 +536,16 @@ From one-shot's first `harness:init` run:
     won't pick them up; pick B/escape to keep any."** Generalized to a **walk-me-through rule**: every option
     spells out exactly what it writes/creates/**discards** and where — banned vague words ("notes", "handle
     it", "etc."); a discard says so plainly; the most-default option gets the most-deterministic wording.
-- **T — added.** refine's end pointer now names the **build mode** so the operator sees the parameter values:
+  - **AA — refine thinking-partner reframed to additive/subtractive (operator's mental model; supersedes the
+    S/U/Z commit-card).** The A/B/C bundle card + "What it writes" table + ⭐/🛑/📋/– disposition double-layer
+    was too dense — the operator couldn't easily "check what I want in." Reframed to match how a human reasons:
+    **✨ Improvements** (additive — "how could this be better than asked?", **opt-in, default none**, keyed
+    `I#`, accept by `"add I1"`; accepted → AC or spin-off-with-yes) and **✂️ Doesn't belong** (subtractive —
+    folded into the existing **Out-of-scope** section as ✂️-marked lines, **veto on review**, option A: one
+    scope section not two). Commit step is now a plain **opt-in menu + a scope reminder** ("⚠️ read Out-of-scope
+    — that's what you're committing to NOT build") — no card, no bundles, no table, no per-item disposition
+    icons. Dispositions collapsed: an accepted Improvement just goes in (refine picks AC vs spin-off). `➕ Added
+    for completeness` (needs, auto-folded, veto) stays distinct from `✨ Improvements` (wants, opt-in).
   `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
   does at the handoff.
