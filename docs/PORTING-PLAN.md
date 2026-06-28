@@ -565,6 +565,15 @@ From one-shot's first `harness:init` run:
     observability / seams / perf-plumbing / migration safety — those belong to architecture/design/build) and
     a ✅ test ("could a non-engineer say it, would a user notice it?"). Also indented the ✨ lines (list items
     nested under the header) — they were rendering flush-left.
+  - **AA-checkbox (the Improvements pick is a checkbox; decision split from next-steps).** The commit moment
+    had four competing CTAs (read out-of-scope · pick improvements · approve · build pointer) — no clear next
+    step. Fixes: (1) **principled interaction split** — single-pick *forks* → walk-me-through text card;
+    **multi-select opt-in** (✨ Improvements) → a **checkbox** (`AskUserQuestion multiSelect`, the one
+    sanctioned native-picker use). Operator checks any/all/none; **submitting = approve + commit** (checked
+    folded in, unchecked discarded; "Other" = edit). (2) **Text-first** — improvements shown as a text list
+    (`✨ <feature> — <why the user benefits>`, all already recommended, no per-item tag) *before* the checkbox,
+    for context. (3) **Decision split from orientation** — the pipeline trail + `/harness:build` pointer move
+    to **after** commit, never alongside the pick (they were competing). Validated the checkbox feel live.
   `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
   through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
   does at the handoff.

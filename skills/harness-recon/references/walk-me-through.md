@@ -1,10 +1,14 @@
 # Fork format — walk-me-through (pure text)
 
-How every harness skill presents a **fork** (a decision it needs the operator to make). Pure text —
-**never** `AskUserQuestion` or any native picker. One fork per turn; operator replies by typing a letter.
+How every harness skill presents a **single-pick fork** (one decision, pick one — reasoning matters). Pure
+text — **never** `AskUserQuestion` or any native picker. One fork per turn; operator replies by typing a letter.
 
 Minimize text at decision time; preserve full signal. Recommendation is mandatory — never leave the
 operator to weigh blind.
+
+> **Scope:** this governs **single-pick forks** only. A **multi-select opt-in menu** (check any/all/none —
+> e.g. refine's ✨ Improvements pick) is a different interaction: use a **checkbox** (`AskUserQuestion`,
+> `multiSelect:true`), the one sanctioned native-picker use. Forks ≠ checklists.
 
 ## Per-fork card (render exactly this shape — every labeled line is MANDATORY)
 

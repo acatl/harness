@@ -55,11 +55,14 @@ ambition with no grounding/verdict, that's a brainstorm/idea tool, not refine.
 - **Scope = the one task** named/created this invocation. Any other mutation (spike, extra task,
   move/close) needs an explicit yes.
 - **Surface before solving** — charter conflicts, already-built, load-bearing defaults named first.
-- **Forks are pure text** — **any** ≥2-option decision put to the operator (clarify, project-resolve,
-  *and* next-step/iterate offers like "commit / tighten / discuss") is rendered as a walk-me-through fork
-  card (`references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
-  operator replies by letter. **Never `AskUserQuestion`, any native picker, or ad-hoc prose `(a)/(b)/(c)`.**
-  The lone exception is the bare draft-approval gate (yes / edit) — a one-line ask, not a fork.
+- **Interaction kinds — pick the right tool:**
+  - **Single-pick fork** (clarify, project-resolve, "commit / tighten / discuss") → a **walk-me-through fork
+    card** (`references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
+    reply by letter. **Never `AskUserQuestion` or ad-hoc prose `(a)/(b)/(c)` for a fork.**
+  - **Multi-select opt-in** (the ✨ Improvements pick) → a **checkbox** (`AskUserQuestion`, `multiSelect:true`)
+    — check any / all / none. This is the *one* sanctioned `AskUserQuestion` use; it's the right form for a
+    multi-select menu (not a single-pick fork). See Step 6.
+  - **Bare approval** (yes / edit) → a one-line ask, not a fork.
 
 ---
 
@@ -209,12 +212,12 @@ gate. **No `propose-in/out` tags, no keys, no bundles** — a plain "want any? a
 
 **Why:** *(only if it adds signal beyond the story)*
 
-**Improvements** *(on top of your ask — want any? feature shape only; omit if none — ✨ marks each line, never the header):*
-  - ✨ **1** — <user-facing improvement: what the user gets + why it helps them>
-  - ✨ **2** — <user-facing improvement: what the user gets + why it helps them>
-<!-- INDENTED list items (nested under the header). Numbered; product/WHAT altitude — never engineering
-     concerns (those go to architecture/design/build). Default NONE; opt in by number ("add 1" / "1 and 2" /
-     "none"). NOT in the ticket until accepted. -->
+**Improvements** *(on top of your ask — all worth considering; you'll pick in a checkbox. feature shape only; omit if none):*
+  - ✨ <feature> — <why: what the user gets out of it>
+  - ✨ <feature> — <why: what the user gets out of it>
+<!-- TEXT list first, for context (format: "feature — why the user benefits"). Everything here is already a
+     refine recommendation — no per-item "recommended" tag. INDENTED, ✨ per line, no numbers. Product/WHAT
+     altitude only. The actual pick is the checkbox in Step 6; nothing is in the ticket until checked. -->
 
 **Impl note:** *(only for a load-bearing default — named for visibility, not a requirement)*
 - <choice + why>
@@ -229,21 +232,24 @@ gate. **No `propose-in/out` tags, no keys, no bundles** — a plain "want any? a
 - Flag an innocent-but-expensive criterion (one line, only if real) so OpenSpec sizes it early.
 
 ## 6. Iterate → commit
-The draft (incl. `+` completeness lines) commits either way — the operator objects to any `+` line in prose if
-it's wrong. **One decision, one reminder — no card, no bundles, no keys:**
-- **✨ Improvements — want any? (default: none).** If any were surfaced, one plain line: `"add 1"` ·
-  `"1 and 2"` · `"none"`. Accepted → folded into the ticket (an AC, or a spin-off ticket with a yes — a
-  *different* ticket, never auto-created). None surfaced → skip this entirely.
-- **Scope reminder — always, before committing.** One line: **"⚠️ Read the ✂️ Out-of-scope — that's what
-  you're committing to NOT build. Object to any line if it's wrong."** Awareness, not a per-item gate.
-- **Approve → commit.** Apply accepted Improvements + any prose objections, update the task (title +
-  description; + type if changed), then emit the **pipeline trail** for the `refine` end stop per
-  `references/pipeline-map.md` (one line). No ✨ Improvements → a bare one-line `yes / edit` approval. Never
-  `AskUserQuestion`.
-- **Next pointer — name the build mode** so the operator knows the parameter values:
-  `Next: /harness:build <task-id>` — **gated** (default): pauses at the spec-review gate so you review the
-  spec before code · append **yolo** (`/harness:build <task-id> yolo`): straight through, no spec gate
-  (still stops at genuine forks). Show both so the choice + what each does is explicit.
+Show the draft, then run the **commit decision** below. The build pointer + pipeline trail come **after**
+commit, never alongside the decision (they'd compete with it). Order:
+
+**a. Scope reminder (one line, before the pick).** `"⚠️ Read the ✂️ Out-of-scope — that's what you're
+committing to NOT build. Object to any line if it's wrong."` Awareness, not a gate.
+
+**b. The pick — a checkbox, and submitting it commits.**
+- **Improvements surfaced** → fire `AskUserQuestion` (`multiSelect:true`): one option per ✨ improvement
+  (label = feature, description = the why), the operator checks any / all / none. **Submitting = approve +
+  commit** with the checked ones folded in (AC, or a spin-off ticket with a yes — a *different* ticket,
+  never auto-created); unchecked = discarded. `"Other"` (auto) = edit / discuss instead of committing.
+- **No improvements** → no checkbox; a bare one-line `yes / edit` approval. Submitting yes commits.
+
+**c. Commit + close out (after b).** Update the task (title + description; + type if changed). Then, and only
+then, emit:
+- the **pipeline trail** (`refine` end stop, `references/pipeline-map.md`) — `✓ refine → ▸ build → ◦ build`;
+- the **build pointer**: `Next: /harness:build <task-id>` — **gated** (default: pauses at the spec-review
+  gate) · or `yolo` (straight through, still stops at real forks).
 - **Brainstorm / Sharpen — non-blocking suggestion (feature/idea only).** After the commit, end with a
   plain one-line suggestion the operator can ignore. **Do not open a fork here** (no card, no question) —
   the run ends once the task is persisted. Skip for bug/chore/non-functional.
