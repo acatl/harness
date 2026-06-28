@@ -209,7 +209,7 @@ gate. **No `propose-in/out` tags, no keys, no bundles** — a plain "want any? a
 
 **Why:** *(only if it adds signal beyond the story)*
 
-**✨ Improvements** *(on top of your ask — want any? feature shape only; omit if none):*
+**Improvements** *(on top of your ask — want any? feature shape only; omit if none — ✨ marks each line, never the header):*
   - ✨ **1** — <user-facing improvement: what the user gets + why it helps them>
   - ✨ **2** — <user-facing improvement: what the user gets + why it helps them>
 <!-- INDENTED list items (nested under the header). Numbered; product/WHAT altitude — never engineering
