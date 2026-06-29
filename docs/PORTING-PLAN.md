@@ -28,30 +28,36 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   warn formatter; warn/ask logging), config-seed against the known spec-driven shape (no probing).
   **Finding H (self-contained skills):** skills now bundle their runtime inputs in-dir (`templates/` +
   `references/`); repo root canonical, drift-guarded by `scripts/sync-skill-resources.sh`.
-- **Current micro-state (resume here):** init validated clean; **the full pipeline is proven end-to-end on
-  one-shot** — `settings-keychain` (ONEST-3) shipped + merged + finished; `window-chrome` archived;
-  `web-core` (ONEST-4) currently at **verified-not-shipped**. A large dogfood wave landed (findings **H–AD**),
-  most of it driven by live runs: walk-me-through **fork format** across all fork skills; **pipeline trail**
-  ("you are here"); refine reworked to **✨ Improvements as a checkbox** (`AskUserQuestion multiSelect`) +
-  `+`-marked inline completeness + commit decision split from next-steps + product-altitude improvements;
-  **committed `openspec/changes/<change>/harness/` dir** (retired legacy `.specd/`); **pipeline-wide
-  `decisions.md` ledger** (every load-bearing call, attributed; folded into `pr-body.md` → PR); **ship auto-
-  pushes** + uses build's `pr-body.md`; **finish auto-pushes** the chore PR; **active-ticket tracker writes
-  autonomous**; **behavioral-verify releases the machine** after Observe; new read-only **`harness:status`**.
-  Both repos clean: harness-pipeline @ `b320252` on `feat/harness-foundation` (local, unpushed by choice);
-  one-shot has `web-core` mid-flight with its `harness/` artifacts committed.
-- **Next action — VALIDATE the recent wave (it's committed but largely unexercised live).** findings ~R–AD
-  (ship/finish auto-push, no-premature-commands, trail firing, breadcrumb-hash enforce, harness/ dir,
-  decision-log, ship→pr-body handoff, harness:status, refine checkbox flow) are skill-instruction changes
-  that need a real run to confirm they fire (new instructions historically under-fire first time). Cheapest
-  test: in one-shot, **`/harness:ship ONEST-4`** then **`/harness:finish`** — confirm: ship auto-pushes (no
-  confirm) + the PR body carries the **decision log** (via `pr-body.md`); the close-out order (build pointer
-  LAST); `harness/decisions.md` actually filled; `/harness:status` derives the right position. Then review the
-  newest one-shot transcript (by mtime), grep `▶/■ harness:`, fix friction, commit on `feat/harness-foundation`.
-  **Biggest unproven claim:** cross-stack — the Node/TS bed (`harness-test-web`) has never run the full pipeline.
+- **Current micro-state (resume here):** **the recent wave (findings H–AD) is now VALIDATED live** — it ran
+  for real on one-shot across TWO full cycles, both shipped + finished + archived + merged:
+  - `web-core` (ONEST-4): ship [#8](https://github.com/acatl/one-shot/pull/8) → finish
+    [#9](https://github.com/acatl/one-shot/pull/9), archived `2026-06-28-web-core`.
+  - `input-syntax-highlighting` (ONEST-11): feat [#10](https://github.com/acatl/one-shot/pull/10) → finish
+    [#11](https://github.com/acatl/one-shot/pull/11), archived `2026-06-28-input-syntax-highlighting`.
+  Earlier: `settings-keychain` (ONEST-3) shipped+merged+finished; `window-chrome` + `bare-harness` archived.
+  **Validation verdict (3/3 targets pass):** (1) **decision log → PR** ✓ — PR #8 body carries a "Decisions
+  made (see `harness/decisions.md`)" section (D-impl-1/2) via the ship→`pr-body.md` handoff; (2) **ship/finish
+  auto-push** ✓ — all feat/chore branches track `origin`, PRs #6–#11 all merged, no manual-push gate fired;
+  (3) **`harness:status` derives right** ✓ — `openspec list --json` empty → "nothing in flight"; an archived
+  change → "shipped + finished." Breadcrumbs confirm the skills fired: 10× `■ harness:ship`, 12× `■ harness:finish`.
+  Both repos clean: harness-pipeline @ `feat/harness-foundation` (local, unpushed by choice); one-shot @ `main`,
+  nothing in flight.
+- **Open finding (AE) — start-breadcrumb hash under-fires.** The `▶ harness:<name> v<hash8>` start line emits
+  placeholders (`v<computing>`, `v(finish)`, literal `v$(git hash-object …)`) instead of the computed hash —
+  prose was already hardened once (lines below, `c…`→strengthened sed) and still misfires. Root cause: the start
+  line is the **first, pure-text emission**, before any tool call, and nothing in-run consumes the hash → no
+  pressure to stop and compute. End marks (`■`) fire clean. **Fix designed, not yet applied (awaiting go):** move
+  the hash from the start line → the **end** line (`■ harness:<name> v<hash8> → <outcome>`), where it rides the
+  end-of-run Bash rhythm and pairs version+outcome on one line; start line becomes a hash-free locator. ~13
+  SKILL.md `## Breadcrumbs` blocks + `docs/SKILL-STYLE.md`. Run-log `skill_version` keystone is unaffected.
+- **Next action — cross-stack proof (the biggest unproven claim).** Both validated cycles were Swift (one-shot).
+  The **Node/TS bed `~/workspace/harness-test-web` (HWTES-) has never run the full pipeline.** Run a real change
+  through `refine → … → ship → finish` there to prove the skills are genuinely stack-agnostic (resolve sensors/
+  paths from its `docs/HARNESS.md`, not one-shot's). Secondary: apply finding AE's breadcrumb fix if approved.
 - **Deferred (in "Notes to resolve"):** ADRs at refine (opt-in), a `harness:walk-me-through` skill, a
-  doc-health audit skill, plugin packaging (finding B's full form), the per-run breadcrumb-hash-compute call.
-- **Last updated:** 2026-06-28
+  doc-health audit skill, plugin packaging (finding B's full form). (The per-run breadcrumb-hash-compute call is
+  now folded into open finding **AE** above.)
+- **Last updated:** 2026-06-29
 
 ### Test beds (external sibling repos)
 
