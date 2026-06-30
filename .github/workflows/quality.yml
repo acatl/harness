@@ -1,0 +1,47 @@
+name: quality
+
+on:
+  pull_request:
+  push:
+    branches: [main, "feat/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    name: docs + skills checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Markdown lint
+        run: npm run lint:md
+
+      - name: Spell check
+        run: npm run spell
+
+      - name: Skill resource bundles in sync
+        run: npm run sync:check
+
+      - name: Skill frontmatter
+        run: npm run skills:check
+
+  links:
+    name: internal link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lychee (offline / internal links)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--offline --no-progress './**/*.md'"
+          fail: true
