@@ -89,6 +89,16 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 - **Deferred (in "Notes to resolve"):** ADRs at refine (opt-in), a `harness:walk-me-through` skill, a
   doc-health audit skill, plugin packaging (finding B's full form). (The per-run breadcrumb-hash-compute call is
   now folded into open finding **AE** above.)
+- **Settled (2026-06-29) — the sync-bundle stays; DON'T try to DRY the shared refs via a plugin.** The
+  bundled-reference duplication (`walk-me-through` ×12, `pipeline-map` ×7, `pr-summary` ×3 ≈ 1.4k generated
+  lines) is the **correct** pattern, not a workaround. Verified against the Claude Code docs: a SKILL.md gets
+  only `${CLAUDE_SKILL_DIR}` (its own dir, even inside a plugin); there is **no `${CLAUDE_PLUGIN_ROOT}` for
+  skill bodies** (only hooks/MCP/LSP), and path traversal outside a plugin/skill dir is blocked — a plugin's
+  "shared" file gets dereferenced into per-skill copies at install anyway. So **plugin packaging buys
+  distribution, NOT de-duplication** (decouple those motives). `walk-me-through`-as-dep-skill rejected for DRY
+  (covers only ⅓, trades a reliable inline format-spec for a fuzzier cross-skill dependency). Only lever if
+  clutter ever bites: telegraph the *canonical* refs so each copy is smaller. Sources:
+  `code.claude.com/docs/en/skills.md`, `…/plugins-reference.md`.
 - **Last updated:** 2026-06-29
 
 ### Test beds (external sibling repos)
