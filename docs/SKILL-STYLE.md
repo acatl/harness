@@ -38,6 +38,19 @@ can grep it to locate every skill run, attribute it to a skill content-version, 
 - `<hash8>` = first 8 chars of `git hash-object` of the skill's own SKILL.md — its content version, so
   transcript friction can be attributed to a specific skill version.
 
+## Operator input (👉)
+Any line that needs the operator's answer — a question, a confirm, a pick — is prefixed `👉` and placed
+as the **terminal block** of the message: below the breadcrumb / pipeline-trail / next-step, with nothing
+actionable under it. The failure this prevents: a blocking question rendered *above* more text and a
+ready-to-run action gets skipped — the operator's eye lands on the action and executes it, ignoring the
+question. The eye must land on the `👉` last.
+- **Self-contained in each SKILL.md** (like Breadcrumbs) — skills travel standalone, can't reference this
+  doc at runtime. Each skill carries a `## Operator input` block.
+- **No false-ready next.** While a `👉` prompt is open, don't print a runnable `/harness:` next as the
+  move — show it as gated behind the answer.
+- **Reserved marker.** `👉` means *blocking on the operator only* — not status, not the trail. Distinct
+  from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
+
 ## Bundled resources
 A skill is a **standalone dir** — it's symlinked into consuming projects (and may later be copied or
 plugin-packaged), so it cannot reach repo-root `templates/` or `docs/` at runtime. Every input a skill

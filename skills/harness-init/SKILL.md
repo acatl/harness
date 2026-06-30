@@ -19,6 +19,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 - **start:** `▶ harness:init v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars. **Compute it (run the command); never emit a placeholder (`vTBD`, `<hash8>`, or a guess).**
 - **end:** `■ harness:init → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
 
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
+
 > **Inputs (bundled in this skill dir; paths below are relative to it):** `templates/HARNESS.md` (schema
 > to fill), `references/harness-runs.SCHEMA.md` (run-log contract). Behavioral-verify model:
 > `references/runtime-verification-binding.md`. Read before generating.

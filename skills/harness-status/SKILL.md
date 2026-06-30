@@ -27,6 +27,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 - **start:** `▶ harness:status v<hash8>` followed by any target (e.g. ` · <change>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars. **Compute it (run the command); never emit a placeholder (`vTBD`, `<hash8>`, or a guess).**
 - **end:** `■ harness:status → <outcome>` — one-line result (e.g. `web-core @ ship` / `3 changes in flight`).
 
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
+
 **Read-only.** Never writes, commits, moves a tracker column, opens/merges a PR, or touches an artifact.
 It only reports. Any action is the operator's next move.
 
