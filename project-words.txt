@@ -104,6 +104,8 @@ unexitable
 ungranted
 uninferred
 unpushed
+untracking
+untrack
 
 # Acronyms / tools / product names referenced
 WCAG

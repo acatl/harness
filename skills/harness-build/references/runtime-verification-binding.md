@@ -80,7 +80,7 @@ A `Runtime verification` section the project fills in. The agent reads it, doesn
 | liveness     | <how to detect alive / crashed> |
 | log source   | <where runtime logs go + what an error looks like> |
 | expected     | <events/observations that SHOULD appear when exercised> |
-| teardown     | <how to bring it down + release the screen, run right after Observe; e.g. `pkill -x OneShot` / the launch script's stop / close the browser tab> |
+| teardown     | <how to bring it down + release the screen, run right after Observe; e.g. `pkill -x <AppName>` / the launch script's stop / close the browser tab> |
 ```
 
 ### Worked examples

@@ -56,6 +56,10 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   pipeline proactively + can onboard a newcomer without the docs). Template: `templates/claude-workflow.md`
   (bundled, synced). Deliberately telegraphic — CLAUDE.md is loaded every turn; source of truth stays in the
   skills + `docs/HARNESS.md`. **Unexercised live** — validate on a real `harness:init` run.
+- **Publishing decided — stay private, publish a fresh curated snapshot.** No internal project (one-shot,
+  kino, the test beds, `ONEST`/`HSTES`/`HWTES`) may appear in the public repo. Full recipe + exclusion list:
+  **§ Publishing** at the bottom of this file. This repo keeps full history privately; the public repo is a
+  scrubbed snapshot, not this repo flipped public.
 - **Open finding (AE) — start-breadcrumb hash under-fires.** The `▶ harness:<name> v<hash8>` start line emits
   placeholders (`v<computing>`, `v(finish)`, literal `v$(git hash-object …)`) instead of the computed hash —
   prose was already hardened once (lines below, `c…`→strengthened sed) and still misfires. Root cause: the start
@@ -710,3 +714,33 @@ From one-shot's first `harness:init` run:
 
 - Pipeline diagram: [docs/pipeline.md](pipeline.md) — the end-to-end chain (editable Mermaid).
 - Blueprint: [docs/blueprint-harness-pipeline.md](blueprint-harness-pipeline.md).
+
+## Publishing — internal (exclude from the public snapshot)
+
+**Decision (2026-06-29):** this repo (`github.com/acatl/harness`) stays **private** with full history
+as the dev repo. Go public via a **fresh curated snapshot**, NOT by making this repo public — that way
+no internal *file* and no internal *commit message* leaks. No history rewrite, no untracking needed here.
+
+**No public reference to internal projects.** Nothing about the dogfooding targets (one-shot, kino,
+`harness-test-swift`/`harness-test-web`) or internal ticket prefixes (`ONEST`/`HSTES`/`HWTES`) may appear
+in the public snapshot. (This file itself is internal — never copied to public.)
+
+### Snapshot recipe (when ready to publish)
+
+1. **Exclude internal-only paths** from the snapshot:
+   - `docs/PORTING-PLAN.md` (this file).
+   - Review at publish time (likely keep, but check for leaks first):
+     `docs/blueprint-harness-pipeline.md`, `docs/build-source-map.md`.
+   - Memory files live outside the repo already (`~/.claude/.../memory/`) — never included.
+2. **Scrub public-bound files** of internal references:
+   - `README.md` — remove the two `docs/PORTING-PLAN.md` links + the internal "Status" section.
+   - `CLAUDE.md` — drop the `PORTING-PLAN` source-of-truth pointer + any dogfooding wording (it's a
+     public contributor file in the snapshot).
+   - `project-words.txt` — remove `ONEST` / `HSTES` / `HWTES` (only PORTING-PLAN needs them; once it's
+     excluded they're unused). `dogfood*` is generic — keep or drop, no leak.
+   - Already done in-tree (good hygiene, kept): `pkill -x OneShot` → `pkill -x <AppName>` in
+     `runtime-verification-binding.md`.
+3. **Verify clean:** `git grep -iE 'one-shot|oneshot|\bkino\b|ONEST-|HSTES-|HWTES-|harness-test-'` over
+   the snapshot tree → must be empty.
+4. **Clean history:** publish as a single squashed initial commit (or a hand-curated set) with messages
+   that mention no internal project — never the raw 47-commit history (its messages reference one-shot PRs).
