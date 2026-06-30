@@ -66,6 +66,17 @@ fork card (`references/walk-me-through.md`) — pure text, operator replies by l
 No required ending — flow into a proposal, update artifacts, leave the user with clarity, or continue
 later. Optional crystallization summary: problem · approach (if one emerged) · open questions · next steps.
 
+**Closing handoff** (when it crystallizes into something buildable). End on a tight pick — real markdown
+(bold + inline-code render; **never** a code fence), terse, the `👉` block **last** (operator reads only
+the last 1–2 lines). Name the concrete action + who fires it; **never the verb "capture"** — it maps to two
+different paths. Lighter than a full fork card — one bold-led line per option:
+> 👉 **Where next?**
+> • **Build it** — I run **`/harness:build`** → proposal → recon → design → tasks → code. *Leaves explore.*
+> • **Proposal only** — I write the OpenSpec proposal doc now (captures this thinking; no code).
+> • **Stop** — nothing written; the thinking stays in this thread.
+
+Drop **Proposal only** when it doesn't apply → clean binary. **Build it** always names **`/harness:build`**, never "capture".
+
 ## Don't
 - **Don't implement** — never write application code. OpenSpec artifacts are fine (capturing thinking).
 - Don't fake understanding (dig deeper); don't rush (this is thinking time); don't force structure;

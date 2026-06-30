@@ -275,12 +275,17 @@ On any failure not caused by this change → STOP + surface (don't patch around 
         auto-applied (esp. in yolo, where it happened silently), call it out: "⚠️ 1🔴 auto-applied — read it." -->
    Impl:      <N>/<total> tasks · <N> group commits · mode <gated|yolo>
    Verify:    sensors <pass> · behavioral <ran|skipped:reason|n/a> · openspec-verify <pass> · review <outcome>
-   Next:      test it yourself · /harness:fine-tune to polish · /harness:ship when ready
    ```
-   **Then emit the pipeline trail** (REQUIRED — a real line below the summary, not a placeholder) for the
-   `build · verified-not-shipped` stop per `references/pipeline-map.md`. Per the one-runnable-command rule,
-   the `Next:` line names only commands runnable now (`fine-tune`/`ship`) — **never `/harness:finish`** (it's
-   premature until the PR merges; `◦ finish` is a trail label, not a command here).
+   **Then two real lines below the fence — the operator reads only these, so the actionable one goes
+   last:**
+   1. The **pipeline trail** for the `build · verified-not-shipped` stop per `references/pipeline-map.md`.
+   2. The **terminal handoff** — the **last line**, real markdown (bold + inline-code render; **never**
+      inside the fence). Lead with testing, bold the encouraged path, inline-code commands, ship reads
+      as later-gated. Exact shape:
+      > **Next — test it first.** Run it yourself, then **`/harness:fine-tune`** to polish · **`/harness:ship`** only when you're happy.
+
+   Runnable-now commands only (`fine-tune`/`ship`) — **never `/harness:finish`** (premature until the PR
+   merges; `◦ finish` is a trail label, not a command here).
 
 ---
 
