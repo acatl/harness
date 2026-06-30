@@ -32,14 +32,14 @@ by construction.
 
 ## Managed region
 Wrap the whole generated body in:
-```
+```text
 <!-- harness:pr-summary START … --> … <!-- harness:pr-summary END -->
 ```
 Refresh rewrites **only inside** the fence. Anything a human adds outside it (reviewer context, threads)
 is preserved.
 
 ## Provenance footer (last thing inside the fence)
-```
+```text
 <!-- harness:pr-summary meta
 folded-against: <full-SHA of branch HEAD at fold time>
 generated-by:   harness:<skill> v<hash8>     (skill + git hash-object skill-version; never a placeholder)
@@ -60,7 +60,7 @@ Two layers (machine block + human line), matching the project's machine/human sp
 
 ### Staleness (deterministic — machine or pre-finish check)
 Given footer `folded-against`:
-```
+```bash
 git merge-base --is-ancestor <folded-against> HEAD   # false → rebased → STALE
 git diff --quiet <folded-against>..HEAD -- . ':(exclude)**/pr-body.md'   # diff present → STALE
 ```

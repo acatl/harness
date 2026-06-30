@@ -78,6 +78,7 @@ file count. Volume isn't gate-triggering; ambiguity is.
 | DECLINE | Reviewer is wrong / contradicts a load-bearing standard / YAGNI. | Reply, resolve |
 | ALREADY ADDRESSED | Already fixed in current code, or thread resolved. | Resolve |
 | UNCLEAR | Too vague to act on. | Reply + ask |
+
 No OUT OF SCOPE — a real finding gets fixed; a non-finding declined; an unfixable-without-judgment one → DECISION-NEEDED.
 
 ## Execution strategy

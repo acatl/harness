@@ -135,12 +135,12 @@ reviews (match by content category, adapt to project vocabulary):
 ## Step C — Run reviews (AUTHOR path; sequential, autonomous)
 Run only selected reviews, order **architecture → design**. Skip excluded. Sequential never parallel
 (shared spec files); each re-reads from disk → sees prior amendments.
-- Pre-empt a spurious "missing checklist" finding: note in one line that the `HELD` checklist is
+- Preempt a spurious "missing checklist" finding: note in one line that the `HELD` checklist is
   intentionally not yet authored (name by role, not filename).
 - Invoke each via the Skill tool, args = `<change-name>` (autonomous — build does not forward its mode).
   The review treats args as its explicit change-name (first non-mode token) → no multi-change stall.
 - Each review auto-applies unambiguous findings, stops on its own forks (may fire before its report +
-  per Options finding). Let the review drive its own questions; don't pre-empt.
+  per Options finding). Let the review drive its own questions; don't preempt.
 - **Completion contract:** a review completes by (a) writing its gate artifact
   `<change-state-dir>/<review>-review.md` (committed, flat under `harness/`) + final summary line, **or**
   (b) self-calibrating to out-of-scope/minimal and printing a one-line skip note (no gate artifact). Treat

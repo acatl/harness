@@ -7,6 +7,9 @@ description: >
   "set up the harness", "create HARNESS.md", "onboard this repo to the harness", or when another
   harness skill reports that docs/HARNESS.md is missing. Idempotent: re-running fills gaps without
   clobbering bindings already set.
+metadata:
+  author: acatl
+  version: "0.1.0"
 ---
 
 # harness:init — generate the binding layer

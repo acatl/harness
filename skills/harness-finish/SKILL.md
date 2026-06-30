@@ -45,8 +45,8 @@ mutations to any ticket other than the one being finished still ask.)
 
 2. **Merge-gate (confirmable — never a hard wall).**
    - **two-merge:** confirm the feature PR merged (PR host — e.g. `gh pr view --json state,mergedAt`).
-     Can't confirm → **ASK**: _"Can't confirm the feature landed — already merged / tested in prod /
-     single-merge flow?"_ Proceed on confirmation; otherwise stop.
+     Can't confirm → **ASK**: *"Can't confirm the feature landed — already merged / tested in prod /
+     single-merge flow?"* Proceed on confirmation; otherwise stop.
    - **single-merge:** runs against the **open feature branch/PR** (archive-before-merge — sync+archive
      ride the feature PR). Confirm an appropriate feature branch/PR exists; can't → ASK before proceeding.
 
