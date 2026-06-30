@@ -62,9 +62,12 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   Runtime-verification recipe + pass/fail/skip) — mirrors `harness:status` discipline (read-only, derives,
   persists nothing). Chosen shape over a *persisted `test-plan.md` artifact* precisely to avoid the sprawl: a
   stored doc forces every behavior-changing skill (build/fine-tune/address/finish) to resync it; an on-demand
-  guide owns no state → cannot sprawl. Symlinked into both dogfood targets. **Deferred (intentional v1 cuts):**
-  wiring it into fine-tune's "test" step (offer it automatically); the optional `export` (Gherkin + priority
-  table) for a QA dev/agent handoff. Validate by running `/harness:test-guide` on a real one-shot/kino change.
+  guide owns no state → cannot sprawl. Symlinked into both dogfood targets. **Wired into `harness:fine-tune`
+  Step 2** — a one-per-session offer (after sensors green, first pass) to walk the scenarios; gated by a
+  `test-guide-offered` flag in the `fine-tune-active.md` marker so it survives nested-skill/context-loss
+  resumes. **Still deferred:** the optional `export` (Gherkin + priority table) for a QA dev/agent handoff.
+  Validate by running `/harness:test-guide` on a real one-shot/kino change, and by entering fine-tune (the
+  offer should fire once).
 - **Deferred (in "Notes to resolve"):** ADRs at refine (opt-in), a `harness:walk-me-through` skill, a
   doc-health audit skill, plugin packaging (finding B's full form). (The per-run breadcrumb-hash-compute call is
   now folded into open finding **AE** above.)

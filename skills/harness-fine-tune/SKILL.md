@@ -36,9 +36,9 @@ silently end:
   completing is NOT an exit (this is the bug to prevent).
 - **Exit only on an explicit signal:** the operator says "exit" / "done" / "stop fine-tuning", **or**
   you ask "Exit fine-tune?" and they confirm.
-- **Marker:** drop `<change-state-dir>/fine-tune-active.md` (topic + status) at start so the mode
-  survives nested skills + context loss; clear it on exit. On (re)entry, if the marker exists, resume
-  its topic.
+- **Marker:** drop `<change-state-dir>/fine-tune-active.md` (topic + status + whether the test-guide
+  offer has been made — see Step 2) at start so the mode survives nested skills + context loss; clear it
+  on exit. On (re)entry, if the marker exists, resume its topic (and don't re-offer the test-guide).
 
 ## Session-start gate (once per session)
 Before the first pass, `git status --porcelain`. Uncommitted changes → stop: "commit or stash first — I
@@ -54,6 +54,14 @@ Wait for the answer before implementing.
 ### 2. Test
 Run the affected sensors (HARNESS.md). If tests need updating because of the change, update them now —
 don't leave red and hand back.
+
+**Offer the test-guide — once per session** (first pass, after sensors are green): if the marker hasn't
+recorded the offer and the change isn't pure-logic-only (nothing behavioral to walk → skip silently, same
+skip-condition as runtime-verification), ask — terminal `👉` block — `👉 Walk the manual/behavioral test
+scenarios with /harness:test-guide before continuing? (yes / no)`. **yes** → run `harness:test-guide` as a
+**nested skill** (non-terminal — resume this loop after, per Sticky mode); any `fail` it surfaces becomes
+the next fix pass. Record `test-guide-offered` in the marker **either way** so it's not re-asked on later
+passes or after a nested-skill/context-loss resume.
 ### 3. Ask for approval
 Brief summary of what changed → "Does this look good?" Wait. Don't proceed until yes. (These asks are bare
 yes/no / open prompts — keep them one-line. Any ≥2-option choice → a walk-me-through fork card,
