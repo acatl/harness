@@ -26,7 +26,8 @@ Emit one line at start and one at end — so harness iteration can trace this ru
 👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 > **Inputs (bundled in this skill dir; paths below are relative to it):** `templates/HARNESS.md` (schema
-> to fill), `references/harness-runs.SCHEMA.md` (run-log contract). Behavioral-verify model:
+> to fill), `templates/claude-workflow.md` (the CLAUDE.md workflow block — Step 5b),
+> `references/harness-runs.SCHEMA.md` (run-log contract). Behavioral-verify model:
 > `references/runtime-verification-binding.md`. Read before generating.
 
 **Principle: detect → confirm → ask only what can't be inferred.** Never interrogate for what the repo
@@ -111,9 +112,26 @@ pre-existing bindings. OpenSpec CLI + `openspec/` init are Step-1 preconditions 
   recon + decisions.
 - Optional pre-push gate stub if wanted.
 
+### 5b. Offer the CLAUDE.md workflow block (managed region)
+Makes the harness the project's **default** workflow — so Claude routes work through the pipeline
+proactively (not just when a `/harness:` command is typed) and can onboard a newcomer without the docs.
+Runs only on a complete pass (HARNESS.md written, gates cleared — the block points to `docs/HARNESS.md`).
+
+- **Content = the bundled template** `templates/claude-workflow.md` (a tight pointer block between
+  `<!-- harness:workflow START/END -->` markers — pipeline entry points + a bindings pointer; deliberately
+  telegraphic, since the consuming `CLAUDE.md` is loaded every turn). Do NOT expand it into a manual; the
+  source of truth stays in the skills + `docs/HARNESS.md`.
+- **Managed region (idempotent):** markers already present in the project `CLAUDE.md` → replace **only**
+  between them (preserve everything outside). Absent → **append** the block (never rewrite the operator's
+  CLAUDE.md). No `CLAUDE.md` at all → offer to create a minimal one containing just the block.
+- **👉 Consent — never silently inject.** CLAUDE.md is the operator's file. Show the exact block + where it
+  lands (append / update-in-markers / create), get a yes (or let them edit the wording) before writing.
+  Decline → skip, note it; the rest of init is unaffected.
+
 ### 6. Report
-Bindings written; rows left as placeholders the operator must fill; missing hard deps (OpenSpec /
-tracker). Point to the next skill (`harness:refine` or `harness:build`).
+Bindings written; CLAUDE.md workflow block added/updated/skipped (Step 5b); rows left as placeholders the
+operator must fill; missing hard deps (OpenSpec / tracker). Point to the next skill (`harness:refine` or
+`harness:build`).
 
 ## Don't
 - Never assume a context doc's name/path — discover candidates, drop decoys (`.old`/`.bak`/`.draft`), and confirm the mapping with the operator before gating or templating. Never auto-pick among ambiguous candidates.
@@ -121,7 +139,7 @@ tracker). Point to the next skill (`harness:refine` or `harness:build`).
 - Don't invent commands — uninferred + operator-unknown → marked placeholder, say so.
 - Don't add a machine-parsed config format — the agent reads this file; prose tables are correct.
 - Don't write absolute machine paths into the generated HARNESS.md — pipeline doc refs stay generic; the consuming file must be self-contained + portable.
-- Don't modify source — only `docs/HARNESS.md`, context-doc stubs, and (with confirmation) `.gitignore` / a hook stub.
+- Don't modify source — only `docs/HARNESS.md`, context-doc stubs, the project `CLAUDE.md` workflow block (with confirmation, managed region only — Step 5b), and (with confirmation) `.gitignore` / a hook stub.
 - Never auto-install or configure tooling — assess + warn/stop only; setup is the operator's job.
 - **init gates, it never sets up.** Never run `openspec init` / scaffold `openspec/`, never install the CLI, never install/configure sensors, never **fabricate** context-doc content (it drops template stubs and stops — it does not author the real content). Each missing precondition (OpenSpec CLI, OpenSpec init, essential sensors, author-required docs) → halt + ask + wait + resume on re-run. Never probe the CLI to discover a config schema — author config against the known spec-driven shape.
 - Don't treat a missing optional capability as an error — note + continue.

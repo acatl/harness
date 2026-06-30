@@ -40,8 +40,22 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   auto-push** ✓ — all feat/chore branches track `origin`, PRs #6–#11 all merged, no manual-push gate fired;
   (3) **`harness:status` derives right** ✓ — `openspec list --json` empty → "nothing in flight"; an archived
   change → "shipped + finished." Breadcrumbs confirm the skills fired: 10× `■ harness:ship`, 12× `■ harness:finish`.
-  Both repos clean: harness-pipeline @ `feat/harness-foundation` (local, unpushed by choice); one-shot @ `main`,
-  nothing in flight.
+  Both repos clean: one-shot @ `main`, nothing in flight.
+- **Repo-health pass landed + pushed (2026-06-29).** `feat/harness-foundation` is now **pushed** to
+  `origin` (`github.com/acatl/harness`), **47 commits ahead of `main`**; a fresh PR `feat → main` is staged
+  but **not yet opened** (operator reviewing). Added for open-source readiness: **MIT LICENSE**; a Node
+  lint/spell toolchain (`package.json` — `markdownlint-cli2` + `cspell`, npm `check` script) tuned to the
+  telegraphic house style (`MD004`/`MD038` **off** — they'd corrupt the semantic `+`/`-` AC markers + ` · `
+  breadcrumb separators; an earlier `--fix` actually did corrupt one, reverted); a `project-words.txt`
+  dictionary; **CI** (`.github/workflows/quality.yml` — lint · spell · bundle-drift · skill-frontmatter ·
+  offline link check); `CONTRIBUTING.md` + PR template + `.editorconfig`; `scripts/check-skill-frontmatter.sh`;
+  README install/OpenSpec-dependency/artifacts sections. All 14 skills now carry `metadata.author`.
+- **`harness:init` gained Step 5b — the CLAUDE.md workflow block.** init now *offers* (consent, managed
+  region `<!-- harness:workflow START/END -->`, idempotent) to add a tight pointer block to the consuming
+  project's `CLAUDE.md` so the harness is the project's **default** workflow (Claude routes work through the
+  pipeline proactively + can onboard a newcomer without the docs). Template: `templates/claude-workflow.md`
+  (bundled, synced). Deliberately telegraphic — CLAUDE.md is loaded every turn; source of truth stays in the
+  skills + `docs/HARNESS.md`. **Unexercised live** — validate on a real `harness:init` run.
 - **Open finding (AE) — start-breadcrumb hash under-fires.** The `▶ harness:<name> v<hash8>` start line emits
   placeholders (`v<computing>`, `v(finish)`, literal `v$(git hash-object …)`) instead of the computed hash —
   prose was already hardened once (lines below, `c…`→strengthened sed) and still misfires. Root cause: the start
