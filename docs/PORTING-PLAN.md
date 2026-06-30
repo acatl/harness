@@ -16,8 +16,8 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 6 — **live harness iteration** (building of the harness is done). **13 skills** (12 + the new
-  read-only `harness:status`) + the
+- **Phase:** 6 — **live harness iteration** (building of the harness is done). **14 skills** (12 pipeline +
+  read-only `harness:status` + read-only `harness:test-guide`) + the
   `recon-first` rule are ported, telegraphic, genericized, namespaced `harness:<name>` (frontmatter
   colon, dir dashed), with **start/end breadcrumbs**. harness repo on `feat/harness-foundation`
   (local, unpushed by the user's choice). `harness:init` hardened across `c2d59e7 → cfdb00b`
@@ -54,6 +54,17 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   The **Node/TS bed `~/workspace/harness-test-web` (HWTES-) has never run the full pipeline.** Run a real change
   through `refine → … → ship → finish` there to prove the skills are genuinely stack-agnostic (resolve sensors/
   paths from its `docs/HARNESS.md`, not one-shot's). Secondary: apply finding AE's breadcrumb fix if approved.
+- **New skill — `harness:test-guide` (read-only test companion), v1 landed (unexercised live).** Solves the
+  recurring "how do I test this?" pain: derives a change's test scenarios from artifacts that already exist
+  (spec `#### Scenario:` blocks, the task's GWT AC, `decisions.md` deferrals + design constraints), tags
+  coverage conservatively (drops `✅` auto-covered, walks the gap), orders by ROI (AC-core P0 first), and
+  **walks the operator one scenario at a time** (plain-language drive-steps from the HARNESS.md
+  Runtime-verification recipe + pass/fail/skip) — mirrors `harness:status` discipline (read-only, derives,
+  persists nothing). Chosen shape over a *persisted `test-plan.md` artifact* precisely to avoid the sprawl: a
+  stored doc forces every behavior-changing skill (build/fine-tune/address/finish) to resync it; an on-demand
+  guide owns no state → cannot sprawl. Symlinked into both dogfood targets. **Deferred (intentional v1 cuts):**
+  wiring it into fine-tune's "test" step (offer it automatically); the optional `export` (Gherkin + priority
+  table) for a QA dev/agent handoff. Validate by running `/harness:test-guide` on a real one-shot/kino change.
 - **Deferred (in "Notes to resolve"):** ADRs at refine (opt-in), a `harness:walk-me-through` skill, a
   doc-health audit skill, plugin packaging (finding B's full form). (The per-run breadcrumb-hash-compute call is
   now folded into open finding **AE** above.)
@@ -76,21 +87,26 @@ test green; `openspec init --tools claude` run in each; harness skills symlinked
 
 Dogfood the harness on a **real** project and improve the skills from observed friction.
 
-- **Target project:** `~/workspace/one-shot` — a Swift macOS app (Package.swift, `run.sh`, `.swiftlint.yml`,
-  `.swift-format`, ARCHITECTURE.md, CLAUDE.md, `docs/`, `openspec/`, `.claude/`). git + openspec already
-  set up. This is a real runtime surface (unlike the pure-logic beds) — exercises behavioral-verify.
-- **Wiring:** harness skills are symlinked into `one-shot/.claude/skills/harness-*` (git-ignored). Edits
-  to skills in this repo are **live** in one-shot via the symlink — no re-pull. one-shot needs a
-  `docs/HARNESS.md` (run `/harness:init` there if absent).
+- **Target projects (two, as of 2026-06-29):**
+  - `~/workspace/one-shot` — a Swift macOS app (Package.swift, `run.sh`, `.swiftlint.yml`, `.swift-format`,
+    ARCHITECTURE.md, CLAUDE.md, `docs/`, `openspec/`, `.claude/`). git + openspec already set up. A real
+    runtime surface (unlike the pure-logic beds) — exercises behavioral-verify.
+  - `~/workspace/kino` — added 2026-06-29 as a second real dogfood target. Yields its own friction
+    findings; the user references sessions from either project going forward.
+- **Wiring:** harness skills are symlinked into each project's `.claude/skills/harness-*` (git-ignored).
+  Edits to skills in this repo are **live** in the targets via the symlink — no re-pull. Each project needs
+  its own `docs/HARNESS.md` (run `/harness:init` there if absent).
 - **Two observation signals (no manual paste needed — both on disk):**
-  1. **Session transcript** — `~/.claude/projects/-Users-acatl-workspace-one-shot/*.jsonl`. Each skill
-     prints `▶ harness:<name> v<hash8> · …` (start) and `■ harness:<name> → <outcome>` (end). `grep`
-     those markers to locate every run, its content-version, and outcome, then read around rough spots.
-  2. **Run-log** — `one-shot/.claude/harness/runs.jsonl` (path per its HARNESS.md › Observability),
+  1. **Session transcript** — `~/.claude/projects/-Users-acatl-workspace-<project>/*.jsonl` (one dir per
+     target: `…-one-shot`, `…-kino`). **Grep BOTH** when hunting friction. Each skill prints
+     `▶ harness:<name> v<hash8> · …` (start) and `■ harness:<name> → <outcome>` (end). `grep` those markers
+     to locate every run, its content-version, and outcome, then read around rough spots.
+  2. **Run-log** — `<project>/.claude/harness/runs.jsonl` (path per each HARNESS.md › Observability),
      written by `harness:build`; structured friction metrics; `harness:review` aggregates.
-- **The loop:** operator works one-shot with the harness → notes friction (or I infer it) → from a
-  harness-pipeline session I read one-shot's transcript + run-log → diagnose the skill wording/logic →
-  edit the skill **here** (live via symlink). `v<hash8>` in the breadcrumb tells old runs from new.
+- **The loop:** operator works a target (one-shot or kino) with the harness → notes friction (or I infer
+  it) → from a harness-pipeline session I read that project's transcript + run-log → diagnose the skill
+  wording/logic → edit the skill **here** (live via symlink). `v<hash8>` in the breadcrumb tells old runs
+  from new.
 - **Resume after compression:** read this section + the transcript markers; the skills are in
   `skills/harness-*/`, the observability convention is in [SKILL-STYLE.md](SKILL-STYLE.md) › Breadcrumbs.
 

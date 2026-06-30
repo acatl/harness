@@ -22,10 +22,12 @@ when shared. See [docs/PORTING-PLAN.md](docs/PORTING-PLAN.md) for the rationale.
 | `harness:explore` | Optional. Thinking partner for big codebases (improved OpenSpec Explore, digestible output). |
 | `harness:build` | The workhorse. Author the spec (proposal → recon → design → reviews → tasks) if none exists, else resume; then implement → verify. `gated` (default) / `yolo`. Stops at *verified, not shipped*. |
 | `harness:fine-tune` | Sticky polish loop after build (fix → test → approve → commit). Exits only on explicit signal. |
+| `harness:test-guide` | Read-only test companion. Derives a change's test scenarios from spec scenarios + AC + decisions, skips what automated tests already cover, and walks you through the gap one at a time (ROI-first) with how-to-drive steps + pass/fail/skip. Persists nothing. |
 | `harness:ship` | Push + open the PR. Deliberate, post-test. |
 | `harness:finish` | Post-merge close: sync specs + archive. Confirmable merge-gate; two-merge or single-merge. Backfills run-log reality fields. |
 | `harness:address-pr-comments` | Triage + resolve PR review comments. |
 | `harness:review` | Aggregate the harness run-log, surface recurring friction, propose harness improvements (data-backed, never auto-applied). |
+| `harness:status` | Read-only. Derive where a change is in the pipeline and the one next step from live state (openspec, the change's `harness/` artifacts, git/PR, tracker). Works cold — no stored pointer. |
 
 `harness:build` calls three **review sub-skills** during authoring — `harness:recon` (prior-art reuse
 ledger), `harness:architecture` (engineering gate), `harness:design` (UX gate) — each with its own full
