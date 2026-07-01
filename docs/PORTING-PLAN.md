@@ -69,10 +69,16 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   hash-object` computes in-rhythm, and version+outcome pair on one greppable line. Run-log `skill_version`
   keystone unaffected. **Unvalidated live** — confirm on the next real skill run that the end hash computes
   (not a placeholder) and the start line stays clean.
-- **Next action — cross-stack proof (the biggest unproven claim).** Both validated cycles were Swift (one-shot).
-  The **Node/TS bed `~/workspace/harness-test-web` (HWTES-) has never run the full pipeline.** Run a real change
-  through `refine → … → ship → finish` there to prove the skills are genuinely stack-agnostic (resolve sensors/
-  paths from its `docs/HARNESS.md`, not one-shot's). Secondary: apply finding AE's breadcrumb fix if approved.
+- **Cross-stack — PROVEN via kino (2026-07-01).** No longer the biggest unproven claim. The harness has now run
+  the **full pipeline on Node/TS**: `~/workspace/kino` — a real, complex **`nx` monorepo** (prettier / ESLint
+  flat config / `tsc --build` typecheck via `nx affected`) — did **2 full cycles (one with a `harness:explore`)**,
+  archived changes incl. `2026-06-30-pat-expiry-observability`, `2026-07-01-create-task-dialog-nav-guards`. That's
+  **stronger** evidence than the synthetic bed (kino is far more complex). Swift side stays covered by one-shot.
+  → The `~/workspace/harness-test-web` (HWTES-) bed is now **redundant/optional** — kino supersedes it; run it only
+  if a minimal reproducible bed is wanted for a specific regression.
+- **Next action — open threads only (no big unknowns left).** Push is done; the private-repo PR `feat → main`
+  is staged but unopened (operator's call). Validate-live carryovers: finding-AE end-hash computes on a real run;
+  the test-guide `fail`-fork fires; Step 5b block (landed in one-shot). Publishing = fresh curated snapshot when ready.
 - **New skill — `harness:test-guide` (read-only test companion), v1 landed (unexercised live).** Solves the
   recurring "how do I test this?" pain: derives a change's test scenarios from artifacts that already exist
   (spec `#### Scenario:` blocks, the task's GWT AC, `decisions.md` deferrals + design constraints), tags
@@ -119,7 +125,7 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   path is **hybrid C**: harness→plugin, walk-me-through shipped separately. Commands vs skills: command =
   user-typed `/ns:name` (namespace = subdir); skill = model/router-invoked by `description`. Sources:
   `code.claude.com/docs/en/plugins.md`, `…/plugins-reference.md`, `…/plugin-marketplaces.md`.
-- **Last updated:** 2026-06-30
+- **Last updated:** 2026-07-01
 
 ### Test beds (external sibling repos)
 
