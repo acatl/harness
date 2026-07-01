@@ -3,7 +3,7 @@ name: quality
 on:
   pull_request:
   push:
-    branches: [main, "feat/**"]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
