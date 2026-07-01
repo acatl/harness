@@ -156,7 +156,7 @@ Dogfood the harness on a **real** project and improve the skills from observed f
 - **Two observation signals (no manual paste needed — both on disk):**
   1. **Session transcript** — `~/.claude/projects/-Users-acatl-workspace-<project>/*.jsonl` (one dir per
      target: `…-one-shot`, `…-kino`). **Grep BOTH** when hunting friction. Each skill prints
-     `▶ harness:<name> v<hash8> · …` (start) and `■ harness:<name> → <outcome>` (end). `grep` those markers
+     `▶ harness:<name> · …` (start) and `■ harness:<name> v<hash8> → <outcome>` (end). `grep` those markers
      to locate every run, its content-version, and outcome, then read around rough spots.
   2. **Run-log** — `<project>/.claude/harness/runs.jsonl` (path per each HARNESS.md › Observability),
      written by `harness:build`; structured friction metrics; `harness:review` aggregates.

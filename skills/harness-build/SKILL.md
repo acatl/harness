@@ -269,7 +269,7 @@ On any failure not caused by this change → STOP + surface (don't patch around 
    ```text
    ## harness:build complete — <change> (verified, NOT shipped)
    Authored:  <artifacts | resumed existing>
-   Reviews:   architecture <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/architecture-review.md
+   Reviews:   architecture <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/architecture-review.md   (n/a|skipped if so)
               design <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/design-review.md   (n/a|skipped if so)
    <!-- ALWAYS cite the artifact path so the reviews are findable. If any 🔴 critical was found and
         auto-applied (esp. in yolo, where it happened silently), call it out: "⚠️ 1🔴 auto-applied — read it." -->

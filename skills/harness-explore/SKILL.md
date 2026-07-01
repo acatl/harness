@@ -72,7 +72,7 @@ the last 1–2 lines). Name the concrete action + who fires it; **never the verb
 different paths. Lighter than a full fork card — one bold-led line per option:
 > 👉 **Where next?**
 > • **Build it** — I run **`/harness:build`** → proposal → recon → design → tasks → code. *Leaves explore.*
-> • **Proposal only** — I write the OpenSpec proposal doc now (captures this thinking; no code).
+> • **Proposal only** — I write the OpenSpec proposal doc now (records this thinking; no code).
 > • **Stop** — nothing written; the thinking stays in this thread.
 
 Drop **Proposal only** when it doesn't apply → clean binary. **Build it** always names **`/harness:build`**, never "capture".

@@ -59,9 +59,10 @@ don't leave red and hand back.
 recorded the offer and the change isn't pure-logic-only (nothing behavioral to walk → skip silently, same
 skip-condition as runtime-verification), ask — terminal `👉` block — `👉 Walk the manual/behavioral test
 scenarios with /harness:test-guide before continuing? (yes / no)`. **yes** → run `harness:test-guide` as a
-**nested skill** (non-terminal — resume this loop after, per Sticky mode); any `fail` it surfaces becomes
-the next fix pass. Record `test-guide-offered` in the marker **either way** so it's not re-asked on later
-passes or after a nested-skill/context-loss resume.
+**nested skill** (non-terminal — resume this loop after, per Sticky mode). **Route from test-guide's own
+outcome** — `fix now` → the finding becomes the next fix pass; `note & continue` / `stop` → don't force a
+fix, just resume the loop. Record `test-guide-offered` in the marker **either way** so it's not re-asked on
+later passes or after a nested-skill/context-loss resume.
 ### 3. Ask for approval
 Brief summary of what changed → "Does this look good?" Wait. Don't proceed until yes. (These asks are bare
 yes/no / open prompts — keep them one-line. Any ≥2-option choice → a walk-me-through fork card,
@@ -71,7 +72,7 @@ a. **Verify clean** — sensors green; fix anything red first.
 b. **Ask to sync & commit:** "Sync docs and commit?" yes → c; no → d (track that unsynced passes are accumulating).
 c. **Sync docs, then commit:** identify change-scoped docs (Doc-Sync Scope below); update them to
    reflect **all unsynced changes since the last commit** (not just this pass); commit with the
-   Conventional type matching what was done; reset the unsynced-pass counter.
+   Conventional type matching what was done **+ the required `Co-Authored-By` trailer**; reset the unsynced-pass counter.
 d. **Ask what's next:** "What do you want to fine-tune next?" Wait. Done → exit (clear the marker).
    Before this ask, emit the **pipeline trail** for the `fine-tune · loop pause` stop per
    `references/pipeline-map.md` (one line) so the operator sees polish sits between verify and ship.

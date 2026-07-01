@@ -60,7 +60,7 @@ Per scenario, classify from evidence already on disk:
 
 | Tag | when… | walked? |
 |-----|-------|---------|
-| `✅ automated` | a test in the diff confidently maps to it | **no — skip** (already netted) |
+| `✅ automated` | an existing automated test confidently covers it (in the diff **or** already in the suite) | **no — skip** (already netted) |
 | `👁 behavioral` | behavioral-verify Observe note (`pr-body.md`/`progress.md`) saw it, **no test pins it** | **yes** (no regression net — highest automate-later value) |
 | `🔲 manual` | nothing maps to it (the **default** when unsure) | **yes** |
 | `⚠️ edge` | derived from a decision/constraint, unexercised | **yes** |
