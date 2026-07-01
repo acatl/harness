@@ -30,9 +30,10 @@ Skills are read by a machine, not a human. Optimize the **body** for an LLM exec
   compressing a passage loses value, **don't** — leave it fuller.
 
 ## Breadcrumbs
-Every skill body emits a start line `▶ harness:<name> …` (a hash-free locator) and an end line
-`■ harness:<name> v<hash8> → <outcome>`. These land in the Claude Code session transcript so harness
-iteration can grep it to locate every skill run, attribute it to a skill content-version, and read its
+Every **`harness:` pipeline skill** body emits a start line `▶ harness:<name> …` (a hash-free locator) and
+an end line `■ harness:<name> v<hash8> → <outcome>`. (General co-shipped skills that aren't part of the
+pipeline — e.g. `walk-me-through` — don't carry breadcrumbs.) These land in the Claude Code session
+transcript so harness iteration can grep it to locate every skill run, attribute it to a skill content-version, and read its
 outcome.
 - The `## Breadcrumbs` block is **self-contained in each SKILL.md** — skills travel as standalone dirs
   and cannot reference repo docs at runtime.
@@ -55,6 +56,10 @@ question. The eye must land on the `👉` last.
   move — show it as gated behind the answer.
 - **Reserved marker.** `👉` means *blocking on the operator only* — not status, not the trail. Distinct
   from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
+- **Fork cards are already the terminal block — don't `👉`-prefix their lines.** A walk-me-through fork
+  card (`rules/walk-me-through.md`) *is* the operator-input block; reproduce its lines (incl. `Pick:`)
+  **verbatim**. `👉` is for a **bare inline ask** (a one-line question/confirm that isn't a fork card) —
+  put that ask, `👉`-prefixed, as the terminal block. A fork card needs no `👉`; it just needs to be last.
 
 ## Bundled resources
 A skill is a **standalone dir** — it's symlinked into consuming projects (and may later be copied or

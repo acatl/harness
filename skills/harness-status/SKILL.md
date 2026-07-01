@@ -57,15 +57,18 @@ Mark a stage `✓` only on real evidence (honest, not assumed):
 |-------|-----------|
 | refine | linked ticket well-formed (Story + GWT AC) / tracker off "todo" |
 | spec | `proposal.md` + `design.md` + `specs/` authored (`openspec status`) |
-| review | `<change-state-dir>/architecture-review.md` **and** `design-review.md` exist |
+| review | the **applicable** review artifacts exist — build runs **both** (`architecture-review.md` + `design-review.md`), **architecture-only** (schema-only change), or **none** (pure docs/rename). ✓ if the reviews meant to run ran, **or** there's post-review progress (tasks checked / `pr-body.md`) — that proves reviews already passed or were legitimately skipped |
 | implement | tasks checked / `progress.md` complete / group commits present |
 | verify | `<change-state-dir>/pr-body.md` exists (build reached verified-not-shipped) |
-| ship | PR open on the PR host |
+| ship | a PR **exists** on the PR host — **open OR merged/closed** (a merged feature PR is past ship, headed to finish) |
 | address comments | PR open **with unresolved review threads** |
 | finish | change archived (`openspec/changes/archive/…`) **and** tracker = done |
 
 The **first not-`✓` stage is `▸ here`**; the stage after it is `◦ next`. A gap (a later stage `✓` but an
-earlier one not) → flag it ("PR open but no review artifacts — reviews may have been skipped"), don't hide it.
+earlier one not) → flag it only when it looks like a **skipped step**, not a **legitimately-skipped** one
+(reviews absent on a docs/schema-only change is expected — the review row already treats post-review
+progress as ✓). Surface a genuine anomaly ("implement done but no spec authored"); don't cry wolf on a
+valid skip.
 
 ### 4. Render (pipeline trail + evidence + one next step)
 Per `references/pipeline-map.md`: the trail with all `✓`, the `▸ here`, and **one** `◦ next`. Add a short

@@ -86,10 +86,16 @@ for the machine, fast-path for the human.
      chore PR, so the delegated `ship` call pushes without re-asking (it carries only sync+archive
      plumbing). Report the chore-PR URL when done. (Don't merge it — that's the human's final act.)
 
-6. **Close the linked task (autonomous — active ticket).** The merge-gate (step 2) already confirmed the
-   change landed, so fire the `done` verb + `merged` stage hook + clear any in-review label **without
-   asking** — invoking `finish` is consent to close its own ticket. No-op (no prompt) if no linked task.
-   Never close a ticket whose change the merge-gate could not confirm landed.
+6. **Close the linked task — mode-aware (autonomous only when the change has actually landed).**
+   - **two-merge:** Step 2 confirmed the feature PR **merged** → fire the `done` verb + `merged` stage hook
+     + clear any in-review label **without asking** (invoking `finish` is consent to close its own ticket).
+   - **single-merge:** the sync+archive rode the **still-open** feature PR (archive-before-merge) — the
+     change has **not** merged yet. Do **NOT** fire `done`/`merged`; leave the task `doing` (per Step 0's
+     promise) and clear only the in-review label if one is set. The task closes when the **human merges
+     that PR** (a `merged` webhook/stage hook if configured, else the operator) — not here; say so in the
+     report.
+   No-op (no prompt) if no linked task. **Never fire `done`/`merged` for a change the merge-gate could not
+   confirm landed.**
 
 7. **Backfill the run-log.** Find this change's run-log row(s) (HARNESS.md › Observability) and fill
    the `[E]` reality fields from the PR host + tracker: `pr_url`, `merged`, `ci_passed`,

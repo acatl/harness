@@ -19,8 +19,9 @@ prose. A few rules keep it consistent.
   decision-bearing datum kept. See [docs/SKILL-STYLE.md](docs/SKILL-STYLE.md).
 - Frontmatter `description` stays natural-language and trigger-rich (the router reads it).
 - Required frontmatter: `name`, `description`, and `metadata.author`. CI enforces this.
-- Every skill emits **start/end breadcrumbs** and carries the **Operator-input (`👉`)** block —
-  both self-contained per SKILL.md (skills travel as standalone dirs). See SKILL-STYLE.md.
+- Every **`harness:` pipeline skill** emits **start/end breadcrumbs** and carries the **Operator-input
+  (`👉`)** block — both self-contained per SKILL.md (skills travel as standalone dirs). General
+  co-shipped skills like `walk-me-through` aren't part of the pipeline and don't carry these. See SKILL-STYLE.md.
 
 ## Bundled resources (drift guard)
 

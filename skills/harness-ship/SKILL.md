@@ -49,7 +49,12 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    per HARNESS.md). Never commit to the default branch.
 2. **Format.** Run the `format` sensor (HARNESS.md), re-stage. (The pre-push gate enforces strict lint
    + tests; formatting now avoids a blocked push.)
-3. **Stage & review (announce, don't gate).** `git add -A`, **show the diff summary** so what's being
+3. **Refresh the PR-body artifact, then stage & review (announce, don't gate).** If the change has a build
+   handoff at `<change-state-dir>/pr-body.md`, **re-fold it now** per `references/pr-summary.md`
+   (idempotency: skip the fold if the footer's `folded-against` still matches HEAD, excluding summary-only
+   commits) — **before** staging, so the refreshed audit artifact is committed + pushed with this ship
+   commit and never left dirty. On a fold, stamp the footer (`folded-against` = `git rev-parse HEAD`;
+   `generated-by: harness:ship v<hash8>`). Then `git add -A`, **show the diff summary** so what's being
    committed is visible — then proceed (no confirm). If the summary surfaces something clearly unintended
    (a stray/secret file), stop and surface that; otherwise commit.
 4. **Commit** with a Conventional subject; body explains *why* when not obvious. Add the
@@ -62,13 +67,13 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    model whether standalone or as `finish`'s chore-PR step.)
 6. **Open the PR** (PR host per HARNESS.md, e.g. `gh pr create`). The **PR title MUST be a Conventional
    Commit** matching the intended release bump — it's the squash title the release tool reads.
-   **Body:** if build left a handoff at `<change-state-dir>/pr-body.md`, **refresh then use it as the PR
-   body.** Re-fold it per `references/pr-summary.md` (Architecture · Decisions verbatim · Verification ·
-   etc., inside the managed region) so it reflects any commits since build — **idempotency key:** if the
-   footer's `folded-against` still matches HEAD (excluding summary-only commits), it's current, **skip the
-   fold** (no LLM work). On a fold, stamp the footer (`folded-against` = `git rev-parse HEAD`;
-   `generated-by: harness:ship v<hash8>`). The decision log must reach the PR. No handoff (e.g. shipping a
-   non-build change) → compose a substantive body folded the same way: what (behavior) / why (trajectory) / risk.
+   **Body:** if the change has `<change-state-dir>/pr-body.md`, use it **as-is** for the PR body
+   (`gh pr create --body-file <change-state-dir>/pr-body.md`) — it was refreshed + committed in **Step 3**,
+   so it's on the branch and matches what's shipped. **Do NOT re-fold or write it here** — a post-commit
+   write dirties the worktree and desyncs the artifact from the branch (that's the bug this ordering
+   avoids). The decision log must reach the PR. **No artifact** (e.g. a non-build change with no
+   change-state dir) → compose a substantive body inline for `gh pr create` folded per
+   `references/pr-summary.md` (what / why / risk); there's nothing on-branch to keep in sync.
 7. **Report** the PR URL. Task tracker: set the `link` verb (`pullRequestUrl` + `branchName`) and fire
    the `PR open` stage hook (HARNESS.md). **Active-ticket tracker writes are autonomous** — invoking
    `ship` is consent to drive *its own* ticket through the pipeline; fire the `link` verb + `PR open` hook

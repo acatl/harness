@@ -41,8 +41,9 @@ npx skills add acatl/harness --skill walk-me-through
 
 ## Namespace
 
-Every skill is namespaced **`harness:`** (e.g. `/harness:build`) so it's clear where it came from
-when shared. See [docs/PORTING-PLAN.md](docs/PORTING-PLAN.md) for the rationale.
+Every **pipeline** skill is namespaced **`harness:`** (e.g. `/harness:build`) so it's clear where it came
+from when shared. The general-purpose [`walk-me-through`](skills/walk-me-through/SKILL.md) is the
+exception — deliberately un-namespaced so it's useful standalone in any project.
 
 ## The pipeline
 

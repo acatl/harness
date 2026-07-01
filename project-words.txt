@@ -108,6 +108,8 @@ untracking
 untrack
 greppable
 unvalidated
+desyncs
+desync
 
 # Acronyms / tools / product names referenced
 WCAG
