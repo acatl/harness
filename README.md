@@ -28,6 +28,17 @@ ln -s /path/to/harness/skills/harness-build .claude/skills/harness-build
 Then run **`/harness:init`** once in the project to generate its `docs/HARNESS.md` (the binding layer
 every other skill reads). Until that exists, the rest of the pipeline is inert.
 
+### Also included: `walk-me-through` (general-purpose)
+
+[`walk-me-through`](skills/walk-me-through/SKILL.md) is a standalone, **multi-purpose** skill — not tied to
+the harness. Working with an agent, your job is mostly *deciding*; it turns a wall of questions into a
+clean one-at-a-time flow (indexed options, tradeoffs, a recommendation, an escape hatch). The harness uses
+it for its forks, but it's useful in any project. Install just this one:
+
+```bash
+npx skills add acatl/harness --skill walk-me-through
+```
+
 ## Namespace
 
 Every skill is namespaced **`harness:`** (e.g. `/harness:build`) so it's clear where it came from

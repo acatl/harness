@@ -99,7 +99,26 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   (covers only ⅓, trades a reliable inline format-spec for a fuzzier cross-skill dependency). Only lever if
   clutter ever bites: telegraph the *canonical* refs so each copy is smaller. Sources:
   `code.claude.com/docs/en/skills.md`, `…/plugins-reference.md`.
-- **Last updated:** 2026-06-29
+- **`walk-me-through` promoted to a standalone, non-namespaced general skill (2026-06-29).** Folded the
+  global `~/.claude/skills/walk-me-through` shell (triggers, when-to-use, example, completion + a "your job
+  is deciding" + calibration framing) with the harness's hardened fork-format core. **Single canonical** =
+  `rules/walk-me-through.md` (genericized: dropped `operator`/harness-specific examples, kept all hardening
+  — concrete-outcome rule, counter-always, anti-patterns); the new `skills/walk-me-through/` AND the 12
+  harness bundles all **sync from it** (one source, no runtime dep). README gained a brief blurb +
+  single-skill install (`npx skills add acatl/harness --skill walk-me-through`). **15 skills now** (14
+  harness + walk-me-through). *Open:* the user's global copy is untouched — may drift (offered a symlink).
+- **Settled (2026-06-29) — namespacing: STAY LOOSE; do NOT package as a plugin (for now).** Verified the
+  mechanism: OpenSpec's `/opsx:explore` colon is **path-derived** (a *command* at `commands/opsx/explore.md`
+  → `<dir>:<file>`), and a **plugin** auto-namespaces from `plugin.json` `name` (skill `skills/build/` in
+  plugin `harness` → `/harness:build`, no literal colon stored). The harness instead hand-authors a **literal
+  colon** in the skill `name` (`harness:build`) — works, but mangles to `-` on copy-paste/sanitize (vercel,
+  filenames). **Decision: accept the fragile colon for now.** A plugin would fix it but is **all-or-nothing**
+  (kills single-skill cherry-pick — e.g. `--skill walk-me-through`) and would force-namespace walk-me-through
+  to `/harness:walk-me-through` (against its general-purpose intent). If those priorities ever flip, the
+  path is **hybrid C**: harness→plugin, walk-me-through shipped separately. Commands vs skills: command =
+  user-typed `/ns:name` (namespace = subdir); skill = model/router-invoked by `description`. Sources:
+  `code.claude.com/docs/en/plugins.md`, `…/plugins-reference.md`, `…/plugin-marketplaces.md`.
+- **Last updated:** 2026-06-30
 
 ### Test beds (external sibling repos)
 

@@ -1,14 +1,14 @@
-# Fork format — walk-me-through (pure text)
+# Fork format — single-pick decisions (pure text)
 
-How every harness skill presents a **single-pick fork** (one decision, pick one — reasoning matters). Pure
-text — **never** `AskUserQuestion` or any native picker. One fork per turn; operator replies by typing a letter.
+How to present a **single-pick fork** (one decision, pick one — reasoning matters). Pure text —
+**never** a native picker (`AskUserQuestion` or similar). One fork per turn; reply by typing a letter.
 
-Minimize text at decision time; preserve full signal. Recommendation is mandatory — never leave the
-operator to weigh blind.
+Minimize text at decision time; preserve full signal. A recommendation is mandatory — never leave the
+person to weigh blind.
 
-> **Scope:** this governs **single-pick forks** only. A **multi-select opt-in menu** (check any/all/none —
-> e.g. refine's ✨ Improvements pick) is a different interaction: use a **checkbox** (`AskUserQuestion`,
-> `multiSelect:true`), the one sanctioned native-picker use. Forks ≠ checklists.
+> **Scope:** this governs **single-pick forks** only. A **multi-select opt-in menu** (check
+> any / all / none) is a different interaction — for that, a checkbox / `multiSelect` picker is the right
+> tool. Forks ≠ checklists.
 
 ## Per-fork card (render exactly this shape — every labeled line is MANDATORY)
 
@@ -27,7 +27,7 @@ not optional and not substitutable by prose. The shape below is the contract, no
 | B | <name> | <terse> | <terse> |
 
 **Recommendation:** **<letter>** — <name>. <1–2 sentences citing the concrete signal driving it
-(documented constraint, adjacent code, charter line, prior decision).>
+(a documented constraint, adjacent code, a prior decision).>
 **Cost if <letter>:** <concrete — files/lines/effort, not "some work">
 
 **Escape:** `<next-letter>` discuss / propose other.
@@ -36,22 +36,25 @@ Pick: A / B / <escape-letter>?
 ```
 
 ## Rules
+
 - **Every option states its concrete outcome — no ambiguity, no exceptions.** Hold **all** options to this
   bar equally — A, B, …, and the escape alike; the default is not exempt and gets no special treatment. For
-  each, the operator must predict the result from the label alone: spell out exactly what it writes /
-  creates / discards and **where**. Ban vague words that hide the effect — "notes", "handle it", "etc.",
+  each, you must predict the result from the label alone: spell out exactly what it writes / creates /
+  discards and **where**. Ban vague words that hide the effect — "notes", "handle it", "etc.",
   "as appropriate". If an option discards or drops something, say so plainly (e.g. "not saved anywhere —
   lost after this turn"), never imply a phantom save.
 - **One fork per turn.** Wait for the answer before the next. No wall of forks.
 - **Counter (mandatory):** open every card with `Q<N> of <total>` — even a lone fork is `Q1 of 1`. Never omit it.
 - **Index by letter** (A, B, …); always add one extra letter as the escape hatch (`discuss / propose other`).
 - **Pros/cons terse** — fragments, one short phrase per cell, no filler.
-- **Recommendation always**, grounded in a named signal, with a **concrete** cost.
+- **Recommendation always**, grounded in a named signal, with a **concrete** cost ("one migration, ~15
+  lines" beats "small change"; "locks the vendor for 2 years" beats "long-term commitment").
 - **Two-option forks still use the table** — consistency over saving three lines.
 - **Lock tight:** one line `Locked: **<choice>**.` then the next fork. No re-summarizing prior picks.
 - **Escape → drop the table**, engage in prose, then re-enter for the same fork (or skip if resolved).
 
 ## Anti-patterns
+
 - Native picker / `AskUserQuestion` of any kind.
 - Ad-hoc prose options (`(a)/(b)/(c)…`) instead of the card.
 - Omitting the counter on a single fork (still `Q1 of 1`).
