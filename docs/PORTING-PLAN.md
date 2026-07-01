@@ -60,14 +60,15 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   kino, the test beds, `ONEST`/`HSTES`/`HWTES`) may appear in the public repo. Full recipe + exclusion list:
   **§ Publishing** at the bottom of this file. This repo keeps full history privately; the public repo is a
   scrubbed snapshot, not this repo flipped public.
-- **Open finding (AE) — start-breadcrumb hash under-fires.** The `▶ harness:<name> v<hash8>` start line emits
-  placeholders (`v<computing>`, `v(finish)`, literal `v$(git hash-object …)`) instead of the computed hash —
-  prose was already hardened once (lines below, `c…`→strengthened sed) and still misfires. Root cause: the start
-  line is the **first, pure-text emission**, before any tool call, and nothing in-run consumes the hash → no
-  pressure to stop and compute. End marks (`■`) fire clean. **Fix designed, not yet applied (awaiting go):** move
-  the hash from the start line → the **end** line (`■ harness:<name> v<hash8> → <outcome>`), where it rides the
-  end-of-run Bash rhythm and pairs version+outcome on one line; start line becomes a hash-free locator. ~13
-  SKILL.md `## Breadcrumbs` blocks + `docs/SKILL-STYLE.md`. Run-log `skill_version` keystone is unaffected.
+- **Finding AE — RESOLVED (2026-06-30). Start-breadcrumb hash moved to the end line.** The start line was the
+  **first, pure-text emission** before any tool call, so `▶ harness:<name> v<hash8>` reliably under-fired
+  (emitted `v<computing>` / literal `v$(git hash-object …)` placeholders) — and prose-hardening had already
+  failed once. Fix applied across all **14** harness SKILL.md `## Breadcrumbs` blocks + `docs/SKILL-STYLE.md`:
+  start is now a **hash-free locator** (`▶ harness:<name> …`); the hash rides the **end** line
+  (`■ harness:<name> v<hash8> → <outcome>`), where the skill is already running wrap-up Bash so `git
+  hash-object` computes in-rhythm, and version+outcome pair on one greppable line. Run-log `skill_version`
+  keystone unaffected. **Unvalidated live** — confirm on the next real skill run that the end hash computes
+  (not a placeholder) and the start line stays clean.
 - **Next action — cross-stack proof (the biggest unproven claim).** Both validated cycles were Swift (one-shot).
   The **Node/TS bed `~/workspace/harness-test-web` (HWTES-) has never run the full pipeline.** Run a real change
   through `refine → … → ship → finish` there to prove the skills are genuinely stack-agnostic (resolve sensors/

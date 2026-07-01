@@ -30,13 +30,18 @@ Skills are read by a machine, not a human. Optimize the **body** for an LLM exec
   compressing a passage loses value, **don't** — leave it fuller.
 
 ## Breadcrumbs
-Every skill body emits a start line `▶ harness:<name> v<hash8> …` and an end line
-`■ harness:<name> → <outcome>`. These land in the Claude Code session transcript so harness iteration
-can grep it to locate every skill run, attribute it to a skill content-version, and read its outcome.
+Every skill body emits a start line `▶ harness:<name> …` (a hash-free locator) and an end line
+`■ harness:<name> v<hash8> → <outcome>`. These land in the Claude Code session transcript so harness
+iteration can grep it to locate every skill run, attribute it to a skill content-version, and read its
+outcome.
 - The `## Breadcrumbs` block is **self-contained in each SKILL.md** — skills travel as standalone dirs
   and cannot reference repo docs at runtime.
 - `<hash8>` = first 8 chars of `git hash-object` of the skill's own SKILL.md — its content version, so
-  transcript friction can be attributed to a specific skill version.
+  transcript friction can be attributed to a specific skill version. **It goes on the END line, not the
+  start.** The start line is the first thing emitted — pure text, before any tool call — so a start-line
+  hash reliably under-fires (the agent emits a placeholder rather than stopping to run a command). At end
+  the skill is already running its wrap-up Bash (git/gh/run-log), so the `git hash-object` rides that
+  rhythm and computes for real; it also pairs version + outcome on one greppable line. (Finding AE.)
 
 ## Operator input (👉)
 Any line that needs the operator's answer — a question, a confirm, a pick — is prefixed `👉` and placed

@@ -106,6 +106,8 @@ uninferred
 unpushed
 untracking
 untrack
+greppable
+unvalidated
 
 # Acronyms / tools / product names referenced
 WCAG
