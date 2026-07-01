@@ -57,7 +57,7 @@ Mark a stage `✓` only on real evidence (honest, not assumed):
 |-------|-----------|
 | refine | linked ticket well-formed (Story + GWT AC) / tracker off "todo" |
 | spec | `proposal.md` + `design.md` + `specs/` authored (`openspec status`) |
-| review | the **applicable** review artifacts exist — build runs **both** (`architecture-review.md` + `design-review.md`), **architecture-only** (schema-only change), or **none** (pure docs/rename). ✓ if the reviews meant to run ran, **or** there's post-review progress (tasks checked / `pr-body.md`) — that proves reviews already passed or were legitimately skipped |
+| review | the **applicable** review left its artifact — build runs **both** (`architecture-review.md` + `design-review.md`), **architecture-only** (schema-only change), or **none** (pure docs/rename, i.e. no code/spec deltas). ✓ when the applicable artifact(s) exist **or** the change type warrants no review. **Never** infer review from `pr-body.md` / tasks — those are verify/ship proof, not review proof (a change can reach verify with reviews wrongly skipped) |
 | implement | tasks checked / `progress.md` complete / group commits present |
 | verify | `<change-state-dir>/pr-body.md` exists (build reached verified-not-shipped) |
 | ship | a PR **exists** on the PR host — **open OR merged/closed** (a merged feature PR is past ship, headed to finish) |
@@ -65,10 +65,10 @@ Mark a stage `✓` only on real evidence (honest, not assumed):
 | finish | change archived (`openspec/changes/archive/…`) **and** tracker = done |
 
 The **first not-`✓` stage is `▸ here`**; the stage after it is `◦ next`. A gap (a later stage `✓` but an
-earlier one not) → flag it only when it looks like a **skipped step**, not a **legitimately-skipped** one
-(reviews absent on a docs/schema-only change is expected — the review row already treats post-review
-progress as ✓). Surface a genuine anomaly ("implement done but no spec authored"); don't cry wolf on a
-valid skip.
+earlier one not) → **flag it, don't paper over it**: e.g. implement/verify done but no review artifact on a
+change that *warrants* review → "advanced past review with no review artifact — reviews may have been
+skipped." A *legitimately* review-less change (docs/rename) is **not** a gap. **Never** mark an earlier
+stage `✓` from downstream evidence just to silence the flag.
 
 ### 4. Render (pipeline trail + evidence + one next step)
 Per `references/pipeline-map.md`: the trail with all `✓`, the `▸ here`, and **one** `◦ next`. Add a short
