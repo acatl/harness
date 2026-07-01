@@ -60,7 +60,7 @@ Mark a stage `✓` only on real evidence (honest, not assumed):
 | review | the **applicable** review left its artifact — build runs **both** (`architecture-review.md` + `design-review.md`), **architecture-only** (schema-only change), or **none** (pure docs/rename, i.e. no code/spec deltas). ✓ when the applicable artifact(s) exist **or** the change type warrants no review. **Never** infer review from `pr-body.md` / tasks — those are verify/ship proof, not review proof (a change can reach verify with reviews wrongly skipped) |
 | implement | tasks checked / `progress.md` complete / group commits present |
 | verify | `<change-state-dir>/pr-body.md` exists (build reached verified-not-shipped) |
-| ship | a PR **exists** on the PR host — **open OR merged/closed** (a merged feature PR is past ship, headed to finish) |
+| ship | a PR is **open OR merged** on the PR host (a merged feature PR is past ship, headed to finish). A **closed-unmerged** PR is **not** ship evidence — that's an abandoned change, not a landed one |
 | address comments | PR open **with unresolved review threads** |
 | finish | change archived (`openspec/changes/archive/…`) **and** tracker = done |
 
