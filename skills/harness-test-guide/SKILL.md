@@ -93,8 +93,15 @@ Wait for the answer before the next. **Escape always:** the operator can stop an
 or jump. Track pass/fail/skip **in-session only** (conversation memory — no file).
 
 ### 6. On fail / at the end
-- **fail** → it's a **fine-tune finding**, not something to fix here. Note it (ephemeral); the operator
-  fixes via `/harness:fine-tune`, then re-runs this to re-walk (recomputed fresh).
+- **fail → make it a decision, never auto-advance.** A fail is a fine-tune finding; **stop and offer a
+  terminal `👉` fork** (render per `references/walk-me-through.md`) — do NOT silently note-and-continue to
+  the next test:
+  - **`fix now`** → hand the finding to **`/harness:fine-tune`** (test-guide never edits — fine-tune does
+    the fix, with its sensor/commit discipline). Already inside a fine-tune loop → it's just the next fix
+    pass; standalone → enter fine-tune for this finding. After the fix lands, **re-walk the failed scenario**
+    to confirm it now passes, then continue the walk from where it paused.
+  - **`note & continue`** → record the finding (ephemeral) and advance to the next test.
+  - **`stop`** → end the walk now and surface the fail list.
 - **end** → print an **ephemeral summary** (not saved): `✅ N passed · ❌ N failed · ⏭️ N skipped`, then
   the **fail list** as the handoff into fine-tune. Offer an **export** (Gherkin + a priority table) only
   if the operator asks — for handing a QA dev/agent; default is no file.
@@ -105,6 +112,7 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
   is flagged a hypothesis, never asserted as required.
 - **Never persist.** No document by default — the walk is the deliverable; a file is an opt-in `export`,
   not a thing the pipeline maintains (that's what keeps this from sprawling).
-- **Never fix, never automate.** Fixing is `fine-tune`; generating automated tests is the QA agent's job.
+- **Never fix directly, never automate.** On a fail, `fix now` *hands off* to `fine-tune` (which does the
+  edit) — test-guide never touches code itself; generating automated tests is the QA agent's job.
 - **Conservative coverage.** Never mark `✅` on doubt — default `🔲`; surface the `👁`-only scenarios as
   the real gap (worked once, no regression net).

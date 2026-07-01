@@ -30,6 +30,7 @@ MAP=(
   "docs/runtime-verification-binding.md::skills/harness-init/references/runtime-verification-binding.md"
   "docs/runtime-verification-binding.md::skills/harness-build/references/runtime-verification-binding.md"
   "rules/walk-me-through.md::skills/walk-me-through/references/walk-me-through.md"
+  "rules/walk-me-through.md::skills/harness-test-guide/references/walk-me-through.md"
   "rules/walk-me-through.md::skills/harness-refine/references/walk-me-through.md"
   "rules/walk-me-through.md::skills/harness-address-pr-comments/references/walk-me-through.md"
   "rules/walk-me-through.md::skills/harness-architecture/references/walk-me-through.md"
