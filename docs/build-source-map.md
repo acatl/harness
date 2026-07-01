@@ -63,10 +63,10 @@ flowchart TB
 
 **Phase C — run reviews**
 - [N] Run only selected reviews, order architecture → design → impeccable. Skip excluded. Sequential never parallel (shared spec files; impeccable after design). Orchestrated order supersedes impeccable's own micro-order; its "then revise" fulfilled by the review's own apply. Each review re-reads from disk → sees prior amendments.
-- [N] Pre-empt spurious "missing checklist" finding: before invoking, note in one line that the HELD checklist is intentionally not yet authored (name by role, not filename).
+- [N] Preempt spurious "missing checklist" finding: before invoking, note in one line that the HELD checklist is intentionally not yet authored (name by role, not filename).
 - [N] Invocation: Skill tool, args = `<change-name>` (autonomous) or `<change-name> gated`. Review treats args as explicit change-name (first non-mode token) → explicit-argument path, no multi-change stall.
-- [N] Autonomous: each review auto-applies unambiguous findings, stops on its forks (may fire before report + per Options finding). Gated: walks every finding + confirms write. Let review drive its own questions; don't pre-empt.
-- [N] Completion/resume contract: review completes by (a) writing gate artifact `<change>/.specd/reviews/<review>.md` + final summary line, OR (b) self-calibrate out-of-scope/minimal → one-line skip note, no gate artifact. Treat either as completion.
+- [N] Autonomous: each review auto-applies unambiguous findings, stops on its forks (may fire before report + per Options finding). Gated: walks every finding + confirms write. Let review drive its own questions; don't preempt.
+- [N] Completion/resume contract: review completes by (a) writing gate artifact `<change-state-dir>/<review>-review.md` (committed `harness/` dir, flat `*-review.md`) + final summary line, OR (b) self-calibrate out-of-scope/minimal → one-line skip note, no gate artifact. Treat either as completion.
 - [N] On completion, immediately proceed to next review without yielding to user (even after a fork answer, even on self-skip). Don't wait indefinitely for a gate artifact a self-skip never writes. Chain not complete until every selected review completed + Phase D ran. Read gate outcome/self-skip note for the summary. Pause once per genuine fork.
 
 **Phase D — generate HELD**

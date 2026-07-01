@@ -16,7 +16,8 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
 
 ## Status pointer
 
-- **Phase:** 6 — **live harness iteration** (building of the harness is done). All 12 skills + the
+- **Phase:** 6 — **live harness iteration** (building of the harness is done). **14 skills** (12 pipeline +
+  read-only `harness:status` + read-only `harness:test-guide`) + the
   `recon-first` rule are ported, telegraphic, genericized, namespaced `harness:<name>` (frontmatter
   colon, dir dashed), with **start/end breadcrumbs**. harness repo on `feat/harness-foundation`
   (local, unpushed by the user's choice). `harness:init` hardened across `c2d59e7 → cfdb00b`
@@ -27,21 +28,104 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   warn formatter; warn/ask logging), config-seed against the known spec-driven shape (no probing).
   **Finding H (self-contained skills):** skills now bundle their runtime inputs in-dir (`templates/` +
   `references/`); repo root canonical, drift-guarded by `scripts/sync-skill-resources.sh`.
-- **Current micro-state (resume here):** one-shot baseline committed (`5db4d03`, `.vscode/` ignored, all
-  5 context docs authored — no template markers). The clean re-init was **blocked by finding H** — the
-  symlinked init skill couldn't see its bundled templates/docs (they lived only at harness repo root).
-  **Now fixed** (this change): bundles created in-dir, refs rewritten, validated readable through
-  one-shot's symlink. one-shot still has **no `openspec/`, no `docs/HARNESS.md`** (wiped) — ready for a
-  clean init.
-- **Next action — the operator runs, in a one-shot session:** (1) `openspec init --tools claude`
-  (initializes OpenSpec — installs the vendor `openspec-*`/`opsx:*` skills the harness *needs*; don't
-  remove them); (2) `/harness:init` (the bundle now resolves over the symlink). Then, from a harness-pipeline session,
-  **review the run:** read the **newest** transcript by mtime in
-  `~/.claude/projects/-Users-acatl-workspace-one-shot/*.jsonl` (ignore the 2 pre-wipe ones; confirm
-  it has this run's `▶ harness:init`), grep `▶ harness:`/`■ harness:`, cross-check
-  `one-shot/.claude/harness/runs.jsonl`, diagnose friction, edit skills here (live via symlink),
-  commit on `feat/harness-foundation`.
-- **Last updated:** 2026-06-26
+- **Current micro-state (resume here):** **the recent wave (findings H–AD) is now VALIDATED live** — it ran
+  for real on one-shot across TWO full cycles, both shipped + finished + archived + merged:
+  - `web-core` (ONEST-4): ship [#8](https://github.com/acatl/one-shot/pull/8) → finish
+    [#9](https://github.com/acatl/one-shot/pull/9), archived `2026-06-28-web-core`.
+  - `input-syntax-highlighting` (ONEST-11): feat [#10](https://github.com/acatl/one-shot/pull/10) → finish
+    [#11](https://github.com/acatl/one-shot/pull/11), archived `2026-06-28-input-syntax-highlighting`.
+  Earlier: `settings-keychain` (ONEST-3) shipped+merged+finished; `window-chrome` + `bare-harness` archived.
+  **Validation verdict (3/3 targets pass):** (1) **decision log → PR** ✓ — PR #8 body carries a "Decisions
+  made (see `harness/decisions.md`)" section (D-impl-1/2) via the ship→`pr-body.md` handoff; (2) **ship/finish
+  auto-push** ✓ — all feat/chore branches track `origin`, PRs #6–#11 all merged, no manual-push gate fired;
+  (3) **`harness:status` derives right** ✓ — `openspec list --json` empty → "nothing in flight"; an archived
+  change → "shipped + finished." Breadcrumbs confirm the skills fired: 10× `■ harness:ship`, 12× `■ harness:finish`.
+  Both repos clean: one-shot @ `main`, nothing in flight.
+- **Repo-health pass landed + pushed (2026-06-29).** `feat/harness-foundation` is now **pushed** to
+  `origin` (`github.com/acatl/harness`), **47 commits ahead of `main`**; a fresh PR `feat → main` is staged
+  but **not yet opened** (operator reviewing). Added for open-source readiness: **MIT LICENSE**; a Node
+  lint/spell toolchain (`package.json` — `markdownlint-cli2` + `cspell`, npm `check` script) tuned to the
+  telegraphic house style (`MD004`/`MD038` **off** — they'd corrupt the semantic `+`/`-` AC markers + ` · `
+  breadcrumb separators; an earlier `--fix` actually did corrupt one, reverted); a `project-words.txt`
+  dictionary; **CI** (`.github/workflows/quality.yml` — lint · spell · bundle-drift · skill-frontmatter ·
+  offline link check); `CONTRIBUTING.md` + PR template + `.editorconfig`; `scripts/check-skill-frontmatter.sh`;
+  README install/OpenSpec-dependency/artifacts sections. All 14 skills now carry `metadata.author`.
+- **`harness:init` gained Step 5b — the CLAUDE.md workflow block.** init now *offers* (consent, managed
+  region `<!-- harness:workflow START/END -->`, idempotent) to add a tight pointer block to the consuming
+  project's `CLAUDE.md` so the harness is the project's **default** workflow (Claude routes work through the
+  pipeline proactively + can onboard a newcomer without the docs). Template: `templates/claude-workflow.md`
+  (bundled, synced). Deliberately telegraphic — CLAUDE.md is loaded every turn; source of truth stays in the
+  skills + `docs/HARNESS.md`. **Unexercised live** — validate on a real `harness:init` run.
+- **Publishing decided — stay private, publish a fresh curated snapshot.** No internal project (one-shot,
+  kino, the test beds, `ONEST`/`HSTES`/`HWTES`) may appear in the public repo. Full recipe + exclusion list:
+  **§ Publishing** at the bottom of this file. This repo keeps full history privately; the public repo is a
+  scrubbed snapshot, not this repo flipped public.
+- **Finding AE — RESOLVED (2026-06-30). Start-breadcrumb hash moved to the end line.** The start line was the
+  **first, pure-text emission** before any tool call, so `▶ harness:<name> v<hash8>` reliably under-fired
+  (emitted `v<computing>` / literal `v$(git hash-object …)` placeholders) — and prose-hardening had already
+  failed once. Fix applied across all **14** harness SKILL.md `## Breadcrumbs` blocks + `docs/SKILL-STYLE.md`:
+  start is now a **hash-free locator** (`▶ harness:<name> …`); the hash rides the **end** line
+  (`■ harness:<name> v<hash8> → <outcome>`), where the skill is already running wrap-up Bash so `git
+  hash-object` computes in-rhythm, and version+outcome pair on one greppable line. Run-log `skill_version`
+  keystone unaffected. **Unvalidated live** — confirm on the next real skill run that the end hash computes
+  (not a placeholder) and the start line stays clean.
+- **Cross-stack — PROVEN via kino (2026-07-01).** No longer the biggest unproven claim. The harness has now run
+  the **full pipeline on Node/TS**: `~/workspace/kino` — a real, complex **`nx` monorepo** (prettier / ESLint
+  flat config / `tsc --build` typecheck via `nx affected`) — did **2 full cycles (one with a `harness:explore`)**,
+  archived changes incl. `2026-06-30-pat-expiry-observability`, `2026-07-01-create-task-dialog-nav-guards`. That's
+  **stronger** evidence than the synthetic bed (kino is far more complex). Swift side stays covered by one-shot.
+  → The `~/workspace/harness-test-web` (HWTES-) bed is now **redundant/optional** — kino supersedes it; run it only
+  if a minimal reproducible bed is wanted for a specific regression.
+- **Next action — open threads only (no big unknowns left).** Push is done; the private-repo PR `feat → main`
+  is staged but unopened (operator's call). Validate-live carryovers: finding-AE end-hash computes on a real run;
+  the test-guide `fail`-fork fires; Step 5b block (landed in one-shot). Publishing = fresh curated snapshot when ready.
+- **New skill — `harness:test-guide` (read-only test companion), v1 landed (unexercised live).** Solves the
+  recurring "how do I test this?" pain: derives a change's test scenarios from artifacts that already exist
+  (spec `#### Scenario:` blocks, the task's GWT AC, `decisions.md` deferrals + design constraints), tags
+  coverage conservatively (drops `✅` auto-covered, walks the gap), orders by ROI (AC-core P0 first), and
+  **walks the operator one scenario at a time** (plain-language drive-steps from the HARNESS.md
+  Runtime-verification recipe + pass/fail/skip) — mirrors `harness:status` discipline (read-only, derives,
+  persists nothing). Chosen shape over a *persisted `test-plan.md` artifact* precisely to avoid the sprawl: a
+  stored doc forces every behavior-changing skill (build/fine-tune/address/finish) to resync it; an on-demand
+  guide owns no state → cannot sprawl. Symlinked into both dogfood targets. **Wired into `harness:fine-tune`
+  Step 2** — a one-per-session offer (after sensors green, first pass) to walk the scenarios; gated by a
+  `test-guide-offered` flag in the `fine-tune-active.md` marker so it survives nested-skill/context-loss
+  resumes. **Still deferred:** the optional `export` (Gherkin + priority table) for a QA dev/agent handoff.
+  Validate by running `/harness:test-guide` on a real one-shot/kino change, and by entering fine-tune (the
+  offer should fire once).
+- **Deferred (in "Notes to resolve"):** ADRs at refine (opt-in), a `harness:walk-me-through` skill, a
+  doc-health audit skill, plugin packaging (finding B's full form). (The per-run breadcrumb-hash-compute call is
+  now folded into open finding **AE** above.)
+- **Settled (2026-06-29) — the sync-bundle stays; DON'T try to DRY the shared refs via a plugin.** The
+  bundled-reference duplication (`walk-me-through` ×12, `pipeline-map` ×7, `pr-summary` ×3 ≈ 1.4k generated
+  lines) is the **correct** pattern, not a workaround. Verified against the Claude Code docs: a SKILL.md gets
+  only `${CLAUDE_SKILL_DIR}` (its own dir, even inside a plugin); there is **no `${CLAUDE_PLUGIN_ROOT}` for
+  skill bodies** (only hooks/MCP/LSP), and path traversal outside a plugin/skill dir is blocked — a plugin's
+  "shared" file gets dereferenced into per-skill copies at install anyway. So **plugin packaging buys
+  distribution, NOT de-duplication** (decouple those motives). `walk-me-through`-as-dep-skill rejected for DRY
+  (covers only ⅓, trades a reliable inline format-spec for a fuzzier cross-skill dependency). Only lever if
+  clutter ever bites: telegraph the *canonical* refs so each copy is smaller. Sources:
+  `code.claude.com/docs/en/skills.md`, `…/plugins-reference.md`.
+- **`walk-me-through` promoted to a standalone, non-namespaced general skill (2026-06-29).** Folded the
+  global `~/.claude/skills/walk-me-through` shell (triggers, when-to-use, example, completion + a "your job
+  is deciding" + calibration framing) with the harness's hardened fork-format core. **Single canonical** =
+  `rules/walk-me-through.md` (genericized: dropped `operator`/harness-specific examples, kept all hardening
+  — concrete-outcome rule, counter-always, anti-patterns); the new `skills/walk-me-through/` AND the 12
+  harness bundles all **sync from it** (one source, no runtime dep). README gained a brief blurb +
+  single-skill install (`npx skills add acatl/harness --skill walk-me-through`). **15 skills now** (14
+  harness + walk-me-through). *Open:* the user's global copy is untouched — may drift (offered a symlink).
+- **Settled (2026-06-29) — namespacing: STAY LOOSE; do NOT package as a plugin (for now).** Verified the
+  mechanism: OpenSpec's `/opsx:explore` colon is **path-derived** (a *command* at `commands/opsx/explore.md`
+  → `<dir>:<file>`), and a **plugin** auto-namespaces from `plugin.json` `name` (skill `skills/build/` in
+  plugin `harness` → `/harness:build`, no literal colon stored). The harness instead hand-authors a **literal
+  colon** in the skill `name` (`harness:build`) — works, but mangles to `-` on copy-paste/sanitize (vercel,
+  filenames). **Decision: accept the fragile colon for now.** A plugin would fix it but is **all-or-nothing**
+  (kills single-skill cherry-pick — e.g. `--skill walk-me-through`) and would force-namespace walk-me-through
+  to `/harness:walk-me-through` (against its general-purpose intent). If those priorities ever flip, the
+  path is **hybrid C**: harness→plugin, walk-me-through shipped separately. Commands vs skills: command =
+  user-typed `/ns:name` (namespace = subdir); skill = model/router-invoked by `description`. Sources:
+  `code.claude.com/docs/en/plugins.md`, `…/plugins-reference.md`, `…/plugin-marketplaces.md`.
+- **Last updated:** 2026-07-01
 
 ### Test beds (external sibling repos)
 
@@ -60,21 +144,26 @@ test green; `openspec init --tools claude` run in each; harness skills symlinked
 
 Dogfood the harness on a **real** project and improve the skills from observed friction.
 
-- **Target project:** `~/workspace/one-shot` — a Swift macOS app (Package.swift, `run.sh`, `.swiftlint.yml`,
-  `.swift-format`, ARCHITECTURE.md, CLAUDE.md, `docs/`, `openspec/`, `.claude/`). git + openspec already
-  set up. This is a real runtime surface (unlike the pure-logic beds) — exercises behavioral-verify.
-- **Wiring:** harness skills are symlinked into `one-shot/.claude/skills/harness-*` (git-ignored). Edits
-  to skills in this repo are **live** in one-shot via the symlink — no re-pull. one-shot needs a
-  `docs/HARNESS.md` (run `/harness:init` there if absent).
+- **Target projects (two, as of 2026-06-29):**
+  - `~/workspace/one-shot` — a Swift macOS app (Package.swift, `run.sh`, `.swiftlint.yml`, `.swift-format`,
+    ARCHITECTURE.md, CLAUDE.md, `docs/`, `openspec/`, `.claude/`). git + openspec already set up. A real
+    runtime surface (unlike the pure-logic beds) — exercises behavioral-verify.
+  - `~/workspace/kino` — added 2026-06-29 as a second real dogfood target. Yields its own friction
+    findings; the user references sessions from either project going forward.
+- **Wiring:** harness skills are symlinked into each project's `.claude/skills/harness-*` (git-ignored).
+  Edits to skills in this repo are **live** in the targets via the symlink — no re-pull. Each project needs
+  its own `docs/HARNESS.md` (run `/harness:init` there if absent).
 - **Two observation signals (no manual paste needed — both on disk):**
-  1. **Session transcript** — `~/.claude/projects/-Users-acatl-workspace-one-shot/*.jsonl`. Each skill
-     prints `▶ harness:<name> v<hash8> · …` (start) and `■ harness:<name> → <outcome>` (end). `grep`
-     those markers to locate every run, its content-version, and outcome, then read around rough spots.
-  2. **Run-log** — `one-shot/.claude/harness/runs.jsonl` (path per its HARNESS.md › Observability),
+  1. **Session transcript** — `~/.claude/projects/-Users-acatl-workspace-<project>/*.jsonl` (one dir per
+     target: `…-one-shot`, `…-kino`). **Grep BOTH** when hunting friction. Each skill prints
+     `▶ harness:<name> · …` (start) and `■ harness:<name> v<hash8> → <outcome>` (end). `grep` those markers
+     to locate every run, its content-version, and outcome, then read around rough spots.
+  2. **Run-log** — `<project>/.claude/harness/runs.jsonl` (path per each HARNESS.md › Observability),
      written by `harness:build`; structured friction metrics; `harness:review` aggregates.
-- **The loop:** operator works one-shot with the harness → notes friction (or I infer it) → from a
-  harness-pipeline session I read one-shot's transcript + run-log → diagnose the skill wording/logic →
-  edit the skill **here** (live via symlink). `v<hash8>` in the breadcrumb tells old runs from new.
+- **The loop:** operator works a target (one-shot or kino) with the harness → notes friction (or I infer
+  it) → from a harness-pipeline session I read that project's transcript + run-log → diagnose the skill
+  wording/logic → edit the skill **here** (live via symlink). `v<hash8>` in the breadcrumb tells old runs
+  from new.
 - **Resume after compression:** read this section + the transcript markers; the skills are in
   `skills/harness-*/`, the observability convention is in [SKILL-STYLE.md](SKILL-STYLE.md) › Breadcrumbs.
 
@@ -297,8 +386,18 @@ Port in dependency order. Each follows the Per-skill checklist.
 
 ## Notes to resolve when we get there
 
+- **ADRs at refine level (deferred — operator idea).** refine's decisions currently live in the refined
+  ticket (not the change decision-log, which starts at build). Future option: refine could **offer to emit an
+  ADR** (Architecture Decision Record) for a refine-level load-bearing call (verdict, a scope fork), and the
+  operator decides whether to store it. Distinct from `harness/decisions.md` (per-change, impl-lifecycle) —
+  ADRs would be project-level, longer-lived. Not now; revisit if the team wants durable design-rationale docs.
+- **Potential `harness:walk-me-through` skill (deferred — not now).** The fork format is currently a bundled
+  *rule* (`rules/walk-me-through.md`), read by skills, not invokable. Optional future addition: a thin
+  `harness:walk-me-through` *skill* pointing at the same rule, so it's also a manual entry point
+  (`/harness:walk-me-through`) and harness-namespaced/portable. Not needed for the forks (they use the rule);
+  add only if a manual invocation is wanted. Keep the rule as the single source either way.
 - **Spec auto-detection in `build`** — `openspec list --json` (active, most-recent first). 0 open →
-  author. ≥1 open → `AskUserQuestion` to pick (kino `specd-apply` already does this; reuse).
+  author. ≥1 open → a walk-me-through fork card to pick (kino `specd-apply` already does this; reuse).
   Open/non-archived only. `openspec status --change <name> --json` gives state for author-vs-resume.
 - **Build's progress/resume file** — design the exact file + format (build on kino's `.specd/`:
   `surface-map.md` + `decisions.md` + resume check). Must let build know which tasks are done and
@@ -386,14 +485,256 @@ From one-shot's first `harness:init` run:
   survive future copy/plugin packaging — resolving the runtime half of finding **B**.
 - **I — refine done; 7 skills pending rollout.** Harness forks used `AskUserQuestion` (native dialog) — the
   operator wants the **pure-text `walk-me-through` format** everywhere (card: TLDR + why + options table +
-  grounded rec + concrete cost + escape; reply by letter; one per turn; never a native picker). The global
-  `walk-me-through` skill is not bundled and can't be invoked skill-to-skill, so the format is now a
-  **harness-owned shared rule** `rules/walk-me-through.md`, bundled into the skill via sync (finding-H
-  pattern). **`harness:refine` converted as the proof** (all 3 forks → cards; `references/walk-me-through.md`
+  grounded rec + concrete cost + escape; reply by letter; one per turn; never a native picker). The format
+  is a **harness-owned shared rule** `rules/walk-me-through.md` (NOT a skill — read as a bundled reference,
+  never invoked), bundled into each skill's `references/` via sync (finding-H pattern). **Why a rule, not a
+  Skill-tool call:** explicit `Skill`-tool invocation IS reliable (build/finish call recon/architecture/
+  design/openspec-* that way) — but (a) the global `walk-me-through` skill isn't bundled with the harness, so
+  a consuming project may not have it to invoke, and (b) forks fire many times per run, so a per-fork
+  Skill-tool round-trip (re-loading instructions each time) is heavier than a once-read reference. Router
+  *auto-activation* of another skill mid-procedure is the unreliable thing — not Skill-tool calls. **`harness:refine` converted as the proof** (all 3 forks → cards; `references/walk-me-through.md`
   bundled). Also fixed in refine: completeness promotions are no longer folded in silently — a dedicated
   **Added for completeness** draft callout lists every auto-promotion (to AC and to out-of-scope) for
   operator veto. **Still using `AskUserQuestion`** (roll the format out next): address-pr-comments,
   architecture, build, design, explore, finish, recon.
+  - **Dogfood run (ONEST-1, 2026-06-26):** dialog removal **proven** (`AskUserQuestion` fired 0×); the
+    *Added for completeness* callout **proven** (rendered 4 promotions split AC/out-of-scope for veto).
+    Card format **not yet exercised** — the task was clear so no clarify-fork triggered, and the one
+    options-offer (the iterate gate's "commit / tighten / discuss") rendered as ad-hoc prose `(a)/(b)/(c)`
+    instead of a card. **Gap closed:** the fork contract now governs *any* ≥2-option offer (incl. the
+    iterate gate); only the bare yes/edit approval stays a one-line gate.
+  - **Re-test (ambiguous intent, 2026-06-26):** card rendered correctly — options table A/B/C + D=Discuss
+    escape, grounded rec, no dialog, no prose `(a)/(b)/(c)`. Three cosmetic deviations (no `Q1 of 1`
+    counter, cost merged into Cons column, escape as table-row + "reply with a letter"); operator chose to
+    **tighten the rule** rather than accept loose rendering — counter now mandatory, the 3 deviations are
+    explicit anti-patterns in `rules/walk-me-through.md`.
+  - **Rollout DONE.** Fork format rolled out to all 8 skills (refine + address-pr-comments, architecture,
+    build, design, explore, finish, recon). Each bundles `references/walk-me-through.md` via sync; every
+    `AskUserQuestion` reference converted to a walk-me-through card (incl. the address-pr-comments 5d wizard
+    and build/design's "card above the picker" hybrids — now pure-text). No native picker remains.
+  - **Completion pass — ALL 12 skills now on the rule.** Folded in the four stragglers that fork in prose:
+    `ship` (PR-scoping → card; push/stage confirms stay one-line yes/no), `init` (the whole detect→confirm
+    interview → cards), `review` (which-proposals-to-apply → card), `fine-tune` (option choices → card;
+    yes/no asks stay one-line). Each bundles `references/walk-me-through.md`. **DRY:** no skill invokes the
+    external walk-me-through *skill* — single canonical `rules/walk-me-through.md`, bundled per-skill via the
+    sync manifest, drift-guarded by `check`.
+- **J — fixed.** `harness:design` (and identically `harness:architecture`) emitted **malformed report tables**:
+  the per-severity tables and the *Overall Assessment* block were authored as header rows / pseudo-rows with
+  no `|---|` separator, so they rendered as raw `|` pipes (operator screenshot). Fixed both templates — every
+  report table now has a header + separator + data row; Overall Assessment is one clean 5-column table
+  (Ready-to-apply + severity counts) instead of two header-less rows. Surfaced during the finding-I rollout.
+- **K — closed, did NOT repeat.** Earlier, ship/push pre-flight surfaced a branch-divergence A/B fork (the
+  branch carried 2 bootstrap commits not on main). On the next finish run (`v7d73afb3`) the same
+  origin/main-divergence check ran and resolved cleanly — "Feature landed on `origin/main`, create the chore
+  branch off it", no stop. Situational (the first branch was cut 2-ahead of main); not a defect.
+- **N — fixed (token efficiency).** `harness:architecture` + `harness:design` always emitted the full
+  human report (TL;DR + severity tables + Strengths + Overall Assessment). In **autonomous** mode (how
+  `build` orchestrates them in-stream), the consumer is the auto-apply loop, which only needs the findings
+  tables — so TL;DR/Strengths/Overall-Assessment were ~300–600 pure-narrative tokens per build with no
+  reader. Made both reports **mode-aware:** autonomous emits findings tables only; gated/standalone emits
+  the full report unchanged (no value lost — narrative kept exactly where a human reads it). Operator-raised
+  during the finish-session efficiency review.
+- **O — fixed.** The persisted review artifacts (`<change-state-dir>/reviews/{architecture,design}.md`) were
+  a **bare 4-line count stamp** (Date · Outcome counts · Changes-written · Skipped) — the actual findings,
+  tables, evidence, and resolutions lived only in the ephemeral session, so a reader of the file couldn't
+  verify findings or see their value (operator caught this on `bare-harness`'s reviews). Enriched both gate
+  artifacts to a **durable verification record**: findings table + per-finding **Problem / Impact / Evidence
+  / Resolution** (every finding, applied AND skipped) + forks resolved. Written in FULL regardless of mode.
+  Complements **N**: in-stream report is terse (autonomous), the on-disk record is always rich — terse in
+  chat, full on disk.
+- **P — added (pipeline "you are here" trail).** Operator-requested: a one-line human-facing trail at the
+  end of each pipeline skill, before its `Next:` pointer, showing where they are. New bundled rule
+  `rules/pipeline-map.md` (canonical stages `refine → spec → review → implement → verify → ship → (address
+  comments) → finish` + render rule + per-stop position table). **Render rule:** show ALL completed stages
+  `✓` (real, from artifacts — not assumed), the `▸ <operator action> (you are here)`, and **exactly ONE**
+  `◦ next` stage (operator's call — keep focus on the immediate move, not the full downstream). Wired into
+  refine, build (spec-review gate + verified-not-shipped), fine-tune, ship, address-pr-comments, finish;
+  bundled via sync. Distinct from the machine `■` breadcrumb (that's transcript-grep; this is the human).
+- **Q — fixed (release the machine after behavioral-verify).** On a Swift app, behavioral-verify takes the
+  screen via computer-use to test — but held the operator's machine through the entire verify tail
+  (openspec-verify, code-review, run-log, report), long after screenshots were done. The binding contract
+  had no teardown step (ended at "verdict"). Added **step 4 "Release — hand the machine back"** to the
+  4-step contract (now 5: bring up → exercise → observe → **release** → verdict): the instant signals are
+  captured, tear down (quit app/processes, drop screen focus) **before** the verdict and any further
+  non-visual work. Added a `teardown` recipe key to the binding doc + HARNESS.md template; build Step F.2
+  now reads `bring up → exercise → observe → release → verdict` and releases before steps 3–4. Operator-
+  observed dogfooding one-shot. (Consuming `one-shot/docs/HARNESS.md` predates the new `teardown` row —
+  offer to add it; build still releases via the skill instruction even if the row is absent.)
+- **R — changed by operator decision (active-ticket tracker autonomy).** Skills asked before tracker writes
+  on the ticket being worked (ship: "Want me to write the PR link + In Review to kino?"; finish: "mark the
+  task done?") — friction the operator doesn't want for their *own* ticket. New policy: **active-ticket
+  verbs + stage hooks fire without asking** — invoking a skill is consent to drive its own ticket
+  (start → link → review → done). ship now auto-fires link + PR-open hook; finish auto-closes (the
+  merge-gate stays the one guard — `done` fires only once the change is confirmed landed). build already
+  fired its hooks autonomously. Policy stated in the HARNESS.md template task-tracker section. Confirms
+  still required for a *different* ticket or creating/closing tickets outside the active one. (Deliberate,
+  scoped exception to the global confirm-external-writes posture — limited to the active ticket.)
+  - **Adjacent (now resolved):** that A/B fork rendered as prose because `harness:ship` was missing from
+    the first rollout (zero `AskUserQuestion` at grep time). Fixed in the completion pass below.
+- **L — fixed.** No skill pointed the operator to `harness:finish` after a PR merged — `harness:ship` ended
+  at the PR-URL report and `harness:address-pr-comments` never mentioned finish, so the pipeline's last
+  handoff (`… → merge → finish`) was silent. Operator merged the first PR of a two-PR phase and got no
+  next-step prompt. Fixed: ship gains a step-8 **Next pointer** and address-pr-comments' final report gains
+  a **Next pointer** — both tell the operator to run `harness:finish` once merged (two-merge: finish opens
+  the chore PR). Surfaced dogfooding the post-PR path on one-shot.
+- **M — changed by operator decision.** `harness:finish` (two-merge) stopped to confirm the chore-PR push —
+  correct per ship's push guard, but it broke finish's "one-command closeout / invocation is consent to
+  finalize" expectation (operator hit it on one-shot). **Operator chose to auto-push the chore PR** (option
+  B over keeping the confirm). Implemented narrowly: finish now runs straight through sync → archive →
+  commit → **open the chore PR** with no push confirm; the delegated `ship` call waives its push-confirm
+  **only** when invoked as finish's chore-PR step (standalone `ship` still always confirms). Task-close
+  (step 6) stays operator-gated; finish still never *merges* the PR. NOTE: this is a deliberate, scoped
+  exception to the global "pushing always confirms" posture — limited to sync+archive plumbing on a new
+  chore branch.
+- **S — refine draft: scannable extras + actionable commit (operator-designed).** The thinking-partner
+  output was wordy and inert: section "Also worth considering", `propose-AC/out/spin-off` jargon, a bare
+  "approve to commit?" the operator couldn't act on granularly. Reworked: **💡 Ideas** section (icon =
+  recommended disposition — **⭐ pull in as a requirement · 🛑 keep as a non-goal · 📋 spin off as its own
+  task**, jargon gone) + one-line legend; sibling auto-fold section is **➕ Added for completeness**. Every
+  item is **keyed** (`I1…` ideas, `C1…` completeness). Step-6 commit becomes a fork-card when Ideas exist:
+  **A** commit as-is · **B** fold Ideas in (⭐→AC, 🛑→out, 📋→confirm each — spin-offs are new tickets,
+  always ask) · **escape** granular by key ("B but only I1, I4" / "drop C2"). Keys make the gate precise;
+  icons make disposition scannable.
+  - **Validated live (ONEST-10, v5ec578d4):** the new render works — `Legend —`, keyed ➕/💡 sections, the
+    `What it writes into the ticket` column, the direction fix ("Out-of-scope = recorded non-goal, not
+    deleted"), and **adaptive options** (no ⭐ ideas → the "+ ⭐ requirements" option was correctly omitted).
+  - **U — blessed the lighter commit card.** The commit selection renders as a **commit-specific card**, not
+    the full walk-me-through ceremony (no `Q#`-counter / `Cost if` / `Escape:`/`Pick:` lines — those are noise
+    for a terminal subset-selection). Made intentional in step 6 so it's not read as drift from the
+    walk-me-through rule (which stays strict for between-alternatives forks). Still pure text, never a picker.
+  - **V — never name a premature command (foot-gun).** Operator's eye grabbed `/harness:finish` in ship's
+    "run it after merge" handoff and ran it prematurely (finish's merge-gate caught it — good — but it never
+    should have been printed). New **one-runnable-command rule** in `rules/pipeline-map.md`: show a
+    `/harness:<cmd>` ONLY for the immediately-runnable step; a step gated behind a human action (merge, test)
+    shows the *action*, no command; downstream stages appear ONLY as `◦ <stage>` trail labels (keeps the
+    handoff non-silent per finding L, without a misfire-able command). Fixed ship step-8 + address-pr final
+    report: `Next:` = "review + merge the PR", no `/harness:finish`; finish rides the `◦ finish` trail label.
+  - **W — pipeline trail now fires (finding P was under-firing).** The trail had rendered in zero runs: refine
+    always paused pre-commit, and build's trail was a *placeholder line inside the completion-summary code
+    block* (agents skip those). Pulled it out into an explicit REQUIRED emit step after the summary.
+  - **X — breadcrumb hash enforced (no `vTBD`).** The yolo build emitted `▶ harness:build vTBD` — the agent
+    punted on computing `git hash-object`, breaking version attribution. Strengthened the breadcrumb line in
+    all 12 skills (sed): "compute it (run the command); never emit a placeholder (`vTBD`/`<hash8>`/a guess)."
+  - **Y — `ship` auto-pushes on invocation (operator decision; supersedes M's scoping).** ship still asked
+    "push + open the PR? (yes/no)" — but push+open-PR IS ship's whole job, so invoking it is the consent
+    (same logic that made `finish` auto-push in M). Removed the push confirm: ship now **announces the
+    planned PR (title/body/bump — the squash title drives the release, so it stays visible) then pushes
+    immediately**; the **pre-push gate** is the guard, not a human y/n. Also dropped ship's pre-commit
+    confirm (step 3 now announces the diff + proceeds, stopping only on something clearly unintended) — ship
+    has **no internal yes/no gates**. Supersedes M's "standalone ship always confirms" — ship now auto-pushes
+    whether standalone or as finish's chore-PR step. Still: never force-push, never self-merge.
+  - **Z — options must be deterministic (no ambiguous messages).** refine's commit-card option A read
+    "Ideas stay as loose notes" — but they're written nowhere, so "notes" implied a save that never happens;
+    the operator couldn't tell if `build` would pick them up (it won't — build reads the ticket/spec, never
+    chat). Fixed A to state the outcome plainly: **"discarded — not written to the ticket or any file; build
+    won't pick them up; pick B/escape to keep any."** Generalized to a **walk-me-through rule**: every option
+    spells out exactly what it writes/creates/**discards** and where — banned vague words ("notes", "handle
+    it", "etc."); a discard says so plainly; the most-default option gets the most-deterministic wording.
+  - **AA — refine thinking-partner reframed to additive/subtractive (operator's mental model; supersedes the
+    S/U/Z commit-card).** The A/B/C bundle card + "What it writes" table + ⭐/🛑/📋/– disposition double-layer
+    was too dense — the operator couldn't easily "check what I want in." Reframed to match how a human reasons:
+    **✨ Improvements** (additive — "how could this be better than asked?", **opt-in, default none**, keyed
+    `I#`, accept by `"add I1"`; accepted → AC or spin-off-with-yes) and subtractive scope folded into the
+    **✂️ Out-of-scope** section (option A: one scope section not two). **Refinement (per operator): the only
+    active pick at commit is ✨ Improvements** — the highest-value decision (what extra to build). Out-of-scope
+    is **awareness, not a per-item gate**: the ✂️ brands the *section header* (not individual rows), items are
+    plain, and a one-line **scope reminder** ("⚠️ read the ✂️ Out-of-scope — what you're committing to NOT
+    build; object to any line") invites prose objections without a per-item veto. No card, no bundles, no
+    table, no disposition icons. `➕ Added for completeness` (needs, auto-folded) stays distinct from
+    `✨ Improvements` (wants, opt-in); both objectable in prose, neither a prompted gate.
+  - **AA-final (the decision put back at the center).** Root cause, found by reading kino's refine: it had the
+    SAME `propose-AC/propose-out/propose-spin-off` "Also worth considering" list — additions + exclusions
+    mixed under cryptic in/out tags ("spec in/out"). That tag-soup was the real trip-up, in kino *and* early
+    ours. Our ✨/✂️ split fixed it; but we then buried the decision under a separate ➕ section, `I#/C#` keys,
+    opt-in-vs-veto mechanics, and a commit card. Final model: **completeness folds INLINE with a `+` prefix**
+    (no separate section — `+` line in AC/Out-of-scope = "refine added this"); **✨ Improvements is the ONE
+    decision** — numbered `✨ 1/✨ 2` lines (what + why), opt in by number (`"add 1"`/`"none"`), default none;
+    Out-of-scope is its own `✂️`-headed section (read it, object in prose). No keys, no tags, no card, no
+    separate completeness section — the kino "here are suggestions, yes/no" feel, with additions and
+    exclusions cleanly separated.
+  - **AA-altitude (improvements are product-level, not engineering).** Live run surfaced ✨ Improvements at
+    the *implementation* altitude (boot-race handshake, bridge self-check, tripwire diff output) — wrong for
+    a *product* refiner. Added an altitude guard to the expansion pass: improvements are **user-facing WHAT**
+    (what the user gets, PM/designer phrasing), with a ⛔ ban on engineering concerns (reliability /
+    observability / seams / perf-plumbing / migration safety — those belong to architecture/design/build) and
+    a ✅ test ("could a non-engineer say it, would a user notice it?"). Also indented the ✨ lines (list items
+    nested under the header) — they were rendering flush-left.
+  - **AA-checkbox (the Improvements pick is a checkbox; decision split from next-steps).** The commit moment
+    had four competing CTAs (read out-of-scope · pick improvements · approve · build pointer) — no clear next
+    step. Fixes: (1) **principled interaction split** — single-pick *forks* → walk-me-through text card;
+    **multi-select opt-in** (✨ Improvements) → a **checkbox** (`AskUserQuestion multiSelect`, the one
+    sanctioned native-picker use). Operator checks any/all/none; **submitting = approve + commit** (checked
+    folded in, unchecked discarded; "Other" = edit). (2) **Text-first** — improvements shown as a text list
+    (`✨ <feature> — <why the user benefits>`, all already recommended, no per-item tag) *before* the checkbox,
+    for context. (3) **Decision split from orientation** — the pipeline trail + `/harness:build` pointer move
+    to **after** commit, never alongside the pick (they were competing). Validated the checkbox feel live.
+  `Next: /harness:build <id>` — **gated** (default, pauses at the spec-review gate) vs **yolo** (straight
+  through, no spec gate; still stops at genuine forks). Operator-requested — surface the choice + what each
+  does at the handoff.
+
+- **AB — per-change harness artifacts → committed `harness/` dir (replaces `.specd/`).** Operator ran yolo,
+  reviews ran (arch 7 applied incl. a real 🔴, design 5) but were **undiscoverable**: written to the hidden
+  `.specd/reviews/`, and yolo auto-applied them so the operator was never pointed there — a silently-fixed
+  critical was invisible. Fix: the **change-state dir is now `openspec/changes/<change>/harness/`,
+  committed** (not git-ignored) so teammates see it in the PR; it's the home for **all** per-change harness
+  output — reviews (`architecture-review.md`/`design-review.md`, flat — no `reviews/` subfolder), `recon.md`,
+  `progress.md`, `decisions.md`, `pr-body.md`, `surface-map.md`. `.specd/` (kino legacy) is retired. build's
+  completion summary now **cites the review paths** and **flags a 🔴 auto-applied in yolo** ("read it"). init
+  no longer git-ignores the change-state dir. The cross-change **run-log stays separate** (`.claude/harness/
+  runs.jsonl`, git-ignored telemetry — not per-change). Skills were already binding-driven (`<change-state-dir>`),
+  so flipping the HARNESS.md binding + flattening the two review paths did most of it.
+- **AC — decision log expanded to a pipeline-wide ledger.** Operator loved `decisions.md` and wanted it to
+  capture **every load-bearing decision by anyone** (LLM, human, agents) across the change, so a PR reviewer
+  reads the whole "why is it like this" trail. New shared rule `rules/decision-log.md`: per-change committed
+  `harness/decisions.md`, **lightweight** entries (`## D<N> · <👤 human|🤖 stage> · <decision>` + one why-line
+  + optional `More:` pointer), **load-bearing bar kept high** (routine/rule/spec-dictated/mechanical never
+  logged — widen *stages*, not the noise threshold). Wired: recon (contested verdicts), architecture/design
+  (resolved forks + auto-applied 🔴, pointer to the review — no re-dump), build (impl gaps + deferrals, today's
+  content reframed), address-pr-comments (decline/defer + human picks, when the PR maps to a change). Human
+  forks anywhere → `👤` entries. `refine` stays as-is (its decisions live in the ticket). build still folds
+  the log verbatim into `pr-body.md` → rides into the PR. Decided: stage-level attribution (not sub-agent);
+  keep the name `decisions.md`; reviews are pointed-to, not duplicated.
+- **AD — PR summary is a refreshable FOLD over committed artifacts (operator idea).** Operator wants the
+  PR to carry a digestible "what happened / architecture changes / decisions + why" summary, **cheap +
+  zero-assumption**. Key reframe: this is ~80% already built — `build` emits `<change-state-dir>/pr-body.md`
+  and folds `decisions.md` verbatim. AD sharpens it into a **deterministic fold** (composition, never
+  diff re-analysis — that's what makes it cheap *and* assumption-free at once): new shared rule
+  `rules/pr-summary.md` (the precedent: `decision-log.md`/`pipeline-map.md`/`walk-me-through.md` — one
+  canonical rule, bundled per-skill via `scripts/sync-skill-resources.sh`, drift-guarded). Contract:
+  section→source table (every section ends `<sub>Sources:…</sub>` — **cite-or-cut**, the zero-assumption
+  enforcer); **empty input→omit**; **new Architecture section** (≤4 lines prose distilled from `design.md`
+  decisions + the 🔴 story from `architecture-review.md` — the altitude a commit-group summary lacks);
+  **diagram link-only** (link iff `design.md` authored one — never synthesize); a **managed region**
+  (`<!-- harness:pr-summary START/END -->` — refresh rewrites only inside; human edits outside survive);
+  a **provenance footer** (machine block `folded-against`/`generated-by v<hash8>`/`artifacts` + one human
+  staleness line — matches the machine/human split). **Refreshable, not one-shot** (answers operator's
+  "the summary needs to be updated"): `build` emits initially; `ship` re-folds then opens the PR;
+  `address-pr-comments`/`fine-tune` re-fold + `gh pr edit --body` after a batch. **`folded-against` (HEAD
+  SHA at fold time) is the idempotency key** — not stale → refresh is a **no-op, skip the fold** (zero
+  tokens when source didn't move); staleness is a deterministic 2-line git check (`merge-base
+  --is-ancestor` for rebases + `diff --quiet` excluding `**/pr-body.md`). Optional `harness:finish`
+  pre-check offers a refresh before merge so the body can't silently rot. Validated as a sample fold over
+  one-shot's `2026-06-28-web-core` (every line traced to an artifact). **Wiring DONE:** `rules/pr-summary.md`
+  authored; added to the sync `MAP` for **build/ship/address-pr-comments** (bundled, drift-checked);
+  `build` Step G.1 rewritten to fold per the rule (managed region + footer); `ship` step 6 re-folds on PR
+  open (idempotency-key skip when HEAD unmoved); `address-pr-comments` final-report re-folds + `gh pr edit
+  --body-file` after a batch lands (gated on a `harness/` dir + a commit this run). **Narrowed from the
+  original next-step list (depth call):** `fine-tune` **dropped** — local-only by contract ("Don't push or
+  open a PR") and always precedes `ship`, which re-folds and picks up its commits via the idempotency key;
+  wiring it = redundant. `finish` pre-check **dropped** — `finish` runs at/after the feature PR merges, too
+  late to help a reviewer; freshness is already guaranteed by ship (fold-on-open) + address-pr-comments
+  (re-fold-on-batch). Touch set = 3 (build authors · ship re-folds · address-pr-comments re-folds).
+
+- **AD — new `harness:status` skill (derived "where am I / what's next").** Operator wanted a cold-start
+  answer to "what's the next step?" — none existed (the pipeline trail is emitted at run-end, lives in the
+  transcript). Built a **read-only** `harness:status`: **derives** the position from ground truth every time
+  (tracker column · `openspec status` · which `harness/` artifacts exist · git/PR state) — never a persisted
+  pointer (those drift). Renders the pipeline trail (reuses `rules/pipeline-map.md`) with a `✓` + evidence
+  per done stage, the `▸ here`, and the **one** runnable `◦ next` (human-action steps shown as the action,
+  per the one-runnable-command rule). No arg → lists all in-flight changes + each next step; arg → details
+  one. Flags anomalies (later stage done, earlier missing). 13th skill; meta/query (off the linear pipeline,
+  like `review`). Symlinked into one-shot. **Deferred:** `harness:status` not yet bundled into other
+  projects' `.claude/skills` beyond one-shot (operator's symlink/plugin step).
 
 ## Risks
 
@@ -409,3 +750,33 @@ From one-shot's first `harness:init` run:
 
 - Pipeline diagram: [docs/pipeline.md](pipeline.md) — the end-to-end chain (editable Mermaid).
 - Blueprint: [docs/blueprint-harness-pipeline.md](blueprint-harness-pipeline.md).
+
+## Publishing — internal (exclude from the public snapshot)
+
+**Decision (2026-06-29):** this repo (`github.com/acatl/harness`) stays **private** with full history
+as the dev repo. Go public via a **fresh curated snapshot**, NOT by making this repo public — that way
+no internal *file* and no internal *commit message* leaks. No history rewrite, no untracking needed here.
+
+**No public reference to internal projects.** Nothing about the dogfooding targets (one-shot, kino,
+`harness-test-swift`/`harness-test-web`) or internal ticket prefixes (`ONEST`/`HSTES`/`HWTES`) may appear
+in the public snapshot. (This file itself is internal — never copied to public.)
+
+### Snapshot recipe (when ready to publish)
+
+1. **Exclude internal-only paths** from the snapshot:
+   - `docs/PORTING-PLAN.md` (this file).
+   - Review at publish time (likely keep, but check for leaks first):
+     `docs/blueprint-harness-pipeline.md`, `docs/build-source-map.md`.
+   - Memory files live outside the repo already (`~/.claude/.../memory/`) — never included.
+2. **Scrub public-bound files** of internal references:
+   - `README.md` — remove the two `docs/PORTING-PLAN.md` links + the internal "Status" section.
+   - `CLAUDE.md` — drop the `PORTING-PLAN` source-of-truth pointer + any dogfooding wording (it's a
+     public contributor file in the snapshot).
+   - `project-words.txt` — remove `ONEST` / `HSTES` / `HWTES` (only PORTING-PLAN needs them; once it's
+     excluded they're unused). `dogfood*` is generic — keep or drop, no leak.
+   - Already done in-tree (good hygiene, kept): `pkill -x OneShot` → `pkill -x <AppName>` in
+     `runtime-verification-binding.md`.
+3. **Verify clean:** `git grep -iE 'one-shot|oneshot|\bkino\b|ONEST-|HSTES-|HWTES-|harness-test-'` over
+   the snapshot tree → must be empty.
+4. **Clean history:** publish as a single squashed initial commit (or a hand-curated set) with messages
+   that mention no internal project — never the raw 47-commit history (its messages reference one-shot PRs).

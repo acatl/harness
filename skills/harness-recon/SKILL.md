@@ -25,16 +25,19 @@ extend instead of building new?** Records *what exists* + *the reuse verdict* �
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:recon v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
-- **end:** `■ harness:recon → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+- **start:** `▶ harness:recon` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
+- **end:** `■ harness:recon v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 **Where:** `harness:build` invokes it after `proposal.md`, before `design.md`. Also runs standalone.
-**Input:** optional change name; if omitted, infer from context, else `openspec list --json` + AskUserQuestion.
+**Input:** optional change name; if omitted, infer from context, else `openspec list --json` + a walk-me-through fork card (`references/walk-me-through.md`).
 
 ## Steps
 1. **Resolve change.** Announce `Using change: <name>`. `openspec status --change "<name>" --json`.
    No `proposal` artifact → stop: "Recon needs a proposal; author it first (`openspec new` / `harness:build`)."
-2. **Seam check.** `design.md` exists → prevention impossible → AskUserQuestion `[R] Review-only` /
+2. **Seam check.** `design.md` exists → prevention impossible → a walk-me-through fork card (`references/walk-me-through.md`): `[R] Review-only` /
    `[S] Stop`. Existing `harness:recon` block in proposal → re-run, replace in place.
 3. **Extract capabilities.** Read `proposal.md`. List implied behaviors, **concept-level not
    file-level** (e.g. "rank tasks in a project"). Per capability: label, domain nouns, verb, likely
@@ -81,7 +84,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    <!-- harness:recon:end -->
    ```
 7. **Confirm.** Show verdict tally. Any judgment call (contested `extend` vs `build-new`, a coupling
-   decision) → AskUserQuestion `[Y] Accept` / `[A] Adjust` / `[D] Discuss`. On A/D, revise + rewrite both.
+   decision) → a walk-me-through fork card: `[Y] Accept` / `[A] Adjust` / `[D] Discuss`. On A/D, revise + rewrite both.
+   A *contested* verdict that's resolved → append one line to the **decision log** (`<change-state-dir>/decisions.md`,
+   per `references/decision-log.md` — `🤖 recon`, or `👤 human` if the human picked). Obvious verdicts: not logged.
 
 ## Output
 ```text

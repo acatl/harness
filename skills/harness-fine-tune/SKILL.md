@@ -22,8 +22,11 @@ Lightweight session state machine for iterative polishing after a change is impl
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:fine-tune v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
-- **end:** `■ harness:fine-tune → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+- **start:** `▶ harness:fine-tune` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
+- **end:** `■ harness:fine-tune v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 ## Sticky mode (load-bearing)
 Fine-tune is a **persistent mode** — like OpenSpec Explore's "you must exit first." It does NOT
@@ -33,9 +36,9 @@ silently end:
   completing is NOT an exit (this is the bug to prevent).
 - **Exit only on an explicit signal:** the operator says "exit" / "done" / "stop fine-tuning", **or**
   you ask "Exit fine-tune?" and they confirm.
-- **Marker:** drop `<change-state-dir>/fine-tune-active.md` (topic + status) at start so the mode
-  survives nested skills + context loss; clear it on exit. On (re)entry, if the marker exists, resume
-  its topic.
+- **Marker:** drop `<change-state-dir>/fine-tune-active.md` (topic + status + whether the test-guide
+  offer has been made — see Step 2) at start so the mode survives nested skills + context loss; clear it
+  on exit. On (re)entry, if the marker exists, resume its topic (and don't re-offer the test-guide).
 
 ## Session-start gate (once per session)
 Before the first pass, `git status --porcelain`. Uncommitted changes → stop: "commit or stash first — I
@@ -51,15 +54,28 @@ Wait for the answer before implementing.
 ### 2. Test
 Run the affected sensors (HARNESS.md). If tests need updating because of the change, update them now —
 don't leave red and hand back.
+
+**Offer the test-guide — once per session** (first pass, after sensors are green): if the marker hasn't
+recorded the offer and the change isn't pure-logic-only (nothing behavioral to walk → skip silently, same
+skip-condition as runtime-verification), ask — terminal `👉` block — `👉 Walk the manual/behavioral test
+scenarios with /harness:test-guide before continuing? (yes / no)`. **yes** → run `harness:test-guide` as a
+**nested skill** (non-terminal — resume this loop after, per Sticky mode). **Route from test-guide's own
+outcome** — `fix now` → the finding becomes the next fix pass; `note & continue` / `stop` → don't force a
+fix, just resume the loop. Record `test-guide-offered` in the marker **either way** so it's not re-asked on
+later passes or after a nested-skill/context-loss resume.
 ### 3. Ask for approval
-Brief summary of what changed → "Does this look good?" Wait. Don't proceed until yes.
+Brief summary of what changed → "Does this look good?" Wait. Don't proceed until yes. (These asks are bare
+yes/no / open prompts — keep them one-line. Any ≥2-option choice → a walk-me-through fork card,
+`references/walk-me-through.md`, reply by letter; never `AskUserQuestion`.)
 ### 4. On approval
 a. **Verify clean** — sensors green; fix anything red first.
 b. **Ask to sync & commit:** "Sync docs and commit?" yes → c; no → d (track that unsynced passes are accumulating).
 c. **Sync docs, then commit:** identify change-scoped docs (Doc-Sync Scope below); update them to
    reflect **all unsynced changes since the last commit** (not just this pass); commit with the
-   Conventional type matching what was done; reset the unsynced-pass counter.
+   Conventional type matching what was done **+ the required `Co-Authored-By` trailer**; reset the unsynced-pass counter.
 d. **Ask what's next:** "What do you want to fine-tune next?" Wait. Done → exit (clear the marker).
+   Before this ask, emit the **pipeline trail** for the `fine-tune · loop pause` stop per
+   `references/pipeline-map.md` (one line) so the operator sees polish sits between verify and ship.
 
 ## Accumulation nudge
 Track approved passes without a sync-commit. After 4–5 (related or not), nudge: "You've got N unsynced

@@ -21,8 +21,11 @@ harness improvements**. The log matters only because this reads it — a log nob
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:review v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
-- **end:** `■ harness:review → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+- **start:** `▶ harness:review` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
+- **end:** `■ harness:review v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 **This skill proposes; it does not auto-apply.** Skill/config edits change how every future run behaves —
 surface them for human approval.
@@ -67,8 +70,9 @@ For each **recurring** friction pattern (not one-offs):
 ### 5. Output
 - Short report: the aggregates (grouped by `skill_version`), the top 1–3 friction patterns, the proposed
   edits with their justifying rows.
-- Ask which proposals to apply. Apply only the approved ones; if a proposal edits a skill, note that the
-  next run's `skill_version` changes so the effect is measurable.
+- Ask which proposals to apply — as a walk-me-through fork card (`references/walk-me-through.md`), one per
+  turn, reply by letter; never `AskUserQuestion`. Apply only the approved ones; if a proposal edits a skill,
+  note that the next run's `skill_version` changes so the effect is measurable.
 
 ## Don't
 - **Propose, don't auto-apply** — these edits change every future run.

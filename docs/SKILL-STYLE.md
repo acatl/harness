@@ -30,13 +30,36 @@ Skills are read by a machine, not a human. Optimize the **body** for an LLM exec
   compressing a passage loses value, **don't** — leave it fuller.
 
 ## Breadcrumbs
-Every skill body emits a start line `▶ harness:<name> v<hash8> …` and an end line
-`■ harness:<name> → <outcome>`. These land in the Claude Code session transcript so harness iteration
-can grep it to locate every skill run, attribute it to a skill content-version, and read its outcome.
+Every **`harness:` pipeline skill** body emits a start line `▶ harness:<name> …` (a hash-free locator) and
+an end line `■ harness:<name> v<hash8> → <outcome>`. (General co-shipped skills that aren't part of the
+pipeline — e.g. `walk-me-through` — don't carry breadcrumbs.) These land in the Claude Code session
+transcript so harness iteration can grep it to locate every skill run, attribute it to a skill content-version, and read its
+outcome.
 - The `## Breadcrumbs` block is **self-contained in each SKILL.md** — skills travel as standalone dirs
   and cannot reference repo docs at runtime.
 - `<hash8>` = first 8 chars of `git hash-object` of the skill's own SKILL.md — its content version, so
-  transcript friction can be attributed to a specific skill version.
+  transcript friction can be attributed to a specific skill version. **It goes on the END line, not the
+  start.** The start line is the first thing emitted — pure text, before any tool call — so a start-line
+  hash reliably under-fires (the agent emits a placeholder rather than stopping to run a command). At end
+  the skill is already running its wrap-up Bash (git/gh/run-log), so the `git hash-object` rides that
+  rhythm and computes for real; it also pairs version + outcome on one greppable line. (Finding AE.)
+
+## Operator input (👉)
+Any line that needs the operator's answer — a question, a confirm, a pick — is prefixed `👉` and placed
+as the **terminal block** of the message: below the breadcrumb / pipeline-trail / next-step, with nothing
+actionable under it. The failure this prevents: a blocking question rendered *above* more text and a
+ready-to-run action gets skipped — the operator's eye lands on the action and executes it, ignoring the
+question. The eye must land on the `👉` last.
+- **Self-contained in each SKILL.md** (like Breadcrumbs) — skills travel standalone, can't reference this
+  doc at runtime. Each skill carries a `## Operator input` block.
+- **No false-ready next.** While a `👉` prompt is open, don't print a runnable `/harness:` next as the
+  move — show it as gated behind the answer.
+- **Reserved marker.** `👉` means *blocking on the operator only* — not status, not the trail. Distinct
+  from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
+- **Fork cards are already the terminal block — don't `👉`-prefix their lines.** A walk-me-through fork
+  card (`rules/walk-me-through.md`) *is* the operator-input block; reproduce its lines (incl. `Pick:`)
+  **verbatim**. `👉` is for a **bare inline ask** (a one-line question/confirm that isn't a fork card) —
+  put that ask, `👉`-prefixed, as the terminal block. A fork card needs no `👉`; it just needs to be last.
 
 ## Bundled resources
 A skill is a **standalone dir** — it's symlinked into consuming projects (and may later be copied or

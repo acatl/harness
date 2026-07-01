@@ -19,8 +19,11 @@ Enter explore mode. Think deeply, visualize freely, follow the conversation wher
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:explore v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
-- **end:** `■ harness:explore → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+- **start:** `▶ harness:explore` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
+- **end:** `■ harness:explore v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 **This is a stance, not a workflow** — no fixed steps, no required outputs. You're a thinking partner.
 
@@ -56,12 +59,23 @@ decisions where they belong (the user decides — don't auto-capture).
 
 ## Digestible output (the rule)
 One thread per turn · 2–4 directions max · short blocks, diagram over prose · end with one focused
-question or a small pick. If a stop needs a pick between alternatives, use the option-card +
-`AskUserQuestion` format.
+question or a small pick. If a stop needs a pick between alternatives, render it as a walk-me-through
+fork card (`references/walk-me-through.md`) — pure text, operator replies by letter; never `AskUserQuestion`.
 
 ## Ending
 No required ending — flow into a proposal, update artifacts, leave the user with clarity, or continue
 later. Optional crystallization summary: problem · approach (if one emerged) · open questions · next steps.
+
+**Closing handoff** (when it crystallizes into something buildable). End on a tight pick — real markdown
+(bold + inline-code render; **never** a code fence), terse, the `👉` block **last** (operator reads only
+the last 1–2 lines). Name the concrete action + who fires it; **never the verb "capture"** — it maps to two
+different paths. Lighter than a full fork card — one bold-led line per option:
+> 👉 **Where next?**
+> • **Build it** — I run **`/harness:build`** → proposal → recon → design → tasks → code. *Leaves explore.*
+> • **Proposal only** — I write the OpenSpec proposal doc now (records this thinking; no code).
+> • **Stop** — nothing written; the thinking stays in this thread.
+
+Drop **Proposal only** when it doesn't apply → clean binary. **Build it** always names **`/harness:build`**, never "capture".
 
 ## Don't
 - **Don't implement** — never write application code. OpenSpec artifacts are fine (capturing thinking).

@@ -43,7 +43,7 @@ Each must pass before the next. This set also defines the pre-push gate (see *Ga
 | sources dir | `<path>` | |
 | tests dir   | `<path>` | |
 | rules dir   | `<path, e.g. .claude/rules/>` | convention files skills pre-load |
-| change state dir | `<path, e.g. openspec/changes/<change>/.specd/>` | where `build` keeps its progress/resume files |
+| change state dir | `openspec/changes/<change>/harness/` | **committed** (not git-ignored) so teammates see it. Home for **all** per-change harness artifacts: reviews (`architecture-review.md`, `design-review.md`), `recon.md`, `progress.md`, `decisions.md`, `pr-body.md`, `surface-map.md`. (The cross-change run-log is separate — see *Observability*.) |
 | <other load-bearing configs> | `<path>` | |
 
 ## Conventions
@@ -81,6 +81,13 @@ locally; never bypass. Should no-op in unrelated repos (guard on a project marke
 ## Task tracker
 
 The backend is reached through a stable **verb contract** so skills never name a specific tracker.
+
+**Active-ticket autonomy:** **state-changing** skills fire the verbs + stage hooks on the **ticket being
+worked** without asking — invoking a mutating skill is consent to drive *its own* ticket through the
+pipeline (start → link → review → done). **Read-only skills** (`harness:status`, `harness:test-guide`,
+`walk-me-through`) stay **side-effect-free** — they never move the tracker or fire a hook. A confirm is
+needed only for mutations to a *different* ticket, or creating/closing tickets outside the active one.
+(`finish`'s merge-gate still guards the `done` close — it fires only once the change is confirmed landed.)
 
 | Key | Value |
 |-----|-------|
@@ -120,7 +127,10 @@ rationale: see the harness pipeline's runtime-verification binding contract. The
 | liveness     | `<how to detect alive vs crashed — always-on signal, no UI access needed>` |
 | log source   | `<where runtime logs go + what an error looks like>` |
 | expected     | `<events/observations that SHOULD appear when exercised>` |
+| teardown     | `<how to bring it down + release the screen, run right after Observe; e.g. pkill -x <App> / the launch script's stop / close the browser tab>` |
 
+- **Release the machine right after Observe** — `build` tears down per `teardown` the instant signals
+  are captured, so the verify tail (openspec-verify, review, run-log) never holds the operator's screen.
 - **Liveness is never best-effort** — it needs no UI access, so it runs even when the behavioral
   driver is unavailable. A green build + clean log is NOT proof the system stayed up.
 

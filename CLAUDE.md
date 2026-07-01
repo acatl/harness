@@ -48,7 +48,7 @@ When a decision is made, update these files in the same change — they are the 
 
 ## Layout
 
-```
+```text
 docs/        design + reference (blueprint, pipeline, porting-plan, runtime-verification binding)
 templates/   HARNESS.md (binding template) + harness-runs.SCHEMA.md (run-log contract)
 skills/      the harness:* skills (skills/harness-<name>/SKILL.md)

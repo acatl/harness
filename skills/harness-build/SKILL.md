@@ -28,8 +28,11 @@ verified-not-shipped** — never pushes, never opens a PR (that's `harness:ship`
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:build v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
-- **end:** `■ harness:build → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+- **start:** `▶ harness:build` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
+- **end:** `■ harness:build v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 ## Modes
 - **gated** (default): stops at the **H2 spec-review gate** (after tasks, before impl) and loops
@@ -59,10 +62,10 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   proceeds without a stop.
 
 ## Asking the user to choose between options
-Pick-between-alternatives (not yes/no): one question/turn, card above the picker — TLDR, one line on
-why it matters, options table (terse Pros/Cons), then Recommendation (pick + one-line reasoning +
-concrete cost) below the table; then `AskUserQuestion` with **options only** ("Other" = escape hatch).
-Yes/no gates (H2, plan-approval) and plain selections stay one line.
+Pick-between-alternatives (not yes/no): render a walk-me-through fork card (`references/walk-me-through.md`)
+— one per turn, `Q<N> of <total>`, TLDR + why-it-matters + options table (terse Pros/Cons) + grounded
+Recommendation + `Cost if` + `Escape:` + `Pick:`; operator replies by letter. **Never `AskUserQuestion`
+or any native picker.** Yes/no gates (H2, plan-approval) and plain selections stay one line.
 
 ---
 
@@ -77,7 +80,7 @@ Yes/no gates (H2, plan-approval) and plain selections stay one line.
      Step A's loop skips `done` artifacts.
    - Change exists, apply-ready or in-progress (`HELD`/tasks present) → **IMPL** (Step E) — skip authoring.
    - `state: all_done` → congratulate, suggest `harness:finish`, stop.
-   - >1 open change and ambiguous which → `AskUserQuestion` pick (open/non-archived only). Never guess.
+   - >1 open change and ambiguous which → walk-me-through fork card pick (open/non-archived only). Never guess.
 4. Announce `Using change: <name>` + how to override.
 5. **Task tracker:** `start` verb (HARNESS.md › Task tracker) — move to in-progress; fire the
    `building` stage hook. No-op if not configured / no linked task.
@@ -132,15 +135,16 @@ reviews (match by content category, adapt to project vocabulary):
 ## Step C — Run reviews (AUTHOR path; sequential, autonomous)
 Run only selected reviews, order **architecture → design**. Skip excluded. Sequential never parallel
 (shared spec files); each re-reads from disk → sees prior amendments.
-- Pre-empt a spurious "missing checklist" finding: note in one line that the `HELD` checklist is
+- Preempt a spurious "missing checklist" finding: note in one line that the `HELD` checklist is
   intentionally not yet authored (name by role, not filename).
 - Invoke each via the Skill tool, args = `<change-name>` (autonomous — build does not forward its mode).
   The review treats args as its explicit change-name (first non-mode token) → no multi-change stall.
 - Each review auto-applies unambiguous findings, stops on its own forks (may fire before its report +
-  per Options finding). Let the review drive its own questions; don't pre-empt.
+  per Options finding). Let the review drive its own questions; don't preempt.
 - **Completion contract:** a review completes by (a) writing its gate artifact
-  `<change-state-dir>/reviews/<review>.md` + final summary line, **or** (b) self-calibrating to
-  out-of-scope/minimal and printing a one-line skip note (no gate artifact). Treat either as complete.
+  `<change-state-dir>/<review>-review.md` (committed, flat under `harness/`) + final summary line, **or**
+  (b) self-calibrating to out-of-scope/minimal and printing a one-line skip note (no gate artifact). Treat
+  either as complete.
   On completion, **proceed to the next review without yielding to the user** (even after a fork answer,
   even on self-skip). Don't wait for a gate artifact a self-skip never writes. Chain isn't complete
   until every selected review completed + Step D ran. Pause once per genuine fork.
@@ -155,6 +159,8 @@ reviews; not a blocker); `blocked` → surface the blocking artifact, don't call
 **gated:** present the reviewed spec + generated tasks; loop: operator reviews → requests edits (apply,
 re-show) or approves ("proceed"). Re-ask until approved. **yolo:** skip H2, go straight to impl.
 (This is the only operator gate the authoring half adds; reviews already ran autonomously.)
+At the gate, emit the **pipeline trail** for the `build · spec-review gate` stop per
+`references/pipeline-map.md` (one line) so the operator sees where this pause sits.
 
 ---
 
@@ -215,18 +221,26 @@ re-show) or approves ("proceed"). Re-ask until approved. **yolo:** skip H2, go s
    - **Red mid-group:** **gated** stop+surface (failing task, error, completed tasks)+await; **yolo**
      agent resolves its own failure + continues; stop only on a genuine fork / unrecoverable failure.
    - **Design gap mid-task** (fork both modes): stop the task, surface (what / where / what the spec
-     would need); offer (A) update the spec artifact now + continue, or (B) note in
-     `<change-state-dir>/decisions.md` (the choice made) + proceed. Never silently invent. Routine
-     spec/rule-dictated choices are not logged — `decisions.md` is for genuine gaps only.
+     would need); offer (A) update the spec artifact now + continue, or (B) append the call to the
+     **decision log** (`<change-state-dir>/decisions.md`, format + bar per `references/decision-log.md` —
+     `## D<N> · 🤖 build · <decision>`) + proceed. Never silently invent. Routine spec/rule-dictated choices
+     are not logged — the log is **load-bearing only**. A fork the **human** resolves here → log as `👤 human`.
    - Update `progress.md` as each group commits. Repeat per group.
 
 ## Step F — Verify (the harness verification core)
 Run in order; each must pass:
 1. **Sensors** (HARNESS.md › Sensors, in declared order — format → lint → test → build). Mirrors the
    pre-push gate.
-2. **Behavioral-verify** (HARNESS.md › Runtime verification): bring up → exercise → observe → verdict.
-   Liveness always; logs + behavioral per the binding. **Skip for pure-logic-only changes** (no runtime
-   surface). See `references/runtime-verification-binding.md`.
+2. **Behavioral-verify** (HARNESS.md › Runtime verification): bring up → exercise → observe → **release**
+   → verdict. Liveness always; logs + behavioral per the binding. **Release the operator's machine the
+   instant signals are captured** — tear down per HARNESS.md `teardown` (quit the app/processes, drop
+   computer-use/screen focus) **before** running steps 3–4 below; never hold the screen through the
+   verify tail. **Minimize the borrow window** (interactive drivers): batch exercise+capture into the
+   fewest driver round-trips (one `computer_batch`: type+key+screenshot — not serial calls), and make
+   `teardown` the **literal next action after the final capture** (read logs / compute verdict only
+   after Release — nothing, incl. a Keychain dialog, between capture and teardown). **Skip for
+   pure-logic-only changes** (no runtime surface). See
+   `references/runtime-verification-binding.md`.
 3. **openspec-verify-change** (vendor skill) — spec conformance against the artifacts. Resolve gaps.
 4. **Skeptical review** (doer ≠ judge) — a distinct review pass against the project's QUALITY_SCORE
    rubric (HARNESS.md › Context docs). Scale to the diff (small/localized → one inline pass; large →
@@ -236,10 +250,16 @@ On any failure not caused by this change → STOP + surface (don't patch around 
 
 ## Step G — Stop at verified-not-shipped
 **Do not ship, push, or open a PR.**
-1. Emit `<change-state-dir>/pr-body.md` (handoff for `harness:ship`): Summary (bullet per group),
-   Changes (files/tasks/commits counts), Decisions made (`decisions.md` verbatim if non-empty, else
-   omit), Deferred (operator-owned groups), Verification (sensors + behavioral + openspec-verify +
-   review outcomes).
+1. Emit `<change-state-dir>/pr-body.md` (handoff for `harness:ship`) by **folding the committed
+   artifacts** per `references/pr-summary.md` — never re-analyze the diff. Sections: Title+lead
+   (`proposal.md`) · **Architecture** (≤4 lines from `design.md` decisions + the 🔴 story from
+   `architecture-review.md`) · Diagram (link iff `design.md` authored one — never synthesize) · What
+   changed (group/task/commit counts) · Decisions made (`decisions.md` verbatim if non-empty, else omit)
+   · Verification (sensors + behavioral + openspec-verify + review outcomes) · Deferred. Each section
+   ends `<sub>Sources:…</sub>` (cite-or-cut); empty input → omit the section. Wrap the whole body in the
+   `<!-- harness:pr-summary START/END -->` managed region and end it with the **provenance footer**
+   (`folded-against` = `git rev-parse HEAD`; `generated-by: harness:build v<hash8>`; `artifacts:` list)
+   per the rule.
 2. **Task tracker:** fire the `verified` stage hook (HARNESS.md). Do not move to a review/done state —
    that's ship/finish.
 3. **Append one run-log row** to the run-log (HARNESS.md › Observability; schema:
@@ -249,11 +269,23 @@ On any failure not caused by this change → STOP + surface (don't patch around 
    ```text
    ## harness:build complete — <change> (verified, NOT shipped)
    Authored:  <artifacts | resumed existing>
-   Reviews:   architecture — <outcome|n/a|skipped> · design — <outcome|n/a|skipped>
+   Reviews:   architecture <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/architecture-review.md   (n/a|skipped if so)
+              design <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/design-review.md   (n/a|skipped if so)
+   <!-- ALWAYS cite the artifact path so the reviews are findable. If any 🔴 critical was found and
+        auto-applied (esp. in yolo, where it happened silently), call it out: "⚠️ 1🔴 auto-applied — read it." -->
    Impl:      <N>/<total> tasks · <N> group commits · mode <gated|yolo>
    Verify:    sensors <pass> · behavioral <ran|skipped:reason|n/a> · openspec-verify <pass> · review <outcome>
-   Next:      test it yourself · /harness:fine-tune to polish · /harness:ship when ready
    ```
+   **Then two real lines below the fence — the operator reads only these, so the actionable one goes
+   last:**
+   1. The **pipeline trail** for the `build · verified-not-shipped` stop per `references/pipeline-map.md`.
+   2. The **terminal handoff** — the **last line**, real markdown (bold + inline-code render; **never**
+      inside the fence). Lead with testing, bold the encouraged path, inline-code commands, ship reads
+      as later-gated. Exact shape:
+      > **Next — test it first.** Run it yourself, then **`/harness:fine-tune`** to polish · **`/harness:ship`** only when you're happy.
+
+   Runnable-now commands only (`fine-tune`/`ship`) — **never `/harness:finish`** (premature until the PR
+   merges; `◦ finish` is a trail label, not a command here).
 
 ---
 

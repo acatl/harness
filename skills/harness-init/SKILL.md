@@ -7,6 +7,9 @@ description: >
   "set up the harness", "create HARNESS.md", "onboard this repo to the harness", or when another
   harness skill reports that docs/HARNESS.md is missing. Idempotent: re-running fills gaps without
   clobbering bindings already set.
+metadata:
+  author: acatl
+  version: "0.1.0"
 ---
 
 # harness:init — generate the binding layer
@@ -16,16 +19,21 @@ exists + is correct, the rest of the pipeline is inert.
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:init v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
-- **end:** `■ harness:init → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+- **start:** `▶ harness:init` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
+- **end:** `■ harness:init v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 > **Inputs (bundled in this skill dir; paths below are relative to it):** `templates/HARNESS.md` (schema
-> to fill), `references/harness-runs.SCHEMA.md` (run-log contract). Behavioral-verify model:
+> to fill), `templates/claude-workflow.md` (the CLAUDE.md workflow block — Step 5b),
+> `references/harness-runs.SCHEMA.md` (run-log contract). Behavioral-verify model:
 > `references/runtime-verification-binding.md`. Read before generating.
 
 **Principle: detect → confirm → ask only what can't be inferred.** Never interrogate for what the repo
-already states. One question at a time (tight question, indexed options, recommendation + escape hatch).
-Never block on optional capabilities.
+already states. One question at a time, each rendered as a walk-me-through fork card
+(`references/walk-me-through.md`) — indexed options + grounded recommendation + escape; never
+`AskUserQuestion`. Bare yes/no confirms stay one-line. Never block on optional capabilities.
 
 ## Steps
 
@@ -99,12 +107,31 @@ pre-existing bindings. OpenSpec CLI + `openspec/` init are Step-1 preconditions 
   - **Hard gate + resume:** ANY of the four author-required roles unauthored after templating → **STOP this pass.** Print the list of files needing authorship + their confirmed paths; tell the operator: author them (remove the `<!-- HARNESS TEMPLATE` marker line when done), then **re-run `/harness:init`** to continue. Do NOT write `docs/HARNESS.md` or seed `openspec/config.yaml` in a stopped pass. On re-run, a role is satisfied when its confirmed file exists and the marker line is gone; all four authored → proceed.
   - Record all confirmed role→file paths in HARNESS.md › Context docs. Never overwrite an authored doc — link it.
 - **Seed the OpenSpec feedforward** (only when `openspec/config.yaml` exists — it's a Step-1 precondition). If its `context:` is empty, author it against the standard OpenSpec spec-driven config shape — do NOT probe the CLI for a schema: `schema: spec-driven`; `context: |` a block distilled from the confirmed context docs (north-star + IS/IS-NOT + tech constraints + key invariants + task-tracker note); `rules:` per artifact (proposal: enforce non-goals/scope guard; design: dependency + architecture invariants, no speculative abstractions; tasks: final task is the HARNESS.md sensor gate, pure-logic ships with tests, non-unit-tested surfaces get a runtime-verify task). Preserve any non-`context` keys already present.
-- Git-ignore the run-log path, app runtime-log path, build progress dir (append to `.gitignore`).
+- Git-ignore the run-log path + app runtime-log path (append to `.gitignore`). **Do NOT git-ignore the
+  change-state dir** (`openspec/changes/<change>/harness/`) — it's committed so teammates see the reviews +
+  recon + decisions.
 - Optional pre-push gate stub if wanted.
 
+### 5b. Offer the CLAUDE.md workflow block (managed region)
+Makes the harness the project's **default** workflow — so Claude routes work through the pipeline
+proactively (not just when a `/harness:` command is typed) and can onboard a newcomer without the docs.
+Runs only on a complete pass (HARNESS.md written, gates cleared — the block points to `docs/HARNESS.md`).
+
+- **Content = the bundled template** `templates/claude-workflow.md` (a tight pointer block between
+  `<!-- harness:workflow START/END -->` markers — pipeline entry points + a bindings pointer; deliberately
+  telegraphic, since the consuming `CLAUDE.md` is loaded every turn). Do NOT expand it into a manual; the
+  source of truth stays in the skills + `docs/HARNESS.md`.
+- **Managed region (idempotent):** markers already present in the project `CLAUDE.md` → replace **only**
+  between them (preserve everything outside). Absent → **append** the block (never rewrite the operator's
+  CLAUDE.md). No `CLAUDE.md` at all → offer to create a minimal one containing just the block.
+- **👉 Consent — never silently inject.** CLAUDE.md is the operator's file. Show the exact block + where it
+  lands (append / update-in-markers / create), get a yes (or let them edit the wording) before writing.
+  Decline → skip, note it; the rest of init is unaffected.
+
 ### 6. Report
-Bindings written; rows left as placeholders the operator must fill; missing hard deps (OpenSpec /
-tracker). Point to the next skill (`harness:refine` or `harness:build`).
+Bindings written; CLAUDE.md workflow block added/updated/skipped (Step 5b); rows left as placeholders the
+operator must fill; missing hard deps (OpenSpec / tracker). Point to the next skill (`harness:refine` or
+`harness:build`).
 
 ## Don't
 - Never assume a context doc's name/path — discover candidates, drop decoys (`.old`/`.bak`/`.draft`), and confirm the mapping with the operator before gating or templating. Never auto-pick among ambiguous candidates.
@@ -112,7 +139,7 @@ tracker). Point to the next skill (`harness:refine` or `harness:build`).
 - Don't invent commands — uninferred + operator-unknown → marked placeholder, say so.
 - Don't add a machine-parsed config format — the agent reads this file; prose tables are correct.
 - Don't write absolute machine paths into the generated HARNESS.md — pipeline doc refs stay generic; the consuming file must be self-contained + portable.
-- Don't modify source — only `docs/HARNESS.md`, context-doc stubs, and (with confirmation) `.gitignore` / a hook stub.
+- Don't modify source — only `docs/HARNESS.md`, context-doc stubs, the project `CLAUDE.md` workflow block (with confirmation, managed region only — Step 5b), and (with confirmation) `.gitignore` / a hook stub.
 - Never auto-install or configure tooling — assess + warn/stop only; setup is the operator's job.
 - **init gates, it never sets up.** Never run `openspec init` / scaffold `openspec/`, never install the CLI, never install/configure sensors, never **fabricate** context-doc content (it drops template stubs and stops — it does not author the real content). Each missing precondition (OpenSpec CLI, OpenSpec init, essential sensors, author-required docs) → halt + ask + wait + resume on re-run. Never probe the CLI to discover a config schema — author config against the known spec-driven shape.
 - Don't treat a missing optional capability as an error — note + continue.

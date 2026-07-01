@@ -34,8 +34,11 @@ task** — never create an OpenSpec change/spec or propose a technical approach 
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:refine v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
-- **end:** `■ harness:refine → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+- **start:** `▶ harness:refine` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
+- **end:** `■ harness:refine v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 **Posture:** challenge framing, scope, duplication — never *feasibility* ("we can't build that" is
 `explore`'s call). Disagreement → an exciting "what if instead…". For raw idea-capture at full
@@ -55,11 +58,14 @@ ambition with no grounding/verdict, that's a brainstorm/idea tool, not refine.
 - **Scope = the one task** named/created this invocation. Any other mutation (spike, extra task,
   move/close) needs an explicit yes.
 - **Surface before solving** — charter conflicts, already-built, load-bearing defaults named first.
-- **Forks are pure text** — **any** ≥2-option decision put to the operator (clarify, project-resolve,
-  *and* next-step/iterate offers like "commit / tighten / discuss") is rendered as a walk-me-through fork
-  card (`references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
-  operator replies by letter. **Never `AskUserQuestion`, any native picker, or ad-hoc prose `(a)/(b)/(c)`.**
-  The lone exception is the bare draft-approval gate (yes / edit) — a one-line ask, not a fork.
+- **Interaction kinds — pick the right tool:**
+  - **Single-pick fork** (clarify, project-resolve, "commit / tighten / discuss") → a **walk-me-through fork
+    card** (`references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
+    reply by letter. **Never `AskUserQuestion` or ad-hoc prose `(a)/(b)/(c)` for a fork.**
+  - **Multi-select opt-in** (the ✨ Improvements pick) → a **checkbox** (`AskUserQuestion`, `multiSelect:true`)
+    — check any / all / none. This is the *one* sanctioned `AskUserQuestion` use; it's the right form for a
+    multi-select menu (not a single-pick fork). See Step 6.
+  - **Bare approval** (yes / edit) → a one-line ask, not a fork.
 
 ---
 
@@ -155,26 +161,39 @@ Companion states a *whole* feature needs but the operator skipped. Lenses (pick 
 - **Feedback / attribution** — confirmation? mutation attributed (human vs agent)?
 
 Route each: **default Out-of-scope**; promote to AC only when core (feature is broken without it).
-**Never silent:** every routed companion — folded into AC OR captured as out-of-scope — is listed in the
-**Added for completeness** callout so the operator sees exactly what refine added and can veto it.
-Judgment calls additionally → the *Also worth considering* note.
+**Fold inline, mark with `+`:** a completeness companion goes straight onto its AC or Out-of-scope line,
+prefixed `+` so the operator can spot "refine added this." **No separate section.** Not a decision — it's
+refine doing the ticket right; the operator can object to any `+` line in prose. (Optional enhancements that
+aren't *needs* belong in the expansion pass's **✨ Improvements**, not here.)
 
 ### Expansion pass *(feature shape)* — thinking partner
-"What could this *also be* that the operator didn't picture?" **Generate freely, route conservatively.**
-Propose the **2–4 strongest**, never a dump. Lenses:
-- **Alternative entry affordances** — click → keyboard shortcut, command palette, toolbar, context menu,
-  MCP tool / CLI for the agent path.
+Ask: **"what could this do FOR THE USER that they didn't picture?"** — improvements at the **product / WHAT
+altitude**, phrased the way a PM or designer would (a capability or experience the user gets), not how it's built.
+- ⛔ **NOT engineering concerns.** No implementation, reliability, observability, performance-plumbing, or
+  internal-seam ideas — *boot races, bridge handshakes/self-checks, tripwire diff output, retries, caches,
+  schema/migration safety.* Those are real but belong to **architecture / design / build**, which surface
+  them later. If an idea is about *how it's built* rather than *what the user gets*, **drop it here.**
+- ✅ **Test:** could a non-engineer product person say it, and would a user notice it? e.g. "syntax
+  highlighting in the prompt", "auto-save the draft", "a keyboard shortcut to send", "search past runs".
+
+Generate freely; propose the **2–4 strongest**, never a dump. User-facing lenses:
+- **Alternative entry affordances** — keyboard shortcut, command palette, toolbar, context menu, an agent/CLI path.
 - **Richer interaction modes** — expand/collapse, resize, layouts, density toggle, pin/persist, peek vs full.
 - **Adjacent capabilities** — filter, sort, search-within, group, export, deep-link to a state.
 - **Scale / power paths** — bulk action, presets, a settable default.
 
-Route (render the literal tag verbatim; route names are internal):
-- ***propose-AC*** — *rare*; only if core.
-- ***propose-out*** — *common*; captured as an explicit non-goal, not built.
-- ***propose-spin-off*** — really a separate feature; offer it (needs yes), don't auto-create.
+Route each into ONE of two streams:
+- **✨ Improvements (additive) — THE decision.** User-facing ways to make it better than you asked — things
+  the operator didn't picture, *on top of* completeness. One **numbered** line each, prefixed `✨`, stating
+  **what the user gets + why it helps them** (product altitude — pass the test above). Default NOT included;
+  the operator opts in by number → refine folds it in (an Acceptance Criterion,
+  or — if it's really a separate feature — a spin-off ticket, which needs a yes since it's a *different* ticket).
+- **Subtractive ("doesn't belong") — into the Out-of-scope section.** Scope refine would cut/exclude goes
+  straight into Out-of-scope (refine-added lines marked `+`). Shown for awareness, objected to in prose — not a decision.
 
-These three are the only tags in *Also worth considering* (completeness judgment calls use them too).
-Surface all in one note — widen the thinking, don't bloat the task.
+**✨ Improvements is the operator's one active pick** — the highest-value choice (what extra to build).
+Completeness (`+` lines) and Out-of-scope are refine's confident calls: shown, objectable in prose, never a
+gate. **No `propose-in/out` tags, no keys, no bundles** — a plain "want any? add by number" menu.
 
 ### Draft (feature shape)
 ```markdown
@@ -184,22 +203,24 @@ Surface all in one note — widen the thinking, don't bloat the task.
 <!-- story line: feature/idea only; omit for bug/chore/non-functional -->
 
 **Acceptance criteria:**
-- **Given** <context> **When** <action> **Then** <observable outcome>.
-- … include promoted completeness states (empty/clear/composition), not just the happy path.
-<!-- bug: Given <repro> When <action> Then <correct behavior>, + a guarding test. -->
+- **Given** <context> **When** <action> **Then** <observable outcome>.   <!-- plain `-` = from the operator's ask -->
++ **Given** <completeness state — empty/clear/composition> **When** … **Then** …   <!-- `+` = refine added for completeness -->
+<!-- bug: Given <repro> When <action> Then <correct behavior>, plus a guarding test. -->
 <!-- non-functional: a measurable threshold vs the NFR doc (+ telemetry open question). -->
 
-**Out-of-scope:**
-- <adjacent/confusable features + unpromoted completeness cases>
-
-**Added for completeness:** *(companions refine folded in that you did NOT state — review / veto each)*
-- <companion> → AC | Out-of-scope
-<!-- list EVERY completeness promotion (to AC and to out-of-scope); omit the whole section only if none were added -->
+**✂️ Out-of-scope:** *(your committed boundary — read this before you commit)*
+- <adjacent/confusable feature the operator implied>
++ <refine-added: a completeness case or a scope refine judged doesn't belong>
+<!-- `-` = operator-implied boundary · `+` = refine added it. Objected to in prose at commit, not a per-item gate. -->
 
 **Why:** *(only if it adds signal beyond the story)*
 
-**Also worth considering:** *(only if judgment calls surfaced; feature shape only)*
-- <case or expansion idea> — *propose-AC* | *propose-out* | *propose-spin-off*
+**Improvements** *(on top of your ask — all worth considering; you'll pick in a checkbox. feature shape only; omit if none):*
+  - ✨ <feature> — <why: what the user gets out of it>
+  - ✨ <feature> — <why: what the user gets out of it>
+<!-- TEXT list first, for context (format: "feature — why the user benefits"). Everything here is already a
+     refine recommendation — no per-item "recommended" tag. INDENTED, ✨ per line, no numbers. Product/WHAT
+     altitude only. The actual pick is the checkbox in Step 6; nothing is in the ticket until checked. -->
 
 **Impl note:** *(only for a load-bearing default — named for visibility, not a requirement)*
 - <choice + why>
@@ -214,15 +235,33 @@ Surface all in one note — widen the thinking, don't bloat the task.
 - Flag an innocent-but-expensive criterion (one line, only if real) so OpenSpec sizes it early.
 
 ## 6. Iterate → commit
-- Show the draft, wait for **explicit approval** (directive verb — "yes"/"go ahead"/"do it"; not
-  "ok"/"makes sense"). Edits → step 5. This is a **one-line approval gate (yes / edit)**, not a fork —
-  don't dress it up. But the moment you offer **multiple next-step options** (e.g. "commit as-is /
-  tighten the impl note / keep discussing"), that IS a fork → render it as a walk-me-through card, never
-  ad-hoc prose `(a)/(b)/(c)`.
-- Approve → update the task (title + description; + type if it changed).
-- **Brainstorm / Sharpen — non-blocking suggestion (feature/idea only).** After the commit, end with a
-  plain one-line suggestion the operator can ignore. **Do not open a fork here** (no card, no question) —
-  the run ends once the task is persisted. Skip for bug/chore/non-functional.
+Show the draft, then run the **commit decision** below. The build pointer + pipeline trail come **after**
+commit, never alongside the decision (they'd compete with it). Order:
+
+**a. Scope reminder (one line, before the pick).** `"⚠️ Read the ✂️ Out-of-scope — that's what you're
+committing to NOT build. Object to any line if it's wrong."` Awareness, not a gate.
+
+**b. The pick — a checkbox, and submitting it commits.**
+- **Improvements surfaced** → fire `AskUserQuestion` (`multiSelect:true`): one option per ✨ improvement
+  (label = feature, description = the why), the operator checks any / all / none. **Submitting = approve +
+  commit** with the checked ones folded in (AC, or a spin-off ticket with a yes — a *different* ticket,
+  never auto-created); unchecked = discarded. `"Other"` (auto) = edit / discuss instead of committing.
+  - **Reconcile a conflict:** if a checked improvement overlaps a `✂️` Out-of-scope line — the operator is
+    pulling in something refine had suggested excluding — **remove that exclusion**, fold the improvement
+    into AC, and **say so** ("moved *cross-run search* from Out-of-scope → AC"). Never leave the ticket both
+    requiring and excluding the same thing.
+- **No improvements** → no checkbox; a bare one-line `yes / edit` approval. Submitting yes commits.
+
+**c. Commit + close out (after b).** Update the task (title + description; + type if changed). Then emit the
+closing block **in THIS order — the build pointer is LAST so it's the clear final step, nothing below it:**
+  1. `Committed.` + what folded (one line).
+  2. **Out:** a one-line summary of this run (verdict · key reshape · ACs added · improvements folded).
+  3. *(optional, feature/idea only)* **thinking-partner note** — one plain line the operator can ignore
+     (e.g. "worth a quick `/harness:explore` first to pressure-test X"). Clearly optional; not a fork.
+  4. `■ harness:refine → <outcome>` — the end breadcrumb.
+  5. **pipeline trail, then the build pointer (LAST):** `✓ refine → ▸ build → ◦ build`, then
+     `Next: /harness:build <task-id>` — **gated** (default: pauses at the spec-review gate) · or `yolo`
+     (straight through, still stops at real forks). **Nothing after this** — it's the operator's next move.
 - **already-well-formed** → nothing to commit; confirm ready, stop.
 - **already-done** + agree → write the reason into the task description (where the tracker persists it),
   then close (`done`). If created this invocation (collision check missed it) → say so, close `done`

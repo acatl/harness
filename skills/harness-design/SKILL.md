@@ -29,8 +29,11 @@ underspecified/absent UX patterns, decisions with downstream consequences — wh
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:design v<hash8>` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars.
-- **end:** `■ harness:design → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable.
+- **start:** `▶ harness:design` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
+- **end:** `■ harness:design v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+
+## Operator input
+👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 ## Modes
 - **autonomous** (default): report → auto-apply every unambiguous (Straightforward) finding + Missing
@@ -42,7 +45,7 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   name. `gated` substring inside a name ≠ mode token. No token → autonomous.
 
 ## Genuine forks — stop in BOTH modes
-- **TRADEOFF / UNCLEAR** (Step 6): a genuine design choice / an underspecified spec. Surface via `AskUserQuestion` before the report.
+- **TRADEOFF / UNCLEAR** (Step 6): a genuine design choice / an underspecified spec. Surface as a walk-me-through fork card (`references/walk-me-through.md`) before the report.
 - **Options-mode findings** (Step 7): a finding with a real choice or a `→ Downstream` annotation.
 - Else (one clearly correct fix) → auto-applied (autonomous) / walked (gated).
 
@@ -133,7 +136,7 @@ Check for TRADEOFF / UNCLEAR:
 - **UNCLEAR** — spec too underspecified to evaluate a lens (form described but no fields listed;
   status change specced but user-facing label undefined; API called but no error states).
 
-Found any → `AskUserQuestion` now, severity order:
+Found any → surface as walk-me-through fork cards (`references/walk-me-through.md`) now, severity order:
 - TRADEOFF: title + 2–3 concrete options (label = approach; desc = upside/downside/rough effort); mark "(Recommended)".
 - UNCLEAR: "spec doesn't define [X] — intended behavior?"; 2–4 likely options + "Not sure — leave as spec gap".
 Fold answers into findings (chose "leave as gap" → brief note in the relevant lens section). None → write report.
@@ -148,7 +151,7 @@ Fold answers into findings (chose "leave as gap" → brief note in the relevant 
 - **Short beats padded** — 4 real findings > 15 marginal.
 
 ## Output — structured markdown review
-Finding types resolved via AskUserQuestion **before** report (Step 6): ⚠️ Tradeoff · ❓ Unclear.
+Finding types resolved via walk-me-through fork cards **before** report (Step 6): ⚠️ Tradeoff · ❓ Unclear.
 Severities in the report: 🔴 Critical Gap (meaningfully hurts users / confusion / operational-business
 risk — address before launch) · 🟠 Recommended (before launch, won't fail immediately) · 🟡 Nice-to-Have.
 Number findings sequentially (#1…); Missing Journeys separately (J1…). **Omit empty sections — never write "None".**
@@ -158,27 +161,34 @@ Category (one per finding, slug exact — enables future dedup):
 `form-ux` · `destructive-actions` · `feedback` · `accessibility` · `design-system` · `microcopy` ·
 `performance` · `evolvability`.
 
-Report = **summary only** (full detail in the triage loop):
+Report = **summary only** (full detail in the triage loop). **Mode-aware:** **autonomous** emits **findings
+only** — the 🔴/🟠/🟡 + Missing-Journeys tables (the auto-apply loop's input); **omit TL;DR, Strengths,
+Overall Assessment** (no reader mid-stream — pure tokens). **gated/standalone** emits the full template below.
 ```text
 # Design Review: [Change]
 > Specs reviewed: [...] · UI/UX surface area: [1 sentence]
 
-## TL;DR
+## TL;DR  *(gated/standalone only — omit in autonomous)*
 [2–4 sentences: design quality, themes, honest verdict. If well-considered, say so.]
 
 ## 🔴 Critical Gaps
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## 🟠 Recommended Improvements
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## 🟡 Nice-to-Have
 | # | Lens | Category | Spec | Summary |
+|---|------|----------|------|---------|
 ## Missing Journeys
 | # | Journey | Category | Who needs it | Risk if absent |
-## Strengths
+|---|---------|----------|--------------|----------------|
+## Strengths  *(gated/standalone only)*
 - [specific thing done right]
-## Overall Assessment
-| Ready to apply | Yes / No / With caveats |
-| 🔴 N | 🟠 N | 🟡 N | Missing Journeys N |
+## Overall Assessment  *(gated/standalone only)*
+| Ready to apply | 🔴 Critical | 🟠 Recommended | 🟡 Nice-to-Have | Missing Journeys |
+|---|---|---|---|---|
+| Yes / No / With caveats | N | N | N | N |
 ```
 After the report, transition straight into the triage loop — don't wait.
 
@@ -214,13 +224,39 @@ Skipped: #2, #5
 - autonomous: print same summary, then write directly (invocation = consent). A fork the operator
   never answered → recorded skipped, never auto-decided.
 
-Then write the gate artifact `<change-state-dir>/reviews/design.md`:
+Then write the gate artifact `<change-state-dir>/design-review.md` (committed, flat under the change's
+`harness/` dir — not a `reviews/` subfolder) — the **durable verification record**.
+Write it in FULL **regardless of mode**: the in-stream report may be terse (Output mode-awareness), but this
+file always carries every finding's detail so a reader can verify each one and see its value. **Never reduce
+it to a bare count stamp** — embed the findings table AND per-finding detail (applied and skipped):
 ```text
 # Design Review Gate
-Date: <ISO> · Skill: harness:design
-Outcome: <N critical, M recommended, K nice-to-have, J missing journeys>
-Changes written: <N> · Skipped: <finding numbers>
+Date: <ISO> · Skill: harness:design · Change: <name>
+Outcome: <N critical, M recommended, K nice-to-have, J missing journeys> · Changes written: <N> · Skipped: <finding #s>
+
+## Findings
+| # | Sev | Lens | Category | Spec | Summary |
+|---|-----|------|----------|------|---------|
+| 1 | 🟠 | <lens> | <category> | `<spec>` | <one-line> |
+<one row per finding, 🔴 first; include Missing Journeys as J1…>
+
+## Detail
+**#1 — <title>** · <🔴/🟠/🟡> · `<category>` · `<spec path>`
+- **Problem:** <what's wrong / missing>
+- **Impact:** <user-facing / second-order consequence — why it's worth fixing>
+- **Evidence:** <the spec quote or screen/flow that grounds the finding>
+- **Resolution:** <exact language written to the spec> — or **Skipped:** <reason>
+---
+<repeat for EVERY finding, applied and skipped — nothing reduced to a count>
+
+## Forks resolved
+<TRADEOFF / UNCLEAR title → chosen option + one-line rationale> — omit the section if none
 ```
+After the gate artifact, append load-bearing calls to the **decision log** (`<change-state-dir>/decisions.md`,
+per `references/decision-log.md`): each **fork resolved** (TRADEOFF/UNCLEAR — the human's pick → `👤 human`)
+and any **auto-applied 🔴 critical** (→ `🤖 design`) — one line + `More: design-review.md #<n>`. Don't
+re-dump 🟠/🟡 findings; the review holds those.
+
 Final one-line: "Done — N changes written, M skipped." List skipped numbers so nothing vanishes.
 
 ## Don't

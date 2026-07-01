@@ -1,0 +1,23 @@
+{
+  "name": "harness-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Stack-agnostic Claude Code skills that compose into a spec-driven engineering harness.",
+  "license": "MIT",
+  "author": "Acatl Pacheco",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acatl/harness.git"
+  },
+  "scripts": {
+    "lint:md": "markdownlint-cli2 \"**/*.md\"",
+    "spell": "cspell --no-progress --gitignore \"**/*.md\"",
+    "sync:check": "scripts/sync-skill-resources.sh check",
+    "skills:check": "scripts/check-skill-frontmatter.sh",
+    "check": "npm run lint:md && npm run spell && npm run sync:check && npm run skills:check"
+  },
+  "devDependencies": {
+    "cspell": "^8.17.5",
+    "markdownlint-cli2": "^0.16.0"
+  }
+}
