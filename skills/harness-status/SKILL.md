@@ -86,8 +86,10 @@ Change: <name>  (<task-id>)
 ```
 Compact form (N changes, no arg): one line each — `<name> · ▸ <stage> · next: <…>`.
 
-Edge cases: nothing in flight → suggest refine/build. Everything done (archived + merged) → "shipped +
-finished — nothing to do." Can't resolve the change → say what's ambiguous, list candidates.
+Edge cases: nothing in flight → suggest refine/build. Everything done (archived + merged **and tracker =
+done**) → "shipped + finished — nothing to do." **Archived/merged but the linked task isn't `done` yet →
+closeout is incomplete (e.g. single-merge leaves the ticket `doing` until the human merges) — point to the
+remaining closeout, don't report "nothing to do."** Can't resolve the change → say what's ambiguous, list candidates.
 
 ## Don't
 - **Read-only — never mutate.** No writes, commits, tracker moves, PR open/merge, artifact edits. Report only.
