@@ -25,6 +25,7 @@ verified live via GitHub API, created 2025-10-09) (2026-07-01/02 session).
 | 5 | OpenSpec CLI is a hard dependency with bus-factor risk | `MAINTAINERS.md` lists one lead maintainer; young project | no code change — a risk to flag to whoever owns the adopt decision |
 | 6 | No skill-trigger eval tests | superpowers runs 51 test files, incl. `tests/explicit-skill-requests/run-haiku-test.sh` and `run-multiturn-test.sh` — real model calls asserting a skill actually fires on a given prompt. This is the genre's real test-maturity bar, not unit tests. Resolves former item A: dogfooding alone is not the ceiling | **Deferred (2026-07-02)** → tracked in [acatl/harness#3](https://github.com/acatl/harness/issues/3). 15 skills, low churn, dogfood evidence sufficient today. |
 | 7 | `scripts/*.sh` unlinted | superpowers runs `scripts/lint-shell.sh` (shellcheck-style) over its scripts in CI/tests. harness-pipeline has `scripts/check-skill-frontmatter.sh` + `scripts/sync-skill-resources.sh` with no lint gate | trivial — add shellcheck to `quality.yml` |
+| 8 | No GitHub issue templates | PR template already existed (`.github/pull_request_template.md`); issue templates did not. Surfaced in the superpowers comparison but was not carried into this doc during the audit (tracking miss). More relevant now that GitHub Issues is this repo's declared tracker (item #3 / CLAUDE.md) | **Resolved (2026-07-02):** added bug / skill-or-feature / design-idea markdown templates + `config.yml` (blank issues off, security contact link). |
 
 ---
 
@@ -59,3 +60,5 @@ verified live via GitHub API, created 2025-10-09) (2026-07-01/02 session).
   it's the prerequisite that makes release-please's bump detection trustworthy.
 - **2026-07-02 — item #6 (skill-trigger eval tests):** deferred (option C) → tracked in
   [acatl/harness#3](https://github.com/acatl/harness/issues/3).
+- **2026-07-02 — item #8 (issue templates):** added in the same readiness PR. Kept deliberately
+  minimal/standard (not mirroring the verbose PR-template house style).
