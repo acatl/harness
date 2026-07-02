@@ -13,7 +13,7 @@ compatibility: Requires git + a PR host CLI (GitHub `gh` shown) + jq.
 argument-hint: "#<pr-number>"
 metadata:
   author: acatl
-  version: "0.1.0" # x-release-please-version
+  version: "0.2.0" # x-release-please-version
 ---
 
 # harness:address-pr-comments — PR comment triage + auto-resolve
