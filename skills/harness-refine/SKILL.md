@@ -14,7 +14,7 @@ description: >-
 argument-hint: "[task-id | intent]"
 metadata:
   author: acatl
-  version: "0.1.0" # x-release-please-version
+  version: "0.2.0" # x-release-please-version
 ---
 
 # harness:refine — task → well-formed, spec-ready task
