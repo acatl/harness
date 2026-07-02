@@ -8,8 +8,8 @@ run in CI/locally doing something it shouldn't.
 
 Please **do not** open a public issue for a security concern.
 
-- Preferred: use [GitHub's private vulnerability reporting](https://github.com/acatl/harness/security/advisories/new)
-  for this repo (Security tab → "Report a vulnerability").
+- Preferred: on this repo's **Security** tab, choose **"Report a vulnerability"** (GitHub private
+  vulnerability reporting). Navigation-based so it survives a repo rename/transfer.
 - Fallback: email [acatl.pacheco@gmail.com](mailto:acatl.pacheco@gmail.com) with a description and,
   if possible, reproduction steps.
 

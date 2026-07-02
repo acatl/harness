@@ -17,6 +17,9 @@
     "check": "npm run lint:md && npm run spell && npm run sync:check && npm run skills:check",
     "prepare": "husky"
   },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "^21.2.0",
     "@commitlint/config-conventional": "^21.2.0",
