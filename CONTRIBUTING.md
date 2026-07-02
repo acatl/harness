@@ -39,15 +39,22 @@ scripts/sync-skill-resources.sh check  # CI mode: exit 1 on drift
 
 ## Versioning
 
-`package.json` version follows [Semantic Versioning](https://semver.org/). There's no npm-registry
-consumer — the harness distributes via `npx skills add acatl/harness` reading the repo directly —
-so this is a lightweight manual scheme, not full automated release tooling:
+Versioning follows [Semantic Versioning](https://semver.org/) and is **fully automated by
+[release-please](https://github.com/googleapis/release-please)** — you never bump a version by hand:
 
-- Bump the version and add a [`CHANGELOG.md`](CHANGELOG.md) entry on any notable change: a new
-  skill, a breaking change to an existing skill's behavior, or a new binding contract in
-  `templates/HARNESS.md`.
-- Commit-type discipline (`feat:`/`fix:`/etc., enforced above) is what makes bump-size judgment
-  possible — patch for `fix:`, minor for `feat:`, major for a documented breaking change.
+- Merge normal PRs to `main`. release-please reads the Conventional Commit types since the last
+  release and maintains a standing **Release PR** that accumulates the pending bump + changelog
+  (patch for `fix:`, minor for `feat:`, major for a `!`/`BREAKING CHANGE:`).
+- **Merging that Release PR** is what cuts a release: it bumps `package.json`, stamps the same
+  version into every skill's `metadata.version` (one shared version — skills depend on each other),
+  regenerates [`CHANGELOG.md`](CHANGELOG.md), tags, and creates a GitHub Release.
+- This respects "never commit to `main`": the bump travels through the Release PR, not a direct
+  push. There's no npm publish — the harness distributes via `npx skills add acatl/harness` reading
+  the repo directly.
+
+Config: [`release-please-config.json`](release-please-config.json) +
+[`.release-please-manifest.json`](.release-please-manifest.json); the per-skill stamp target is the
+`version: "…" # x-release-please-version` line in each `SKILL.md` frontmatter.
 
 ## Local checks
 

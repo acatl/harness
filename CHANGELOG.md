@@ -1,22 +1,12 @@
 # Changelog
 
-All notable changes to this project are documented here. Format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows
+All notable changes to this project are documented here. Versioning follows
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
-
-### Added
-
-- `CODE_OF_CONDUCT.md`, `SECURITY.md`.
-- Shellcheck CI gate over `scripts/*.sh`.
-- Husky + commitlint, enforcing the existing Conventional Commits rule mechanically.
-- Explicit task-tracker declaration (GitHub Issues) for this project's own meta-work.
-
-### Removed
-
-- `docs/PORTING-PLAN.md` — personal planning diary; its still-open threads were filed as individual
-  GitHub issues before removal.
+From the next release onward this file is maintained **automatically by
+[release-please](https://github.com/googleapis/release-please)** from Conventional Commit messages —
+don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
+`Unreleased` heading here.
 
 ## [0.1.0] - 2026-06-29
 
@@ -26,5 +16,4 @@ Initial harness pipeline: the full `harness:*` skill suite (`init`, `recon`, `ar
 the repo-health pass (MIT license, lint/spell/link CI, CONTRIBUTING, PR template). See `git log` for
 the full commit history.
 
-[Unreleased]: https://github.com/acatl/harness/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/acatl/harness/releases/tag/v0.1.0

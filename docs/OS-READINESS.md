@@ -20,7 +20,7 @@ verified live via GitHub API, created 2025-10-09) (2026-07-01/02 session).
 |---|-----|----------------|--------|
 | 1 | No `CODE_OF_CONDUCT.md` | Expected minimum for a company-associated or public OSS repo. Confirmed by both peers: OpenSpec lacks it too, but superpowers (the closer, skill-only comp) has one | trivial (template) |
 | 2 | No `SECURITY.md` | No disclosure process if a vuln is found in a skill/script. Note: neither peer has this either (OpenSpec no, superpowers no even at 243K★) — cheap regardless, but not a "everyone else has it" gap | trivial (template) |
-| 3 | No release/version discipline | `package.json` pinned at `0.1.0` since inception; no changesets or semver bump process. superpowers runs `.version-bump.json` + `scripts/bump-version.sh` syncing version across manifests, with a hand-maintained `RELEASE-NOTES.md` | small — decide scheme first |
+| 3 | No release/version discipline | `package.json` pinned at `0.1.0` since inception; no changesets or semver bump process. superpowers runs `.version-bump.json` + `scripts/bump-version.sh` syncing version across manifests, with a hand-maintained `RELEASE-NOTES.md` | **Resolved (2026-07-02):** automated via release-please (shared version across `package.json` + every `SKILL.md` `metadata.version`); commit format enforced by husky/commitlint. See resolution log. |
 | 4 | `docs/PORTING-PLAN.md` fate undecided before port | Contains personal local paths (`/Users/acatl/workspace/...`) and other project names (one-shot, kino, ONEST/HSTES tickets). Not secret, but noise in a company repo | **Resolved (2026-07-02):** dropped. Open threads filed as [#4](https://github.com/acatl/harness/issues/4), [#5](https://github.com/acatl/harness/issues/5), [#6](https://github.com/acatl/harness/issues/6), [#7](https://github.com/acatl/harness/issues/7), [#8](https://github.com/acatl/harness/issues/8). |
 | 5 | OpenSpec CLI is a hard dependency with bus-factor risk | `MAINTAINERS.md` lists one lead maintainer; young project | no code change — a risk to flag to whoever owns the adopt decision |
 | 6 | No skill-trigger eval tests | superpowers runs 51 test files, incl. `tests/explicit-skill-requests/run-haiku-test.sh` and `run-multiturn-test.sh` — real model calls asserting a skill actually fires on a given prompt. This is the genre's real test-maturity bar, not unit tests. Resolves former item A: dogfooding alone is not the ceiling | **Deferred (2026-07-02)** → tracked in [acatl/harness#3](https://github.com/acatl/harness/issues/3). 15 skills, low churn, dogfood evidence sufficient today. |
@@ -50,8 +50,12 @@ verified live via GitHub API, created 2025-10-09) (2026-07-01/02 session).
 
 - **2026-07-02 — items #1, #2, #7 (CODE_OF_CONDUCT, SECURITY.md, shellcheck):** shipped as-is
   (no-brainers, no walk-through needed).
-- **2026-07-02 — item #3 (release/version discipline):** lightweight manual semver (option B),
-  enforced via husky + commitlint rather than full changesets — no npm-publish consumer exists to
-  justify changesets' automation overhead.
+- **2026-07-02 — item #3 (release/version discipline):** initially lightweight manual semver
+  (option B) + husky/commitlint. **Upgraded same day to full automation** at the user's request:
+  release-please cuts a shared version across `package.json` + every `SKILL.md` `metadata.version`
+  on merge of its standing Release PR. Chose release-please over semantic-release specifically
+  because it routes the bump through a PR (respects this repo's "never commit to `main`" rule) and
+  gives a human release gate; no npm publish (`package.json` is `private`). husky/commitlint stays —
+  it's the prerequisite that makes release-please's bump detection trustworthy.
 - **2026-07-02 — item #6 (skill-trigger eval tests):** deferred (option C) → tracked in
   [acatl/harness#3](https://github.com/acatl/harness/issues/3).

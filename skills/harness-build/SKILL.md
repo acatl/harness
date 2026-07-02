@@ -14,7 +14,7 @@ description: >-
 argument-hint: "[change-name | idea] [yolo]"
 metadata:
   author: acatl
-  version: "0.1.0"
+  version: "0.1.0" # x-release-please-version
 ---
 
 # harness:build — task → verified change (stop before ship)
