@@ -8,7 +8,8 @@ description: >-
   already-built or charter-violating asks are caught, not re-specced. Runs a completeness pass (empty
   states, undo, discoverability, composition) and acts as a thinking partner — proposing adjacent
   affordances and richer directions, each routed conservatively (AC / out-of-scope / its own task).
-  Persists to the task tracker. Use for "/harness:refine <id>", "/harness:refine <intent>", "refine
+  Persists to the task tracker. Also recommends the build mode — full spec vs lightweight spec-less — for
+  the change, without creating anything. Use for "/harness:refine <id>", "/harness:refine <intent>", "refine
   this task", "make this a well-formed task". Stops at the well-formed task — never creates an OpenSpec
   change or proposes a technical approach (that's harness:explore + the OpenSpec layer).
 argument-hint: "[task-id | intent]"
@@ -234,6 +235,20 @@ gate. **No `propose-in/out` tags, no keys, no bundles** — a plain "want any? a
 - Out-of-scope line only if the input/boundary implies one — don't manufacture.
 - Flag an innocent-but-expensive criterion (one line, only if real) so OpenSpec sizes it early.
 
+## 5b. Spec-mode triage (recommend full vs spec-less)
+Recommend which build mode the change warrants, per `references/triage-lenses.md`. **Default full**;
+spec-less is the earned exception. Compute on the **committed** AC (after Step 6 folds any improvements —
+an added AC can flip spec-less → full). refine only **recommends** — it never writes the `spec-mode`
+marker or creates a change (`harness:build` does both).
+- **Any disqualifier** (`references/triage-lenses.md`: >1 AC · touches a capability already in
+  `openspec/specs/**` per Step 3 grounding · behavior/contract or risk words · "and also…" multi-scope ·
+  ambiguous AC) → recommend **full**, silently. No fork. The common case.
+- **Trivial survivor** (0 disqualifiers · ≤1 AC · no spec-touch) → do a quick **code-peek yourself** of the
+  touched surface (few files? shared state? consumers?). Small blast radius → surface a walk-me-through fork
+  (`references/walk-me-through.md`): `[A] spec-less · [B] full (recommended default)`. Only this rare case
+  forks; never ask on a normal ticket.
+- Carry the result into the build pointer (6c.5): spec-less recommended/chosen → append `--spec-less`.
+
 ## 6. Iterate → commit
 Show the draft, then run the **commit decision** below. The build pointer + pipeline trail come **after**
 commit, never alongside the decision (they'd compete with it). Order:
@@ -260,8 +275,10 @@ closing block **in THIS order — the build pointer is LAST so it's the clear fi
      (e.g. "worth a quick `/harness:explore` first to pressure-test X"). Clearly optional; not a fork.
   4. `■ harness:refine → <outcome>` — the end breadcrumb.
   5. **pipeline trail, then the build pointer (LAST):** `✓ refine → ▸ build → ◦ build`, then
-     `Next: /harness:build <task-id>` — **gated** (default: pauses at the spec-review gate) · or `yolo`
-     (straight through, still stops at real forks). **Nothing after this** — it's the operator's next move.
+     `Next: /harness:build <task-id>` — carry the **spec-mode** from 5b: append `--spec-less` when spec-less
+     was recommended/chosen (else full, the default); plus **gated** (default: pauses at the spec-review
+     gate) · or `yolo` (straight through, still stops at real forks). **Nothing after this** — it's the
+     operator's next move.
 - **already-well-formed** → nothing to commit; confirm ready, stop.
 - **already-done** + agree → write the reason into the task description (where the tracker persists it),
   then close (`done`). If created this invocation (collision check missed it) → say so, close `done`

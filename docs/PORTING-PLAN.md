@@ -125,6 +125,30 @@ loss, read this top-to-bottom, then resume from the **Status pointer**.
   path is **hybrid C**: harness→plugin, walk-me-through shipped separately. Commands vs skills: command =
   user-typed `/ns:name` (namespace = subdir); skill = model/router-invoked by `description`. Sources:
   `code.claude.com/docs/en/plugins.md`, `…/plugins-reference.md`, `…/plugin-marketplaces.md`.
+- **Spec-less build mode — IMPLEMENTED on `feat/harness-iteration` (2026-07-01), unvalidated live.** A
+  lightweight build path for small changes that alter no spec-worthy behavior: skips **only** the `specs/`
+  delta + strict-verify; keeps proposal + a lean design + tasks + sensors + behavioral-verify + ship.
+  Designed via a 6-member advice-council + 2 Explore audits + a Plan agent (approved plan file
+  `~/.claude/plans/iridescent-nibbling-galaxy.md`). **Decisions:** (1) mode is an **explicit deterministic
+  flag** — a dedicated `<change-state-dir>/spec-mode` file (`spec_mode: full|spec-less`), **never inferred**
+  from a missing `specs/` (absent ⇒ full, so every legacy/full/in-flight change is byte-for-byte
+  unaffected — the safety keystone); (2) reviews on spec-less = ONE new lightweight consolidated lens
+  grounded on `design.md` (`rules/spec-less-review.md`), run **inline** by build — the heavy
+  `harness:architecture`/`harness:design` skills stay **untouched** (and are what escalation restores);
+  (3) `design.md` is **always** authored in spec-less (it's the review's substrate — proposal=what,
+  design=how); (4) `harness:refine` §5b recommends the mode via `rules/triage-lenses.md` (default full,
+  disqualifier hunt, auto code-peek only for trivial survivors) and carries `--spec-less` into the build
+  pointer — refine creates no change + writes no marker (build does both); (5) a mid-impl **escalation
+  tripwire** (build Step E) flips spec-less→full when a change turns spec-worthy, re-entering the full path
+  with no lost work. **Empirically grounded (OpenSpec 1.3.1):** `applyRequires=[tasks]` only → proposal+tasks
+  reaches apply-ready with no specs; vendor verify/sync/archive degrade gracefully; `validate --strict` is
+  the only rejecter (never called in spec-less). **Touched:** build (Step 0 marker · Step A `needed−specs` ·
+  Step B/C spec-less review · Step E tripwire · Step F/G notes), refine (§5b), finish (sync skip-guard),
+  status (spec row + gap detector), review (`spec_mode` split), test-guide (fallback), schema
+  (`spec_mode` field) + new `rules/triage-lenses.md` · `rules/spec-less-review.md`, HARNESS.md,
+  claude-workflow.md, pipeline.md, sync manifest. Also **gitignored the `ospec-test/` fixture** (was
+  polluting `npm run check`). Every edit is a guarded ADD with a stated full-spec verbatim fall-through.
+  **Next: run the T1–T5 verification plan (esp. T1 full-spec regression) before opening the PR.**
 - **Last updated:** 2026-07-01
 
 ### Test beds (external sibling repos)

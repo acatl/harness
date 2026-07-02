@@ -49,6 +49,27 @@ Emit one line at start and one at end — so harness iteration can trace this ru
   `--yolo`. Echo parsed interpretation (mode + derived id) for a multi-word idea before creating
   anything. No token → gated.
 
+## Spec mode (orthogonal to gated/yolo)
+`spec_mode ∈ {full (default), spec-less}` — independent of gated/yolo. **full** authors the OpenSpec
+spec (proposal → recon → design → `specs/` → heavy reviews → tasks). **spec-less** skips the `specs/`
+delta only — for a small change that alters no spec-worthy behavior (`references/triage-lenses.md`);
+it still authors proposal + a lean design + tasks and keeps sensors, a review, behavioral-verify, ship.
+Default is **full**; spec-less is opt-in.
+- **Source (AUTHOR path):** an explicit `--spec-less` token in the invocation, or the mode carried from
+  `harness:refine`'s `Next:` pointer. No signal → **full**.
+- **Marker (deterministic single source of truth):** on the AUTHOR path build **writes**
+  `<change-state-dir>/spec-mode` — one line `spec_mode: <full|spec-less>` — at Step 0, **before** Step A.
+  Written once; only the Step E escalation tripwire rewrites it (`spec-less → full`).
+- **Reader rule (everywhere, incl. IMPL/resume, finish, status):** read `<change-state-dir>/spec-mode`;
+  treat as **spec-less only if the file exists and literally says `spec-less`** — absent, empty,
+  unreadable, or `full` ⇒ **full**. On IMPL/resume build does **not** write the marker (reads it). This
+  default-to-full rule keeps every legacy / full / mid-authoring change byte-for-byte unaffected.
+- **What spec-less changes (each a guarded branch; full/absent runs the step VERBATIM):** Step A drops
+  `specs` from the artifacts to author · Step B/C runs the inline spec-less review
+  (`references/spec-less-review.md`) vs `design.md` instead of the heavy reviews · Step E arms the
+  escalation tripwire · Step F never calls `openspec validate --strict` (vendor verify degrades) ·
+  Step G logs `spec_mode` + `verify_gaps=null`.
+
 ## Genuine forks — stop in BOTH modes (union of authoring + impl)
 - **Start-state ambiguity** (Step 0): >1 open change and which-one is genuinely ambiguous.
 - **Critically-unclear artifact context** (Author): can't author a section without an operator-only
@@ -70,7 +91,9 @@ or any native picker.** Yes/no gates (H2, plan-approval) and plain selections st
 ---
 
 ## Step 0 — Resolve change + auto-detect start state
-1. Parse args (mode + change-name/idea per the carve-out above).
+1. Parse args (gated/yolo + change-name/idea per the carve-out above). **Also parse `spec_mode`:** a
+   `--spec-less` token (stripped like `--yolo`), or the mode carried from a `harness:refine` handoff;
+   else `full`. (Orthogonal to gated/yolo — see **Spec mode**.)
 2. **Resolve the change id.** Passed name/idea → derive a kebab-case id (never pass a sentence to the
    CLI). Inferred from conversation (build runs after `harness:explore`/`harness:refine`) → echo a
    one-line confirmation before creating anything. Else ask once, derive kebab.
@@ -81,7 +104,10 @@ or any native picker.** Yes/no gates (H2, plan-approval) and plain selections st
    - Change exists, apply-ready or in-progress (`HELD`/tasks present) → **IMPL** (Step E) — skip authoring.
    - `state: all_done` → congratulate, suggest `harness:finish`, stop.
    - >1 open change and ambiguous which → walk-me-through fork card pick (open/non-archived only). Never guess.
-4. Announce `Using change: <name>` + how to override.
+4. **Write the spec-mode marker (AUTHOR path only), before Step A.** Write `<change-state-dir>/spec-mode`
+   = `spec_mode: <full|spec-less>` (the resolved mode). On the IMPL/resume path do **not** write it —
+   read it (absent/`full` ⇒ full, per the **Spec mode** reader rule). Then announce `Using change: <name>`
+   (+ resolved `spec_mode`) + how to override.
 5. **Task tracker:** `start` verb (HARNESS.md › Task tracker) — move to in-progress; fire the
    `building` stage hook. No-op if not configured / no linked task.
 6. **Progress file:** read `<change-state-dir>/progress.md` if present → resume where build left off
@@ -110,18 +136,36 @@ after reviews so it derives from the reviewed spec.
      + evidence to `<change-state-dir>/recon.md`). This is the gap-fix — author proposal → recon →
      design.
    - **Author remaining prerequisites loop:** run `status`; needed = `missingDeps` of not-yet-ready
-     `applyRequires` gates (transitive). Author every artifact that is `ready` AND needed AND **not in
+     `applyRequires` gates (transitive). **Spec-less guard:** if `spec_mode = spec-less`, remove `specs`
+     from `needed` — never author a `specs/` delta (keep proposal · a lean `design` · tasks). **Consequence
+     (verified):** with `specs` un-authored, the HELD checklist (`tasks`) stays `blocked` on `specs` — this
+     is the **intended** spec-less state, **not** a failure. Stop the author loop once the non-`specs`
+     prerequisites (proposal, design) are `ready`/`done` — do **not** wait for `tasks` to leave `blocked`.
+     Step D then generates `tasks` **directly** (the `openspec instructions tasks` generator emits its
+     template despite the `blocked`-on-`specs` status — confirmed; writing `tasks.md` flips it to `done` →
+     apply-ready, `applyRequires` = `tasks` only). **full/absent:** `needed` and the `ready`/`blocked`
+     handling are exactly as derived above — no change.
+     Author every artifact that is `ready` AND needed AND **not in
      `HELD`** via `openspec instructions <id> --json` (read the dependency files it reports; author from
-     `template`). Re-run `status`, repeat. **Stop when every `HELD` member is `ready`/`done`.** Do not
-     author any `HELD` member (Step D).
+     `template`). Re-run `status`, repeat. **Stop when every `HELD` member is `ready`/`done`** (spec-less:
+     when the non-`specs` prerequisites are, per the guard above). Do not author any `HELD` member (Step D).
    - Artifacts never in any gate's `missingDeps` (optional/post-apply/archive) are not apply-readiness
      inputs — don't author/block on them.
    - Critically-unclear artifact → fork (prefer a reasonable default over stopping when merely thin).
    - **Permanent-gap detection:** each pass authors ≥1 artifact; a zero-author pass while some `HELD`
      member is still not `ready`/`done` = fixed point (missing dep / cycle) → stop + surface the
-     still-blocked artifacts with their `missingDeps`. No retry counter.
+     still-blocked artifacts with their `missingDeps`. **Spec-less exception:** a HELD `tasks` left
+     `blocked` **solely on `specs`** (the intentionally-skipped artifact) is **not** a fixed-point failure —
+     it's the intended spec-less state; proceed to Step D. No retry counter.
 
 ## Step B — Classify surface + route (AUTHOR path)
+**Spec-less guard (`spec_mode = spec-less`):** skip the heavy-review routing below; instead run the
+**inline spec-less review** (`references/spec-less-review.md`) against `proposal.md` + `design.md` (the
+plan is the contract — there is no `specs/`). It self-scales to the diff, auto-applies unambiguous fixes,
+stops on genuine forks, and writes `<change-state-dir>/spec-less-review.md` (same durable shape as the
+heavy review artifacts). If it finds the change is actually spec-worthy → escalate (Step E). Then go to
+Step D. **full/absent:** run Steps B–C **verbatim** below (heavy architecture/design routing).
+
 Read whichever of `proposal.md`/`design.md`/`specs/<cap>/spec.md` exist; classify surface, select
 reviews (match by content category, adapt to project vocabulary):
 | Surface signal | Review |
@@ -152,8 +196,11 @@ Run only selected reviews, order **architecture → design**. Skip excluded. Seq
 ## Step D — Generate the held-back checklist (AUTHOR path; post-review)
 Re-run `status`; per `HELD` member: `ready` → generate via `openspec instructions <HELD-id> --json`
 (author from `template` + the now-amended dependencies); `done` → regenerate/overwrite (predates the
-reviews; not a blocker); `blocked` → surface the blocking artifact, don't call the generator blindly.
-`HELD` empty → skip + note. Both modes (mechanical; not gated).
+reviews; not a blocker); `blocked` → surface the blocking artifact, don't call the generator blindly —
+**except in spec-less, when `tasks` is `blocked` solely on the intentionally-skipped `specs`: generate it
+anyway** (`openspec instructions tasks --json` emits its template regardless of the blocked-on-`specs`
+status — confirmed; writing `tasks.md` flips it to `done` → apply-ready). `HELD` empty → skip + note. Both
+modes (mechanical; not gated).
 
 ## H2 — Spec-review gate (gated only; AUTHOR path)
 **gated:** present the reviewed spec + generated tasks; loop: operator reviews → requests edits (apply,
@@ -225,6 +272,16 @@ At the gate, emit the **pipeline trail** for the `build · spec-review gate` sto
      **decision log** (`<change-state-dir>/decisions.md`, format + bar per `references/decision-log.md` —
      `## D<N> · 🤖 build · <decision>`) + proceed. Never silently invent. Routine spec/rule-dictated choices
      are not logged — the log is **load-bearing only**. A fork the **human** resolves here → log as `👤 human`.
+   - **Spec-worthy tripwire (spec-less only; fork both modes):** if — mid-impl — the change trips a
+     `references/triage-lenses.md` disqualifier against the actual diff (new/changed contract, observable
+     behavior change, migration, security boundary), it was mis-triaged as spec-less. **Stop + fork**
+     (walk-me-through card): **(A) escalate to full** — author the `specs/` delta (+ fuller `design.md`),
+     **rewrite the marker to `spec_mode: full`**, re-run `openspec status`, run the heavy
+     architecture/design reviews spec-less skipped (Steps B–C), regenerate the held checklist (Step D),
+     then **resume impl** honoring `tasks.md` `- [x]` + `progress.md` (never redo completed work).
+     **(B) log + defer** — append `## D<N> · <👤 human|🤖 build> · <decision>` to `decisions.md` and stay
+     spec-less. The flip is load-bearing → always logged. **full/absent:** inert (specs already authored,
+     nothing to escalate) — the design-gap fork above runs verbatim.
    - Update `progress.md` as each group commits. Repeat per group.
 
 ## Step F — Verify (the harness verification core)
@@ -242,6 +299,8 @@ Run in order; each must pass:
    pure-logic-only changes** (no runtime surface). See
    `references/runtime-verification-binding.md`.
 3. **openspec-verify-change** (vendor skill) — spec conformance against the artifacts. Resolve gaps.
+   **Spec-less:** run it as-is — with no `specs/` the vendor degrades to task-completion verification;
+   **never** invoke `openspec validate --strict` (the one command that rejects a spec-less change).
 4. **Skeptical review** (doer ≠ judge) — a distinct review pass against the project's QUALITY_SCORE
    rubric (HARNESS.md › Context docs). Scale to the diff (small/localized → one inline pass; large →
    fan out). Apply high-confidence findings, then re-run sensors. A design-level problem (not a nit) →
@@ -259,12 +318,16 @@ On any failure not caused by this change → STOP + surface (don't patch around 
    ends `<sub>Sources:…</sub>` (cite-or-cut); empty input → omit the section. Wrap the whole body in the
    `<!-- harness:pr-summary START/END -->` managed region and end it with the **provenance footer**
    (`folded-against` = `git rev-parse HEAD`; `generated-by: harness:build v<hash8>`; `artifacts:` list)
-   per the rule.
+   per the rule. **Spec-less:** the Architecture section's review source is `spec-less-review.md` (there is
+   no `architecture-review.md`); Verification reads `openspec-verify: task-completion` and omits
+   spec-verify gaps. **full/absent:** sections fold exactly as above.
 2. **Task tracker:** fire the `verified` stage hook (HARNESS.md). Do not move to a review/done state —
    that's ship/finish.
 3. **Append one run-log row** to the run-log (HARNESS.md › Observability; schema:
    `references/harness-runs.SCHEMA.md`). Deterministic fields from real output; `outcome` =
-   `verified-not-shipped` (or `stopped-needs-human`/`discarded`); `[E]` fields `null`.
+   `verified-not-shipped` (or `stopped-needs-human`/`discarded`); `[E]` fields `null`. **Record
+   `spec_mode`** (`full`|`spec-less`) from the marker; in **spec-less**, `verify_gaps` = `null` (no
+   spec-verify step ran).
 4. **Completion summary:**
    ```text
    ## harness:build complete — <change> (verified, NOT shipped)
@@ -272,8 +335,10 @@ On any failure not caused by this change → STOP + surface (don't patch around 
    Reviews:   architecture <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/architecture-review.md   (n/a|skipped if so)
               design <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/design-review.md   (n/a|skipped if so)
    <!-- ALWAYS cite the artifact path so the reviews are findable. If any 🔴 critical was found and
-        auto-applied (esp. in yolo, where it happened silently), call it out: "⚠️ 1🔴 auto-applied — read it." -->
-   Impl:      <N>/<total> tasks · <N> group commits · mode <gated|yolo>
+        auto-applied (esp. in yolo, where it happened silently), call it out: "⚠️ 1🔴 auto-applied — read it."
+        SPEC-LESS: replace the two review lines with one — spec-less <N🔴/N🟠/N🟡, M applied> →
+        <change-state-dir>/spec-less-review.md — and read `openspec-verify <task-completion>` below. -->
+   Impl:      <N>/<total> tasks · <N> group commits · mode <gated|yolo> · spec_mode <full|spec-less>
    Verify:    sensors <pass> · behavioral <ran|skipped:reason|n/a> · openspec-verify <pass> · review <outcome>
    ```
    **Then two real lines below the fence — the operator reads only these, so the actionable one goes
@@ -303,6 +368,9 @@ On any failure not caused by this change → STOP + surface (don't patch around 
   committing locally — not for shipping.
 - **Don't re-implement the reviews** — invoke `harness:recon`/`harness:architecture`/`harness:design`.
 - **Don't implement operator-owned tasks** (sync/PR/archive).
+- **Spec-less is `specs/`-only.** Spec-less still authors proposal · a lean design · tasks and runs the
+  spec-less review + sensors + behavioral-verify; it drops the `specs/` delta + strict-verify, nothing
+  else. Default is **full** (marker absent/`full` ⇒ full — never infer mode from missing `specs/`).
 - Resume safety: honor `progress.md` + `surface-map.md` + `tasks.md` checkboxes — never redo completed work.
 
 ## References
@@ -311,6 +379,8 @@ On any failure not caused by this change → STOP + surface (don't patch around 
 - `references/convention-load-map.md` — dynamic rule discovery (Step E).
 - `references/verification-matrix.md` — soft per-task + hard pre-commit two-layer rationale.
 - `references/gate-checklist.md` — surface inference + waiver-log format.
+- `references/triage-lenses.md` — spec-worthy disqualifiers (spec_mode source + Step E tripwire).
+- `references/spec-less-review.md` — the inline consolidated review for spec-less (Step B/C).
 
 ## Composition
 - Consumes (vendor CLI, untouched): `openspec new change`, `openspec list --json`,

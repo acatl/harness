@@ -49,8 +49,13 @@ For rows where `pr_url`/`merged`/`ci_passed`/`review_comments` are `null` but th
 - **Reliability:** % all-green first pass; mean `iterations_to_green`; `fix_caused_regression` rate.
 - **Failure modes:** tally `sensor_failures[].error_class` and `judge_findings[].category` — what keeps
   recurring is the next thing to fix in the harness.
-- **Spec health:** any `config_context_bytes == 0` (config silently broke — urgent); mean `verify_gaps`;
+- **Spec health:** any `config_context_bytes == 0` (config silently broke — urgent); mean `verify_gaps`
+  **over full runs only** (`spec_mode=full` — spec-less rows are `null` by design; don't average them in);
   `spec_reworks` rate.
+- **Spec-mode & triage:** split every metric by `spec_mode` (full vs spec-less — a spec-less run *should*
+  show `verify_gaps=null`, that's not a regression). Track the spec-less **escalation rate** (spec-less
+  runs that flipped to full mid-build): high ⇒ `references/triage-lenses.md` is under-catching at triage
+  time — feed it back to sharpen the disqualifier lenses.
 - **Scope intake:** `scope_stops` rate (high ⇒ tasks mis-scoped upstream, not a harness bug).
 - **Reality (post-backfill):** % `merged`, % `ci_passed`, mean `review_comments` — does the harness ship
   changes that hold up, not just green ones?

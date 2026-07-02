@@ -49,6 +49,9 @@ artifact. It reads, derives, and guides. Fixing is fine-tune's move; automating 
 ### 2. Derive scenarios (READ-ONLY — never invent)
 Fold from what already exists; every scenario must trace to a source:
 - **Spec scenarios** — `<change>/specs/<cap>/spec.md` `#### Scenario:` blocks (WHEN/THEN). The spine.
+  **Spec-less change** (`<change-state-dir>/spec-mode` = `spec-less`, or no `specs/`): there is no spine —
+  say so ("spec-less — no spec scenarios; walking AC + decisions"), make the **AC the primary source**, and
+  lean harder on `⚠️ edge` for constraint-derived cases a spec would have named.
 - **Acceptance criteria** — the task's `Given/When/Then` AC (via tracker `resolve` / `proposal.md`) →
   marks the **core happy paths** (and their priority — see Step 4).
 - **Edge cases** — `<change-state-dir>/decisions.md` deferrals (a `⏭️ defer` = an explicit untested

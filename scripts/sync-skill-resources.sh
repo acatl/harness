@@ -58,6 +58,9 @@ MAP=(
   "rules/pr-summary.md::skills/harness-build/references/pr-summary.md"
   "rules/pr-summary.md::skills/harness-ship/references/pr-summary.md"
   "rules/pr-summary.md::skills/harness-address-pr-comments/references/pr-summary.md"
+  "rules/triage-lenses.md::skills/harness-refine/references/triage-lenses.md"
+  "rules/triage-lenses.md::skills/harness-build/references/triage-lenses.md"
+  "rules/spec-less-review.md::skills/harness-build/references/spec-less-review.md"
 )
 
 mode="${1:-sync}"

@@ -27,8 +27,11 @@ flowchart TB
   H1 --> B["/harness:build [gated*|yolo]<br/>keeps a progress file → resumable"]:::cmd
 
   B --> DET{"authored spec exists?<br/>openspec list --json"}:::dec
-  DET -- "no → author" --> NP["proposal.md"]:::vendor
+  DET -- "no → author" --> SM{"spec_mode?<br/>refine triage · writes harness/spec-mode"}:::dec
+  SM -- "full (default)" --> NP["proposal.md"]:::vendor
   NP --> NR["recon"]:::sub --> ND["design.md + specs"]:::vendor --> NRA["architecture review"]:::sub --> NRD["design review"]:::sub --> NT["tasks.md"]:::vendor --> MODE
+  SM -- "spec-less (small, no spec-worthy change)" --> SP["proposal.md"]:::vendor --> SR["recon"]:::sub --> SD["design.md (lean)"]:::vendor --> SLR["spec-less review<br/>(one lens · vs design.md)"]:::sub --> ST["tasks.md"]:::vendor --> MODE
+  SLR -. "spec-worthy found → escalate: author specs, flip full" .-> ND
   DET -- "yes → resume (>1 open → ask which)" --> MODE{"mode?"}:::dec
 
   MODE -- "gated (default): review spec · edit→loop · proceed→go" --> HG(["👤 operator reviews spec"]):::human --> CORE
@@ -68,6 +71,14 @@ flowchart TB
     (`openspec/changes/<change>/harness/`) so it always knows where it left off — resumable across sessions.
     (All per-change harness artifacts — reviews, recon, decisions, pr-body — live there, committed so the
     team sees them. Supersedes the legacy `.specd/` from kino.)
+- **Spec-less mode (small changes).** `refine`'s triage recommends `spec-less` for a change that alters no
+  spec-worthy behavior ([triage-lenses](../rules/triage-lenses.md)); `build` records it in the
+  `harness/spec-mode` marker and skips **only** the `specs/` delta + strict-verify — it still authors
+  proposal + a lean design + tasks, runs a single lightweight **spec-less review** against `design.md`
+  ([spec-less-review](../rules/spec-less-review.md)), and keeps sensors + behavioral-verify + ship. If impl
+  uncovers a spec-worthy change, an **escalation tripwire** flips it to full (author specs, run the heavy
+  reviews) with no lost work. The mode is an **explicit flag, never inferred** from a missing `specs/` —
+  absent ⇒ full, so every existing change is unaffected.
 - **Nothing ships automatically.** The core ends at *verified locally, not shipped*. You test it
   yourself; iterate with `harness:fine-tune` if needed. `harness:ship` (push + open PR) is a separate,
   deliberate step you trigger when ready.
