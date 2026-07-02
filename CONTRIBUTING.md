@@ -7,7 +7,9 @@ prose. A few rules keep it consistent.
 ## Ground rules
 
 - **Conventional Commits only** (`feat:` / `fix:` / `docs:` / `chore:` / `refactor:` /
-  `test:` / `style:` / `ci:`). A non-conforming subject is a defect.
+  `test:` / `style:` / `ci:`). A non-conforming subject is a defect — enforced by a husky
+  `commit-msg` hook running commitlint (`commitlint.config.cjs`); `npm install` wires it up via
+  the `prepare` script.
 - **Never commit to `main`.** Work on a branch; land via a squashed PR to `main`.
 - **Skills are stack-agnostic.** A skill names the binding it needs ("run the `test` sensor
   declared in HARNESS.md"), never a literal command. Per-project specifics live in a consuming
@@ -35,10 +37,22 @@ scripts/sync-skill-resources.sh        # copy canonical → bundles
 scripts/sync-skill-resources.sh check  # CI mode: exit 1 on drift
 ```
 
+## Versioning
+
+`package.json` version follows [Semantic Versioning](https://semver.org/). There's no npm-registry
+consumer — the harness distributes via `npx skills add acatl/harness` reading the repo directly —
+so this is a lightweight manual scheme, not full automated release tooling:
+
+- Bump the version and add a [`CHANGELOG.md`](CHANGELOG.md) entry on any notable change: a new
+  skill, a breaking change to an existing skill's behavior, or a new binding contract in
+  `templates/HARNESS.md`.
+- Commit-type discipline (`feat:`/`fix:`/etc., enforced above) is what makes bump-size judgment
+  possible — patch for `fix:`, minor for `feat:`, major for a documented breaking change.
+
 ## Local checks
 
 ```bash
-npm install      # one-time: installs markdownlint + cspell
+npm install      # one-time: installs markdownlint + cspell + husky/commitlint hook
 npm run check    # markdown lint · spell · bundle drift · skill frontmatter
 ```
 
