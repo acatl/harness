@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Validate that every skill carries the required frontmatter: name, description,
-# and an author. Keeps the skill catalog uniform (and authored) for sharing /
-# vercel-labs/skills consumption. Exit 1 on any violation.
+# an author, and a version. Keeps the skill catalog uniform (and authored) for
+# sharing / vercel-labs/skills consumption; the version is release-managed
+# (release-please stamps it, so a new skill must ship the field). Exit 1 on any
+# violation.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -23,6 +25,7 @@ for f in "${skills[@]}"; do
   grep -qE '^name:[[:space:]]*\S'        <<<"$fm" || miss+=("name")
   grep -qE '^description:[[:space:]]*\S|^description:[[:space:]]*[>|]' <<<"$fm" || miss+=("description")
   grep -qE '^[[:space:]]*author:[[:space:]]*\S' <<<"$fm" || miss+=("author")
+  grep -qE '^[[:space:]]*version:[[:space:]]*\S' <<<"$fm" || miss+=("version")
 
   if [ ${#miss[@]} -gt 0 ]; then
     echo "✗ $f — missing frontmatter: ${miss[*]}" >&2
@@ -31,6 +34,6 @@ for f in "${skills[@]}"; do
 done
 
 if [ "$fail" -eq 0 ]; then
-  echo "✓ all ${#skills[@]} skills have name + description + author"
+  echo "✓ all ${#skills[@]} skills have name + description + author + version"
 fi
 exit "$fail"

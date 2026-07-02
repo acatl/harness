@@ -16,8 +16,6 @@ stack command, path, or convention into a skill — resolve it from HARNESS.md.
 
 The design is fully captured on disk; **do not rely on chat context**:
 
-- [docs/PORTING-PLAN.md](docs/PORTING-PLAN.md) — the living plan. Its **Status pointer** says where
-  things stand and what's next. Read it first to resume.
 - [docs/pipeline.md](docs/pipeline.md) — the **canonical pipeline diagram** (build from this).
 - [docs/runtime-verification-binding.md](docs/runtime-verification-binding.md) — the behavioral-verify
   binding contract.
@@ -49,7 +47,7 @@ When a decision is made, update these files in the same change — they are the 
 ## Layout
 
 ```text
-docs/        design + reference (blueprint, pipeline, porting-plan, runtime-verification binding)
+docs/        design + reference (blueprint, pipeline, runtime-verification binding)
 templates/   HARNESS.md (binding template) + harness-runs.SCHEMA.md (run-log contract)
 skills/      the harness:* skills (skills/harness-<name>/SKILL.md)
 rules/       shared contributor rules
@@ -60,3 +58,8 @@ rules/       shared contributor rules
 - **OpenSpec** — a hard dependency; skills call its CLI/vendor skills and assume it's installed.
 - **A task tracker** (Kino / Jira / Linear / GitHub Issues) — reached via a verb contract in
   HARNESS.md; swappable per project.
+
+## This project's own tracker
+
+Meta-work on the harness-pipeline repo itself (not the swappable per-consuming-project tracker
+above) is tracked as **GitHub Issues** on `acatl/harness`.

@@ -109,7 +109,7 @@ moved to `openspec/changes/archive/`.
 
 ```text
 README.md
-docs/          design + reference (blueprint, pipeline, porting plan, runtime-verification binding)
+docs/          design + reference (blueprint, pipeline, runtime-verification binding)
 templates/     HARNESS.md template that harness:init fills in per project
 skills/        the harness:* skills (skills/harness-<name>/SKILL.md)
 rules/         shared contributor rules (e.g. recon-first)
@@ -118,8 +118,9 @@ scripts/       sync-skill-resources.sh (bundle drift guard) + skill-frontmatter 
 
 ## Status
 
-Early — design locked, porting in progress. The source of truth for progress is
-[docs/PORTING-PLAN.md](docs/PORTING-PLAN.md) (read its Status pointer to see where things stand).
+The full `harness:*` pipeline (14 skills + `walk-me-through`) is built and dogfooded on real
+projects. See [CHANGELOG.md](CHANGELOG.md) for what shipped and [docs/OS-READINESS.md](docs/OS-READINESS.md)
+for current open-source/company-readiness work in flight.
 
 ## Contributing & license
 
