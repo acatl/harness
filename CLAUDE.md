@@ -60,3 +60,8 @@ rules/       shared contributor rules
 - **OpenSpec** — a hard dependency; skills call its CLI/vendor skills and assume it's installed.
 - **A task tracker** (Kino / Jira / Linear / GitHub Issues) — reached via a verb contract in
   HARNESS.md; swappable per project.
+
+## This project's own tracker
+
+Meta-work on the harness-pipeline repo itself (not the swappable per-consuming-project tracker
+above) is tracked as **GitHub Issues** on `acatl/harness`.
