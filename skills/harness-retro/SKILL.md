@@ -1,17 +1,20 @@
 ---
-name: harness:review
+name: harness:retro
 description: >-
-  Review the harness run-log and propose concrete improvements to the harness itself. Use when asked to
-  "review the harness", "improve the harness", "look at harness data", or on a periodic cadence (after N
-  build runs). Aggregates the run-log (JSONL), backfills reality fields from the PR host + task tracker,
-  surfaces recurring friction, and proposes specific edits to the skills or openspec/config.yaml.
-  Proposes — never auto-applies. Triggers on "/harness:review", "harness review", "review harness data".
+  Retrospective on the harness's own runs — reads the accumulated run-log, aggregates metrics grouped by
+  skill_version, surfaces recurring friction, and proposes concrete improvements to the harness itself.
+  Proposes — never auto-applies. Use when asked to "run a harness retro", "review the harness", "improve
+  the harness", "look at harness data", or on a periodic cadence (after N build runs). Aggregates the
+  run-log (JSONL), backfills reality fields from the PR host + task tracker, and proposes specific edits
+  to the skills or openspec/config.yaml. Triggers on "/harness:retro", "harness retro", "harness
+  retrospective", "review the harness", "improve the harness". (Not code review of a change — that's
+  `harness:review-change`.)
 metadata:
   author: acatl
   version: "0.2.0" # x-release-please-version
 ---
 
-# harness:review — close the loop from data to a better harness
+# harness:retro — close the loop from data to a better harness
 
 `harness:build` logs each run to the run-log (JSONL). This skill reads it and turns it into **concrete
 harness improvements**. The log matters only because this reads it — a log nobody aggregates is theater.
@@ -21,8 +24,8 @@ harness improvements**. The log matters only because this reads it — a log nob
 
 ## Breadcrumbs
 Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:review` followed by any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
-- **end:** `■ harness:review v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+- **start:** `▶ harness:retro` followed by any target this run has (e.g. ` · <N> runs`, ` · since v<x>`).
+- **end:** `■ harness:retro v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
 
 ## Operator input
 👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).

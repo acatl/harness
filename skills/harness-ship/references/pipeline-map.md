@@ -50,6 +50,8 @@ Example (build at the spec-review gate):
 | `build` · spec-review gate | refine · spec · review | read the review docs | implement |
 | `build` · verified-not-shipped | refine · spec · review · implement · verify | test it yourself | ship |
 | `fine-tune` · loop pause | … · verify | polishing — approve or continue | ship |
+| `review-change` (operator) end · tree clean | … · verify | branch clean — ready to ship | ship |
+| `review-change` (operator) end · fixes uncommitted | … · verify | fixes applied — commit before shipping | ship |
 | `ship` end (no PR comments) | … · verify · ship | review + merge the PR | finish |
 | `ship` end (PR has comments) | … · verify · ship | review + merge the PR | address comments |
 | `address-pr-comments` end | … · ship | comments handled — merge the PR | finish |

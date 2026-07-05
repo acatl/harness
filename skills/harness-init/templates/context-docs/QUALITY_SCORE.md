@@ -24,6 +24,28 @@ Every finding is tagged with exactly one category and a disposition (`applied` /
 
 ---
 
+## Lenses (what to look for → which category)
+
+The five categories are the *buckets*; these lenses are the concrete *what-to-look-for* that fills them.
+A reviewer sweeps the lenses and tags each finding with the category it rolls up to. The map is **not
+rigid** — a lens rolls up by *why the finding matters* (a missing error-path test is `correctness` when
+it hides a real bug, `convention` when it's just uncovered logic). The full checklists (how to recognize
+each) live in the `harness:review-change` framework (`references/framework.md`); this is the calibration
+map only.
+
+| Category | Lenses that typically roll up here |
+|----------|-------------------------------------|
+| **correctness** | Security · Type safety & language rigor · Defensive programming · Database migration safety · Spec-code consistency (behavioral mismatch) · Testing gaps (when a gap hides a bug) |
+| **convention** | Behavioral consistency · Developer experience & repo integrity · Accessibility · Localization · Testing gaps (uncovered pure logic) |
+| **simplification** | Dead code & unused definitions · Architecture (collapsible duplication / coupling that shouldn't exist) |
+| **efficiency** | Performance & scalability |
+| **altitude** | Architecture & separation of concerns (logic in the wrong tier / scope leak) |
+
+Skip any lens that doesn't apply to the stack; add a project-specific lens if the stack demands one
+(name it so the addition is visible).
+
+---
+
 ## What raises severity
 
 - **Touches a load-bearing contract** declared in the project's context docs (ARCHITECTURE / RELIABILITY /

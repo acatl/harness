@@ -43,6 +43,11 @@ When a decision is made, update these files in the same change — they are the 
   (skills are symlinked/copied into other projects). Repo root is canonical; bundles are kept in sync by
   `scripts/sync-skill-resources.sh`. After editing a canonical template/doc, run it. See
   [docs/SKILL-STYLE.md](docs/SKILL-STYLE.md) › Bundled resources.
+- **One review mechanism.** Code review lives in a single skill, `harness:review-change` (13 lenses / 4
+  stances / severity taxonomy in its `references/`), invoked at multiple altitudes via its `mode` arg:
+  `build-run` (build's verify core — Step F.4), `pre-ship` (ship's pre-push gate), `operator`
+  (standalone). Don't re-inline a review pass anywhere else — call `review-change` with the right mode so
+  the lenses stay defined once. The reviewer runs as an isolated sub-agent (real doer ≠ judge).
 
 ## Layout
 
