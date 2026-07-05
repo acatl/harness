@@ -67,7 +67,7 @@ rubric. `harness:init` scaffolds minimal stubs if absent.
 | architecture | `<ARCHITECTURE.md>` | architecture review, `build` |
 | reliability | `<docs/RELIABILITY.md>` | architecture/design review, `build` |
 | security | `<docs/SECURITY.md>` | architecture review, `build` |
-| quality score (judge rubric) | `<docs/QUALITY_SCORE.md>` | the judge in `build`, `review` |
+| quality score (judge rubric) | `<docs/QUALITY_SCORE.md>` | the judge (`review-change`) in `build`/`ship` · tallied by `retro` |
 | design references | `<docs/DESIGN.md / docs/design-docs/, or none>` | `refine`, design review |
 
 - The judge rubric's categories (correctness / convention / simplification / efficiency / altitude)
@@ -153,7 +153,7 @@ rationale: see the harness pipeline's runtime-verification binding contract. The
 
 ## Observability (harness self-improvement)
 
-`harness:build` appends one row per run to the run-log; `harness:review` aggregates it and proposes
+`harness:build` appends one row per run to the run-log; `harness:retro` aggregates it and proposes
 harness improvements. Schema: the harness run-log schema.
 
 | Key | Value |
@@ -163,7 +163,7 @@ harness improvements. Schema: the harness run-log schema.
 | extra fields | `<optional project-specific run-log fields, or "none">` |
 
 - Distinct from *Build state* above: that's Markdown resume state; this is JSONL cross-run telemetry.
-- `harness:finish` / `harness:review` backfill the `[E]` reality fields (merged, ci_passed, …) from
+- `harness:finish` / `harness:retro` backfill the `[E]` reality fields (merged, ci_passed, …) from
   the PR host + task tracker.
 
 ## Session chapters (optional)

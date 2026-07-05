@@ -3,9 +3,11 @@
 The review pass for a **spec-less** build. Replaces the heavy `harness:architecture` +
 `harness:design` passes (which read `specs/` scenarios that a spec-less change doesn't have) with a
 **single consolidated lightweight lens** grounded on the **plan** — `proposal.md` (what) +
-`design.md` (how). Run **inline by `harness:build`** in spec-less mode (precedent: build's Step F
-skeptical-review runs inline against QUALITY_SCORE). The heavy review skills are never invoked here
-and never edited — they are what an escalation restores.
+`design.md` (how). Run **inline by `harness:build`** in spec-less mode at Step B/C as the **pre-impl
+plan review** (it reviews the *plan*, before code exists). Distinct from build's Step F.4 **post-impl
+code review** (`harness:review-change build-run`, against the diff) — plan vs code, different stages,
+no overlap. The heavy review skills are never invoked here and never edited — they are what an
+escalation restores.
 
 **Why still review at all:** small ≠ safe. A version bump can leak a security hole, break a consumer,
 or corrupt data. The value of architectural/security scrutiny doesn't disappear because the change is

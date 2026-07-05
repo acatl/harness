@@ -2,7 +2,7 @@
 
 `<run-log path>` (e.g. `.claude/harness/runs.jsonl`) — one JSON object per line, appended by
 `harness:build` as its final step. It exists so the harness can be **reviewed and improved from
-data**, not memory (`harness:review` aggregates it).
+data**, not memory (`harness:retro` aggregates it).
 
 **Storage:** git-ignored (local-only telemetry) so it stays out of PR diffs. Lost on a fresh clone —
 acceptable for a solo/local workflow; snapshot manually if cross-machine durability is needed.
@@ -15,7 +15,7 @@ treat inferred fields as secondary. The signal that improves the harness is **fr
 iterations, judge catches, human stops) — not happy-path runs.
 
 Tags: **[D]** deterministic (command output / git) · **[I]** inferred (agent judgement) · **[E]**
-enriched later by `harness:finish` / `harness:review` (null at write time). Write `null` for
+enriched later by `harness:finish` / `harness:retro` (null at write time). Write `null` for
 unknown/N-A — never omit a field (keeps the JSONL columnar for `jq`).
 
 ## Core fields (stack-agnostic)
@@ -28,7 +28,7 @@ unknown/N-A — never omit a field (keeps the JSONL columnar for `jq`).
 | `skill_version` | D | **keystone** — `git hash-object .claude/skills/harness-build/SKILL.md` (abbreviated). Content hash of the exact skill that ran; attributes metric shifts to skill edits |
 | `model` | D | model id running the loop |
 | `mode` | D | `gated` \| `yolo` |
-| `spec_mode` | D | `full` \| `spec-less` — from the change's `<change-state-dir>/spec-mode` marker (absent ⇒ `full`). Segments full-spec vs spec-less runs; `harness:review` aggregates each separately |
+| `spec_mode` | D | `full` \| `spec-less` — from the change's `<change-state-dir>/spec-mode` marker (absent ⇒ `full`). Segments full-spec vs spec-less runs; `harness:retro` aggregates each separately |
 | `diff` | D | `{files, added, removed}` from `git diff --stat` of the impl |
 | `config_context_bytes` | D | injected OpenSpec `context` byte count (`openspec instructions … --json`). **Tripwire:** `0` ⇒ `openspec/config.yaml` silently broke |
 | `sensors` | D | map keyed by the project's sensor names (from HARNESS.md › Sensors), each `pass`\|`fail`\|`null` |
@@ -47,7 +47,7 @@ unknown/N-A — never omit a field (keeps the JSONL columnar for `jq`).
 | `duration_sec` | D | total wall-clock (trend only) |
 | `tokens` | I | output tokens if known, else `null` |
 | `outcome` | D | `verified-not-shipped` \| `stopped-needs-human` \| `discarded` |
-| `pr_url` | E | filled by `harness:finish` / `harness:review` from `ship`/GH |
+| `pr_url` | E | filled by `harness:finish` / `harness:retro` from `ship`/GH |
 | `merged` | E | bool, backfilled from GH |
 | `ci_passed` | E | bool, backfilled from GH |
 | `review_comments` | E | count, backfilled from GH — a clean run that ships a bug is still a bad run |
@@ -56,4 +56,4 @@ unknown/N-A — never omit a field (keeps the JSONL columnar for `jq`).
 
 Projects may declare extra fields in HARNESS.md › Observability and emit them here — e.g. a
 vendored-asset tripwire for web projects. Keep them tagged [D]/[I]/[E]. Don't bake project-specifics
-into the core above; `harness:review` tallies whatever fields are present.
+into the core above; `harness:retro` tallies whatever fields are present.

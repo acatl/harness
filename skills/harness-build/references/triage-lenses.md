@@ -8,7 +8,7 @@ Shared decision aid for choosing **full** vs **spec-less** build mode. Read by t
 - **`harness:build` Step E escalation tripwire** — *mid-impl*, against the **diff**. Fires when a
   spec-less change turns out spec-worthy after all.
 
-Same lens set, two vantage points. `harness:review` tunes it from run-log data over time.
+Same lens set, two vantage points. `harness:retro` tunes it from run-log data over time.
 
 ## Principle — two independent axes, never conflate them
 
@@ -88,5 +88,5 @@ escalation — it raises review depth, not the mode.
 ## Observability
 
 The triage decision is logged (`spec_mode` + which disqualifier fired, if any + whether it later
-escalated). `harness:review` aggregates it to tune these lenses — a lens that never fires or mis-fires is
+escalated). `harness:retro` aggregates it to tune these lenses — a lens that never fires or mis-fires is
 a candidate to cut or sharpen.

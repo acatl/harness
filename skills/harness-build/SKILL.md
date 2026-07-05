@@ -311,10 +311,22 @@ Run in order; each must pass:
 3. **openspec-verify-change** (vendor skill) — spec conformance against the artifacts. Resolve gaps.
    **Spec-less:** run it as-is — with no `specs/` the vendor degrades to task-completion verification;
    **never** invoke `openspec validate --strict` (the one command that rejects a spec-less change).
-4. **Skeptical review** (doer ≠ judge) — a distinct review pass against the project's QUALITY_SCORE
-   rubric (HARNESS.md › Context docs). Scale to the diff (small/localized → one inline pass; large →
-   fan out). Apply high-confidence findings, then re-run sensors. A design-level problem (not a nit) →
-   genuine fork: surface for a human.
+4. **Skeptical review** (doer ≠ judge) — invoke `harness:review-change` (Skill tool) in **`build-run`**
+   mode, args = `build-run <change-name>`. It spawns an **isolated** reviewer sub-agent (fresh context —
+   a real doer ≠ judge, stronger than an inline self-review) that grades this run's diff against the
+   QUALITY_SCORE rubric through the 13 lenses / 4 stances. **Hand it build's warm context** so it doesn't
+   re-flag already-resolved calls: name `<change-state-dir>/surface-map.md`, `decisions.md`, and the
+   reviewed spec for it to read. It **applies clear fixes to the working tree but does not commit and does
+   not re-run sensors** (build owns both — Model-A). It returns `judge_findings`
+   (`{summary, category, disposition}` per finding) + writes `<change-state-dir>/review-change-review.md`
+   with a `reviewed-range` footer. **Then build:** commit the applied fixes (its own group/commit model,
+   never amend) and **re-run the sensor gate (F.1)**; if any applied fix **touched runtime behavior**,
+   **re-run behavioral-verify (F.2)** too — a runtime fix invalidates the pre-fix verdict. A
+   `design-stop` disposition is a **genuine fork** — surface for a human (build is autonomous, so the
+   review raises no wizard). Keep the returned `judge_findings` verbatim for the Step G.3 run-log row.
+   **Spec-less runs this identically** — its proportional depth (trivial diff → baseline stance only) *is*
+   the post-impl code review; the pre-impl inline `spec-less-review.md` (Step B/C) already reviewed the
+   plan, so the two occupy different pipeline stages (plan vs code) with no duplication.
 On any failure not caused by this change → STOP + surface (don't patch around a broken gate).
 
 ## Step G — Stop at verified-not-shipped
@@ -334,7 +346,9 @@ On any failure not caused by this change → STOP + surface (don't patch around 
 2. **Task tracker:** fire the `verified` stage hook (HARNESS.md). Do not move to a review/done state —
    that's ship/finish.
 3. **Append one run-log row** to the run-log (HARNESS.md › Observability; schema:
-   `references/harness-runs.SCHEMA.md`). Deterministic fields from real output; `outcome` =
+   `references/harness-runs.SCHEMA.md`). Deterministic fields from real output; `judge_findings` =
+   the `{summary, category, disposition}` array **lifted verbatim** from Step F.4's `harness:review-change`
+   return (no re-summary — the reviewer already tagged category + disposition); `outcome` =
    `verified-not-shipped` (or `stopped-needs-human`/`discarded`); `[E]` fields `null`. **Record
    `spec_mode`** (`full`|`spec-less`) from the marker; in **spec-less**, `verify_gaps` = `null` (no
    spec-verify step ran).
@@ -346,10 +360,13 @@ On any failure not caused by this change → STOP + surface (don't patch around 
               design <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/design-review.md   (n/a|skipped if so)
    <!-- ALWAYS cite the artifact path so the reviews are findable. If any 🔴 critical was found and
         auto-applied (esp. in yolo, where it happened silently), call it out: "⚠️ 1🔴 auto-applied — read it."
-        SPEC-LESS: replace the two review lines with one — spec-less <N🔴/N🟠/N🟡, M applied> →
-        <change-state-dir>/spec-less-review.md — and read `openspec-verify <task-completion>` below. -->
+        SPEC-LESS: replace the two heavy review lines with one — spec-less <N🔴/N🟠/N🟡, M applied> →
+        <change-state-dir>/spec-less-review.md (+ the architecture row only if +architecture depth ran). -->
    Impl:      <N>/<total> tasks · <N> group commits · mode <gated|yolo> · spec_mode <full|spec-less>
-   Verify:    sensors <pass> · behavioral <ran|skipped:reason|n/a> · openspec-verify <pass> · review <outcome>
+   Verify:    sensors <pass> · behavioral <ran|skipped:reason|n/a> · openspec-verify <pass>
+              review <N🔴/N🟠/N🟡, M applied> → <change-state-dir>/review-change-review.md   (skipped if so)
+   <!-- Cite the review artifact so the skeptical review is findable (like the architecture/design rows).
+        If build-run auto-applied a 🔴 critical (silent in yolo), call it out: "⚠️ 1🔴 auto-applied — read it." -->
    ```
    **Then two real lines below the fence — the operator reads only these, so the actionable one goes
    last:**
@@ -395,6 +412,7 @@ On any failure not caused by this change → STOP + surface (don't patch around 
 ## Composition
 - Consumes (vendor CLI, untouched): `openspec new change`, `openspec list --json`,
   `openspec status --json`, `openspec instructions <artifact> --json`, `openspec-verify-change`.
-- Invokes (Skill tool): `harness:recon`, `harness:architecture`, `harness:design`.
+- Invokes (Skill tool): `harness:recon`, `harness:architecture`, `harness:design`, `harness:review-change`
+  (`build-run` mode — Step F.4 skeptical review).
 - Runs after: `harness:explore` / `harness:refine`. Hands off to: `harness:fine-tune` (polish) and
   `harness:ship` (push + PR) once you've tested.
