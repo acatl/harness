@@ -27,7 +27,7 @@ flowchart TB
   H1 --> B["/harness:build [gated*|yolo]<br/>keeps a progress file → resumable"]:::cmd
 
   B --> DET{"authored spec exists?<br/>openspec list --json"}:::dec
-  DET -- "no → author" --> SM{"spec_mode?<br/>refine triage · writes harness/spec-mode"}:::dec
+  DET -- "no → author" --> SM{"spec_mode?<br/>refine recommends · build writes harness/spec-mode"}:::dec
   SM -- "full (default)" --> NP["proposal.md"]:::vendor
   NP --> NR["recon"]:::sub --> ND["design.md + specs"]:::vendor --> NRA["architecture review"]:::sub --> NRD["design review"]:::sub --> NT["tasks.md"]:::vendor --> MODE
   SM -- "spec-less (small, no spec-worthy change)" --> SP["proposal.md"]:::vendor --> SR["recon"]:::sub --> SD["design.md (lean)"]:::vendor --> SLR["spec-less review<br/>(one lens · vs proposal.md + design.md)"]:::sub --> ST["tasks.md"]:::vendor --> MODE
