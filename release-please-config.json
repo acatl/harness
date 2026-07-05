@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        { "type": "generic", "path": "skills/harness-address-pr-comments/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-architecture/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-build/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-design/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-explore/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-fine-tune/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-finish/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-init/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-recon/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-refine/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-review/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-ship/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-status/SKILL.md" },
+        { "type": "generic", "path": "skills/harness-test-guide/SKILL.md" },
+        { "type": "generic", "path": "skills/walk-me-through/SKILL.md" }
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "harness-pipeline",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Stack-agnostic Claude Code skills that compose into a spec-driven engineering harness.",
   "license": "MIT",
@@ -14,10 +14,17 @@
     "spell": "cspell --no-progress --gitignore \"**/*.md\"",
     "sync:check": "scripts/sync-skill-resources.sh check",
     "skills:check": "scripts/check-skill-frontmatter.sh",
-    "check": "npm run lint:md && npm run spell && npm run sync:check && npm run skills:check"
+    "check": "npm run lint:md && npm run spell && npm run sync:check && npm run skills:check",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.0",
+    "@commitlint/config-conventional": "^21.2.0",
     "cspell": "^8.17.5",
+    "husky": "^9.1.7",
     "markdownlint-cli2": "^0.16.0"
   }
 }

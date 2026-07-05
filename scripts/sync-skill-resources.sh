@@ -87,8 +87,12 @@ for pair in "${MAP[@]}"; do
 done
 
 if [ "$mode" = check ]; then
-  [ "$drift" -eq 0 ] && echo "✅ skill resource bundles in sync" || {
-    echo "Run: scripts/sync-skill-resources.sh" >&2; exit 1; }
+  if [ "$drift" -eq 0 ]; then
+    echo "✅ skill resource bundles in sync"
+  else
+    echo "Run: scripts/sync-skill-resources.sh" >&2
+    exit 1
+  fi
 else
   echo "✅ synced ${#MAP[@]} skill resources"
 fi

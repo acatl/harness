@@ -39,6 +39,7 @@ ONEST
 HSTES
 HWTES
 KINO
+Kimi
 
 # Stacks / tools referenced
 SwiftPM
@@ -83,6 +84,8 @@ monkey-patch
 roadmap
 scaffolded
 scaffolding
+unlinted
+obra
 
 # Coined / jargon used across the skills + design docs
 affordances

@@ -10,7 +10,7 @@ description: >-
   implementing — never writes app code (creating OpenSpec artifacts to capture thinking is fine).
 metadata:
   author: acatl
-  version: "0.1.0"
+  version: "0.2.0" # x-release-please-version
 ---
 
 # harness:explore — thinking partner (digestible)
