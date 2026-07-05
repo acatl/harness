@@ -584,7 +584,8 @@ and wizard without re-fetching anything. You apply `clear` fixes to the working
 tree as you go (per `SKILL.md`) and still return this same structured format
 covering every finding — fixed and queued alike.
 
-**If no commits diverge from main**, return only:
+**If there's nothing in scope to review** — no commits diverge from `origin/main`, and (in `operator`
+mode) no uncommitted working-tree changes either — return only:
 
 ```text
 STATUS: no-commits

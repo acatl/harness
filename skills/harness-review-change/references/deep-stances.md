@@ -1,7 +1,7 @@
 # Staged review — the four internal stances
 
 The review runs **inside a single reviewer-fixer sub-agent**. That one agent loads
-`reference/framework.md` (the 13 lenses + return format) once, gathers the diff
+`references/framework.md` (the 13 lenses + return format) once, gathers the diff
 once, then runs the four stances below **sequentially in its own context**,
 carrying every prior finding in memory and applying clear fixes between stances.
 

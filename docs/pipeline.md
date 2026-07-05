@@ -104,7 +104,7 @@ flowchart TB
   the open PR, not a linear stage.
 - **Observability loop (self-improvement).** `build` appends one JSONL row per run to the run-log
   (sensors, failures, iterations, interventions, outcome — keystone `skill_version`). `finish`/`retro`
-  backfill reality fields (merged, ci, comments). `harness:retro` aggregates it and **proposes**
+  backfill reality fields (merged, ci_passed, comments). `harness:retro` aggregates it and **proposes**
   (human-approved, never auto-applied) edits back to the skills/config. Schema:
   [harness-runs.SCHEMA.md](../templates/harness-runs.SCHEMA.md). JSONL because a script aggregates it.
 - **Vendor (green)** nodes assume the consuming project has OpenSpec installed.

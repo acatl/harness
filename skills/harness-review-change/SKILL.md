@@ -115,7 +115,7 @@ Skill (main context) — parse mode → set scope · depth · clean-tree · fork
   │
   └── Spawn ONE reviewer-fixer sub-agent (warm context for the whole review)
         │  Gather bundle ONCE: Phase 0 + Phase 1 + diff (per mode scope) + source
-        │  Gate: no commits in scope diverge → return STATUS: no-commits, stop.
+        │  Gate: nothing in scope (no diverging commits; operator: none + clean tree) → STATUS: no-commits, stop.
         │  Stage 1 baseline       → fix clear · note decision-needing   (thin: scoped per above)
         │  Stage 2 cross-cutting  → (remembers S1; delta only) fix clear · note
         │  Stage 3 adversarial    → refute own fixes + residue sweep; fix regressions   (skip if no fixes)
@@ -164,7 +164,8 @@ The agent gathers data in batches (parallelism per the framework):
 - **Batch 1** (parallel): `git fetch origin main && git log --oneline <scope>`; `git diff --name-only
   <scope>`; `openspec list --json`; read `CLAUDE.md`, the package manifest, `README.md` (Phase 0);
   in `build-run`, the handed build artifacts.
-- **Gate**: no commits in scope diverge → return `STATUS: no-commits`, stop.
+- **Gate**: nothing in scope — no diverging commits (and, in `operator` mode, no uncommitted changes) →
+  return `STATUS: no-commits`, stop.
 - **Batch 2** (parallel): `git diff <scope>` split by top-level directory; Phase 1 artifacts if OpenSpec
   changes detected.
 - **Batch 3** (parallel): read full source files for context, batched by area.

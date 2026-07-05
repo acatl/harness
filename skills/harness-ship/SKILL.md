@@ -57,7 +57,9 @@ Emit one line at start and one at end — so harness iteration can trace this ru
    atomic ship commit (never a second commit or an amend). **A clean review does not stop** — announce
    "review clean" and continue. Only **decision-needing** findings open the review's fork-card wizard;
    resolve them, apply the chosen fixes, then continue — this is the Contract's genuine-fork carve-out,
-   not a new push gate. Skip only for a docs/CI-only change with no reviewable code surface.
+   not a new push gate. Skip only when the change has genuinely **no reviewable behavior/contract
+   surface** — pure prose (README/CHANGELOG/comments), formatting, or CI-config. A file being markdown
+   doesn't make it inert: a `skills/**` or `rules/` edit is behavior, not docs.
 4. **Refresh the PR-body artifact, then stage & review (announce, don't gate).** If the change has a build
    handoff at `<change-state-dir>/pr-body.md`, **re-fold it now** per `references/pr-summary.md`
    (idempotency: skip the fold if the footer's `folded-against` still matches HEAD, excluding summary-only
