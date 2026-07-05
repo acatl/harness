@@ -54,18 +54,21 @@ exception — deliberately un-namespaced so it's useful standalone in any projec
 | `harness:explore` | Optional. Thinking partner for big codebases (improved OpenSpec Explore, digestible output). |
 | `harness:build` | The workhorse. Author the spec (proposal → recon → design → reviews → tasks) if none exists, else resume; then implement → verify. `gated` (default) / `yolo`. Stops at *verified, not shipped*. |
 | `harness:fine-tune` | Sticky polish loop after build (fix → test → approve → commit). Exits only on explicit signal. |
+| `harness:review-change` | The review engine, run at three altitudes via a `mode` arg: `build-run` (build's Step F.4), `pre-ship` (ship's pre-push gate, thin), `operator` (bare — self-review out-of-pipeline changes). One isolated reviewer-fixer sub-agent (doer ≠ judge) runs four escalating stances, auto-fixes clear findings, surfaces only decision-needing ones. |
 | `harness:test-guide` | Read-only test companion. Derives a change's test scenarios from spec scenarios + AC + decisions, skips what automated tests already cover, and walks you through the gap one at a time (ROI-first) with how-to-drive steps + pass/fail/skip. Persists nothing. |
 | `harness:ship` | Push + open the PR. Deliberate, post-test. |
 | `harness:finish` | Post-merge close: sync specs + archive. Confirmable merge-gate; two-merge or single-merge. Backfills run-log reality fields. |
 | `harness:address-pr-comments` | Triage + resolve PR review comments. |
-| `harness:review` | Aggregate the harness run-log, surface recurring friction, propose harness improvements (data-backed, never auto-applied). |
+| `harness:retro` | Aggregate the harness run-log, surface recurring friction, propose harness improvements (data-backed, never auto-applied). |
 | `harness:status` | Read-only. Derive where a change is in the pipeline and the one next step from live state (openspec, the change's `harness/` artifacts, git/PR, tracker). Works cold — no stored pointer. |
 
 `harness:build` calls three **review sub-skills** during authoring — `harness:recon` (prior-art reuse
 ledger), `harness:architecture` (engineering gate), `harness:design` (UX gate) — each with its own full
-lenses reference. They're invoked by `build` but also run standalone.
+lenses reference. They're invoked by `build` but also run standalone. During **verify**, `build` also
+calls `harness:review-change` (`build-run` mode) for the skeptical code review; `harness:ship` calls it
+(`pre-ship` mode) before push.
 
-The pipeline is **self-observing**: `harness:build` logs each run to a JSONL run-log; `harness:review`
+The pipeline is **self-observing**: `harness:build` logs each run to a JSONL run-log; `harness:retro`
 turns that data into concrete improvements to the skills/config. Schema in
 [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md).
 
@@ -99,7 +102,7 @@ a run is auditable and resumable cold (by you later, or a teammate who wasn't th
 | `…/<change>/harness/decisions.md` | every stage | Load-bearing decision ledger (attributed); folded into the PR body. |
 | `…/<change>/harness/pr-body.md` | `harness:build` | The PR description, folded from the run + decisions; reused by `harness:ship`. |
 | `…/<change>/harness/progress.md` | `harness:build` | Resume state for an interrupted build. |
-| `.claude/harness/runs.jsonl` | `harness:build` | Self-observation run-log (JSONL); `harness:review` aggregates it. See [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md). |
+| `.claude/harness/runs.jsonl` | `harness:build` | Self-observation run-log (JSONL); `harness:retro` aggregates it. See [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md). |
 
 `harness:status` and `harness:test-guide` are **read-only** — they derive from the above and persist
 nothing. On `harness:finish`, the change's specs are merged into the main specs and the change dir is
@@ -118,7 +121,7 @@ scripts/       sync-skill-resources.sh (bundle drift guard) + skill-frontmatter 
 
 ## Status
 
-The full `harness:*` pipeline (14 skills + `walk-me-through`) is built and dogfooded on real
+The full `harness:*` pipeline (15 skills + `walk-me-through`) is built and dogfooded on real
 projects. See [CHANGELOG.md](CHANGELOG.md) for what shipped and [docs/OS-READINESS.md](docs/OS-READINESS.md)
 for current open-source/company-readiness work in flight.
 

@@ -36,12 +36,13 @@ flowchart TB
 
   subgraph CORE["implement-and-verify core · stop-on-fork"]
     direction TB
-    AE["implement · grouped local commits"]:::sub --> ASN["sensors (HARNESS.md)"]:::sub --> AB["behavioral-verify (binding)"]:::sub --> AV["openspec-verify (vendor)"]:::vendor --> ARV["code-review (doer ≠ judge)"]:::sub
+    AE["implement · grouped local commits"]:::sub --> ASN["sensors (HARNESS.md)"]:::sub --> AB["behavioral-verify (binding)"]:::sub --> AV["openspec-verify (vendor)"]:::vendor --> ARV["harness:review-change (build-run)<br/>isolated judge · doer ≠ judge · this run's diff"]:::sub
   end
 
   CORE --> HT(["👤 verified locally — NOT shipped<br/>test it yourself"]):::human
   HT -. "needs polish" .-> FT["/harness:fine-tune<br/>fix → test → approve → commit loop"]:::cmd -.-> HT
-  HT -- "ready to ship" --> SH["/harness:ship<br/>push + open PR"]:::cmd
+  HT -. "want a self-review first" .-> LR["/harness:review-change (operator)<br/>4-stance self-review · fix clear · queue decisions"]:::cmd -.-> HT
+  HT -- "ready to ship" --> SH["/harness:ship<br/>pre-ship review (thin) → push + open PR"]:::cmd
 
   SH --> H3(["👤 review + MERGE PR"]):::human
   SH -. "PR has comments" .-> APC["/harness:address-pr-comments<br/>triage · auto-fix · reply · resolve"]:::cmd -.-> H3
@@ -50,7 +51,7 @@ flowchart TB
   %% observability loop — the harness improves itself from data
   CORE -- "append run row" --> LOG[("run-log · JSONL<br/>git-ignored telemetry")]:::cfg
   F -. "backfill reality fields (merged, ci, comments)" .-> LOG
-  LOG --> RV["/harness:review<br/>aggregate · surface friction · propose edits"]:::cmd
+  LOG --> RV["/harness:retro<br/>aggregate · surface friction · propose edits"]:::cmd
   RV -. "human-approved edits to skills / config" .-> HN
 ```
 
@@ -77,6 +78,16 @@ flowchart TB
   every turn, survives nested skills (runs them, then resumes the loop), and exits ONLY on an explicit
   "exit" or an asked-and-confirmed yes — backed by a small "fine-tune active" marker so it never
   forgets it was fine-tuning.
+- **`harness:review-change`** is the **one review engine, run at three altitudes** via a `mode` arg —
+  a single isolated reviewer-fixer sub-agent (doer ≠ judge) runs four escalating stances (baseline →
+  cross-cutting → adversarial-verify → docs-alignment), auto-fixing clear/no-trade-off findings and
+  surfacing only decision-needing ones. **`build-run`** is build's Step F.4 (this run's diff, autonomous,
+  returns `judge_findings` to the run-log). **`pre-ship`** is ship's pre-push gate (whole branch, *thin* —
+  only the cross-commit seams + commits no build-run covered; a clean review never stops, decision-needing
+  findings surface as ship's genuine-fork carve-out). **`operator`** is the optional side-loop at the
+  verified-not-shipped gate (self-review out-of-pipeline changes; never commits — auto-fixes land
+  uncommitted so `git status --short` separates them from operator WIP). The reviewed-range footer stamped
+  by `build-run` is how `pre-ship` avoids re-reviewing what build-run already covered.
 - **`harness:finish` merge-gate is confirmable, not a wall.** Default = two-merge (feature PR, then a
   chore PR for sync+archive). If it can't confirm the feature merged, it ASKS ("already merged /
   tested in prod / single-merge flow?") rather than hard-stopping. **Single-merge mode** is
@@ -92,8 +103,8 @@ flowchart TB
 - **Gate H3** = review + merge the PR (the real review). **`address-pr-comments`** is a side-loop on
   the open PR, not a linear stage.
 - **Observability loop (self-improvement).** `build` appends one JSONL row per run to the run-log
-  (sensors, failures, iterations, interventions, outcome — keystone `skill_version`). `finish`/`review`
-  backfill reality fields (merged, ci, comments). `harness:review` aggregates it and **proposes**
+  (sensors, failures, iterations, interventions, outcome — keystone `skill_version`). `finish`/`retro`
+  backfill reality fields (merged, ci_passed, comments). `harness:retro` aggregates it and **proposes**
   (human-approved, never auto-applied) edits back to the skills/config. Schema:
   [harness-runs.SCHEMA.md](../templates/harness-runs.SCHEMA.md). JSONL because a script aggregates it.
 - **Vendor (green)** nodes assume the consuming project has OpenSpec installed.
