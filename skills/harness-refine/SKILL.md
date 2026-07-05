@@ -237,16 +237,20 @@ gate. **No `propose-in/out` tags, no keys, no bundles** — a plain "want any? a
 
 ## 5b. Spec-mode triage (recommend full vs spec-less)
 Recommend which build mode the change warrants, per `references/triage-lenses.md`. **Default full**;
-spec-less is the earned exception. Compute on the **committed** AC (after Step 6 folds any improvements —
-an added AC can flip spec-less → full). refine only **recommends** — it never writes the `spec-mode`
-marker or creates a change (`harness:build` does both).
-- **Any disqualifier** (`references/triage-lenses.md`: >1 AC · touches a capability already in
-  `openspec/specs/**` per Step 3 grounding · behavior/contract or risk words · "and also…" multi-scope ·
-  ambiguous AC) → recommend **full**, silently. No fork. The common case.
-- **Trivial survivor** (0 disqualifiers · ≤1 AC · no spec-touch) → do a quick **code-peek yourself** of the
-  touched surface (few files? shared state? consumers?). Small blast radius → surface a walk-me-through fork
-  (`references/walk-me-through.md`): `[A] spec-less · [B] full (recommended default)`. Only this rare case
-  forks; never ask on a normal ticket.
+spec-less is the earned exception. Decide on **spec-worthiness only** — *does a product capability's
+behavior or contract change?* — **not** AC count and **not** file count. refine only **recommends** — it
+never writes the `spec-mode` marker or creates a change (`harness:build` does both).
+- **Any spec-worthiness disqualifier** (`references/triage-lenses.md`: changes an observable behavior or
+  public contract · touches a capability already in `openspec/specs/**` per Step 3 grounding · data /
+  migration / auth / security · bundles >1 distinct **capability** · underspecified behavior) → recommend
+  **full**, silently. No fork. The common case.
+- **No disqualifier** → recommend **spec-less**. A quick **code-peek** of the touched surface confirms no
+  *hidden* contract change **and** gauges **review depth** — note `+architecture` when the change is large,
+  touches load-bearing config (`tsconfig`/`eslint`/CI), or preserves an architectural invariant. Blast
+  radius sets review depth, **not** the mode — a pure refactor is spec-less however many files it spans and
+  however many ACs verify it.
+- **Fork** (`references/walk-me-through.md`: `[A] spec-less · [B] full (recommended default)`) only when
+  spec-worthiness is genuinely borderline — never on AC or file count alone.
 - Carry the result into the build pointer (6c.5): spec-less recommended/chosen → append `--spec-less`.
 
 ## 6. Iterate → commit

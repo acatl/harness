@@ -58,15 +58,20 @@ Default is **full**; spec-less is opt-in.
 - **Source (AUTHOR path):** an explicit `--spec-less` token in the invocation, or the mode carried from
   `harness:refine`'s `Next:` pointer. No signal → **full**.
 - **Marker (deterministic single source of truth):** on the AUTHOR path build **writes**
-  `<change-state-dir>/spec-mode` — one line `spec_mode: <full|spec-less>` — at Step 0, **before** Step A.
-  Written once; only the Step E escalation tripwire rewrites it (`spec-less → full`).
+  `<change-state-dir>/spec-mode` — one line `spec_mode: spec-less` — at Step 0, **before** Step A,
+  **only when the resolved mode is `spec-less`**. A **full** change writes **no marker** — the reader
+  rule's `absent ⇒ full` default covers it, so full PRs carry no new artifact (marker *presence* ⇒
+  spec-less). Written once; only the Step E escalation tripwire rewrites it (`spec-less → full`, which
+  reads as full — identical to absent).
 - **Reader rule (everywhere, incl. IMPL/resume, finish, status):** read `<change-state-dir>/spec-mode`;
   treat as **spec-less only if the file exists and literally says `spec-less`** — absent, empty,
   unreadable, or `full` ⇒ **full**. On IMPL/resume build does **not** write the marker (reads it). This
   default-to-full rule keeps every legacy / full / mid-authoring change byte-for-byte unaffected.
 - **What spec-less changes (each a guarded branch; full/absent runs the step VERBATIM):** Step A drops
   `specs` from the artifacts to author · Step B/C runs the inline spec-less review
-  (`references/spec-less-review.md`) vs `design.md` instead of the heavy reviews · Step E arms the
+  (`references/spec-less-review.md`) vs `design.md` in place of the heavy reviews — **and, when blast
+  radius / load-bearing surface warrants (`references/triage-lenses.md` › review depth), ALSO runs the
+  heavy `harness:architecture` review** (review depth is independent of spec-mode) · Step E arms the
   escalation tripwire · Step F never calls `openspec validate --strict` (vendor verify degrades) ·
   Step G logs `spec_mode` + `verify_gaps=null`.
 
@@ -104,10 +109,10 @@ or any native picker.** Yes/no gates (H2, plan-approval) and plain selections st
    - Change exists, apply-ready or in-progress (`HELD`/tasks present) → **IMPL** (Step E) — skip authoring.
    - `state: all_done` → congratulate, suggest `harness:finish`, stop.
    - >1 open change and ambiguous which → walk-me-through fork card pick (open/non-archived only). Never guess.
-4. **Write the spec-mode marker (AUTHOR path only), before Step A.** Write `<change-state-dir>/spec-mode`
-   = `spec_mode: <full|spec-less>` (the resolved mode). On the IMPL/resume path do **not** write it —
-   read it (absent/`full` ⇒ full, per the **Spec mode** reader rule). Then announce `Using change: <name>`
-   (+ resolved `spec_mode`) + how to override.
+4. **Write the spec-mode marker (AUTHOR path, spec-less only), before Step A.** If the resolved mode is
+   `spec-less`, write `<change-state-dir>/spec-mode` = `spec_mode: spec-less`. If **full**, write
+   **nothing** (absent ⇒ full, per the **Spec mode** reader rule). On the IMPL/resume path do **not**
+   write it — read it. Then announce `Using change: <name>` (+ resolved `spec_mode`) + how to override.
 5. **Task tracker:** `start` verb (HARNESS.md › Task tracker) — move to in-progress; fire the
    `building` stage hook. No-op if not configured / no linked task.
 6. **Progress file:** read `<change-state-dir>/progress.md` if present → resume where build left off
@@ -159,12 +164,17 @@ after reviews so it derives from the reviewed spec.
      it's the intended spec-less state; proceed to Step D. No retry counter.
 
 ## Step B — Classify surface + route (AUTHOR path)
-**Spec-less guard (`spec_mode = spec-less`):** skip the heavy-review routing below; instead run the
+**Spec-less guard (`spec_mode = spec-less`):** skip the heavy-review *routing* below; run the
 **inline spec-less review** (`references/spec-less-review.md`) against `proposal.md` + `design.md` (the
 plan is the contract — there is no `specs/`). It self-scales to the diff, auto-applies unambiguous fixes,
 stops on genuine forks, and writes `<change-state-dir>/spec-less-review.md` (same durable shape as the
-heavy review artifacts). If it finds the change is actually spec-worthy → escalate (Step E). Then go to
-Step D. **full/absent:** run Steps B–C **verbatim** below (heavy architecture/design routing).
+heavy review artifacts). **Review depth (independent of spec-mode):** for a large / load-bearing /
+invariant-bearing change (`references/triage-lenses.md` › review depth — many files, a change to
+`tsconfig`/`eslint`/CI/build config, or a preserved architectural invariant), **also invoke the heavy
+`harness:architecture` review** (and `harness:design` for a user-facing surface) — they read
+`proposal.md`+`design.md` and work without `specs/`; small/localized → the spec-less review alone. If any
+review finds the change is actually spec-worthy → escalate (Step E). Then go to Step D. **full/absent:**
+run Steps B–C **verbatim** below (heavy architecture/design routing).
 
 Read whichever of `proposal.md`/`design.md`/`specs/<cap>/spec.md` exist; classify surface, select
 reviews (match by content category, adapt to project vocabulary):
