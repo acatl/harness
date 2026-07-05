@@ -28,13 +28,14 @@ unknown/N-A — never omit a field (keeps the JSONL columnar for `jq`).
 | `skill_version` | D | **keystone** — `git hash-object .claude/skills/harness-build/SKILL.md` (abbreviated). Content hash of the exact skill that ran; attributes metric shifts to skill edits |
 | `model` | D | model id running the loop |
 | `mode` | D | `gated` \| `yolo` |
+| `spec_mode` | D | `full` \| `spec-less` — from the change's `<change-state-dir>/spec-mode` marker (absent ⇒ `full`). Segments full-spec vs spec-less runs; `harness:retro` aggregates each separately |
 | `diff` | D | `{files, added, removed}` from `git diff --stat` of the impl |
 | `config_context_bytes` | D | injected OpenSpec `context` byte count (`openspec instructions … --json`). **Tripwire:** `0` ⇒ `openspec/config.yaml` silently broke |
 | `sensors` | D | map keyed by the project's sensor names (from HARNESS.md › Sensors), each `pass`\|`fail`\|`null` |
 | `sensor_failures` | D | array of `{sensor, error_class}` across all attempts |
 | `iterations_to_green` | D | sensor re-run cycles before all green (0 = first-pass clean) |
 | `fix_caused_regression` | D | bool: an applied judge fix broke a sensor |
-| `verify_gaps` | D | spec-vs-impl mismatches found at the openspec-verify step |
+| `verify_gaps` | D | spec-vs-impl mismatches found at the openspec-verify step. `null` when `spec_mode=spec-less` (no `specs/` to verify) — expected, **not** a failure (distinguish from `0` on a full run, which means clean) |
 | `judge_findings` | I | array of `{summary, category, disposition}`; categories per the project review rubric; disposition ∈ applied/refuted/design-stop |
 | `scope_stops` | D | count: out-of-scope guard fired (reason is project-defined) |
 | `human_interventions` | D | times the loop stopped for human input |

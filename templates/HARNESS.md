@@ -182,3 +182,13 @@ If absent, skills skip chapter-marking silently — never block on it.
 | schema | `<e.g. spec-driven>`; artifacts: `proposal`, `design`, `specs`, `tasks` |
 | changes / specs | `openspec/changes/` (active + `archive/`), `openspec/specs/` (main specs) |
 | expected CLI | `<pinned/known-good openspec version>` |
+
+- **Spec mode (full vs spec-less).** A change is **full** (authors the `specs/` delta) or **spec-less**
+  (skips only the `specs/` delta + strict-verify — any change that alters no spec-worthy **behavior**,
+  regardless of size: a large pure refactor still qualifies; blast radius sets review depth, not the mode).
+  A spec-less change still gets proposal + lean design + tasks + a lightweight review + **behavioral-verify**
+  + sensors + ship. `harness:refine`
+  recommends the mode; `harness:build` records it in `<change-state-dir>/spec-mode` and adapts; every
+  downstream skill defaults to **full** when the marker is absent. What counts as *spec-worthy* is the
+  harness's project-agnostic triage-lenses. **Per-project override:** name any surface that must ALWAYS
+  force full regardless — e.g. `<always-full: changes touching payments/ · auth/ · db migrations>`.

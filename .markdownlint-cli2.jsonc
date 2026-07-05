@@ -30,5 +30,5 @@
     "MD007": { "indent": 2 }
   },
   "globs": ["**/*.md"],
-  "ignores": ["node_modules", "**/node_modules", ".git"]
+  "ignores": ["node_modules", "**/node_modules", ".git", "ospec-test", "**/ospec-test/**"]
 }

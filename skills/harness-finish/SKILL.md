@@ -70,12 +70,16 @@ for the machine, fast-path for the human.
    - **single-merge:** runs against the **open feature branch/PR** (archive-before-merge — sync+archive
      ride the feature PR). Confirm an appropriate feature branch/PR exists; can't → ASK before proceeding.
 
-3. **Sync the delta specs.** Invoke `openspec-sync-specs` (vendor) via the Skill tool with the change
-   name — merges the change's delta specs into the main specs.
+3. **Sync the delta specs.** **Spec-less guard:** read `<change-state-dir>/spec-mode`; if it literally
+   says `spec-less`, **skip this step** — there is no `specs/` delta to sync — and go straight to step 4.
+   **full / marker absent / `full`:** invoke `openspec-sync-specs` (vendor) via the Skill tool with the
+   change name — merges the change's delta specs into the main specs.
 
 4. **Archive the change.** Invoke `openspec-archive-change` (vendor) with the change name — moves
    `openspec/changes/<name>` → `openspec/changes/archive/`.
-   > Archive may itself offer to sync first; step 3 already synced → decline / confirm nothing's left.
+   > Archive may itself offer to sync first; a full change already synced in step 3 (a spec-less change
+   > has no deltas) → decline / confirm nothing's left. The vendor archive handles a no-delta (spec-less)
+   > change cleanly.
 
 5. **Land it (per merge mode).**
    - **single-merge:** commit the sync+archive onto the **feature branch** (Conventional `chore:`

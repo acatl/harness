@@ -46,7 +46,8 @@ It only reports. Any action is the operator's next move.
 Per change, collect — never write:
 - `openspec status --change "<name>" --json` → artifacts authored / apply-ready / archived.
 - `ls <change-state-dir>/` → which `harness/` artifacts exist (`recon.md`, `architecture-review.md`,
-  `design-review.md`, `progress.md`, `pr-body.md`, `decisions.md`).
+  `design-review.md`, `spec-less-review.md`, `progress.md`, `pr-body.md`, `decisions.md`). Also read
+  `<change-state-dir>/spec-mode` → the change's `spec_mode` (absent ⇒ `full`, per the reader rule).
 - **git/PR** (PR host, e.g. `gh pr view` / `gh pr list --head <branch>`) → branch pushed? PR open? merged?
 - **Tracker** (`resolve` verb) → the linked task's column/status.
 
@@ -56,8 +57,8 @@ Mark a stage `✓` only on real evidence (honest, not assumed):
 | Stage | `✓` when… |
 |-------|-----------|
 | refine | linked ticket well-formed (Story + GWT AC) / tracker off "todo" |
-| spec | `proposal.md` + `design.md` + `specs/` authored (`openspec status`) |
-| review | the **applicable** review left its artifact — build runs **both** (`architecture-review.md` + `design-review.md`), **architecture-only** (schema-only change), or **none** (pure docs/rename, i.e. no code/spec deltas). ✓ when the applicable artifact(s) exist **or** the change type warrants no review. **Never** infer review from `pr-body.md` / tasks — those are verify/ship proof, not review proof (a change can reach verify with reviews wrongly skipped) |
+| spec | **full** (marker absent/`full`): `proposal.md` + `design.md` + `specs/` authored (`openspec status`). **spec-less** (`<change-state-dir>/spec-mode` = `spec-less`): `proposal.md` + `design.md` + tasks authored, **no `specs/` expected** — mark `✓` labeled "spec-less (by design)"; never treat the missing `specs/` as unfinished |
+| review | the **applicable** review left its artifact — **full:** build runs **both** (`architecture-review.md` + `design-review.md`), **architecture-only** (schema-only change), or **none** (pure docs/rename, i.e. no code/spec deltas); **spec-less:** the one `spec-less-review.md`. ✓ when the applicable artifact(s) exist **or** the change type warrants no review. **Never** infer review from `pr-body.md` / tasks — those are verify/ship proof, not review proof (a change can reach verify with reviews wrongly skipped) |
 | implement | tasks checked / `progress.md` complete / group commits present |
 | verify | `<change-state-dir>/pr-body.md` exists (build reached verified-not-shipped) |
 | ship | a PR is **open OR merged** on the PR host (a merged feature PR is past ship, headed to finish). A **closed-unmerged** PR is **not** ship evidence — that's an abandoned change, not a landed one |
@@ -67,8 +68,10 @@ Mark a stage `✓` only on real evidence (honest, not assumed):
 The **first not-`✓` stage is `▸ here`**; the stage after it is `◦ next`. A gap (a later stage `✓` but an
 earlier one not) → **flag it, don't paper over it**: e.g. implement/verify done but no review artifact on a
 change that *warrants* review → "advanced past review with no review artifact — reviews may have been
-skipped." A *legitimately* review-less change (docs/rename) is **not** a gap. **Never** mark an earlier
-stage `✓` from downstream evidence just to silence the flag.
+skipped." A *legitimately* review-less change (docs/rename) is **not** a gap. A **spec-less** change (the
+marker says so) legitimately has no `specs/` and runs the one spec-less review — its `spec` stage is `✓`
+by design and its review is `spec-less-review.md`; neither is a gap. **Never** mark an earlier stage `✓`
+from downstream evidence just to silence the flag.
 
 ### 4. Render (pipeline trail + evidence + one next step)
 Per `references/pipeline-map.md`: the trail with all `✓`, the `▸ here`, and **one** `◦ next`. Add a short

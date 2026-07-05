@@ -8,3 +8,7 @@ npm-debug.log*
 # Editor
 .vscode/
 .idea/
+
+# Local OpenSpec test fixture (throwaway; recreate with `openspec init`) — used as
+# a live test bed by the harness verification plan, never committed or linted.
+ospec-test/
