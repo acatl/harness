@@ -41,15 +41,16 @@ npx skills add acatl/harness --skill walk-me-through
 
 ## Update
 
-Pull the latest skills, then refresh the generated files:
+Pull the latest skills:
 
 ```bash
-npx skills add acatl/harness      # update the skill files
-/harness:init                     # refresh docs/HARNESS.md + the CLAUDE.md workflow block
+npx skills add acatl/harness
 ```
 
-`npx skills` updates the skills but never touches your project's `CLAUDE.md` — re-running `/harness:init`
-rewrites only the managed `<!-- harness:workflow -->` region (edits outside it are preserved).
+Then re-run **`/harness:init`** in the project to refresh `docs/HARNESS.md` + the CLAUDE.md workflow block.
+`npx skills` updates the skills but never touches your project's `CLAUDE.md`, so re-running `/harness:init`
+is what refreshes them — it rewrites only the managed `<!-- harness:workflow -->` region (edits outside it
+are preserved).
 
 ## Namespace
 
