@@ -8,6 +8,24 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.0.0](https://github.com/acatl/harness/compare/harness-pipeline-v0.2.0...harness-pipeline-v1.0.0) (2026-07-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* canonical skill path moved to `.claude/skills/`.  Hand-rolled symlinks to `skills/` break; re-consume via  `npx skills add --copy acatl/harness#<tag>`.
+* **review-change:** `harness:review` (the run-log aggregator) is renamed `harness:retro`; `/harness:review` no longer resolves.
+
+### Features
+
+* **build:** spec-less build mode for small changes ([#14](https://github.com/acatl/harness/issues/14)) ([fb275fb](https://github.com/acatl/harness/commit/fb275fbc2219f6a896d9cfe004583803251cf8fd))
+* **review-change:** extract shared 3-mode review engine; rename review→retro ([#12](https://github.com/acatl/harness/issues/12)) ([b260957](https://github.com/acatl/harness/commit/b26095785de78dfe9d5d58b40d69e074bee91ac6))
+
+
+### Code Refactoring
+
+* relocate skills to .claude/skills and add authoring governance ([#15](https://github.com/acatl/harness/issues/15)) ([abf0651](https://github.com/acatl/harness/commit/abf065154496cc8051ab6036dce7a1810d6fa87a))
+
 ## [0.2.0](https://github.com/acatl/harness/compare/harness-pipeline-v0.1.0...harness-pipeline-v0.2.0) (2026-07-02)
 
 
