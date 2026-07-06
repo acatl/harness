@@ -397,9 +397,7 @@ Escape (`D`): discuss later.
 
 Escape (`D`): discuss later.
 
-The escape's free-text reply also serves "explain / why": present which lens flagged it, what the
-reviewer verified, what would change the assessment, and any alternative interpretations considered —
-then re-render the same card without recording a decision.
+The escape's free-text reply also serves "explain / why" — handled in **After each reply** below.
 
 **After each reply:**
 
