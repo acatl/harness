@@ -109,13 +109,9 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
   the **fail list** as the handoff into fine-tune. Offer an **export** (Gherkin + a priority table) only
   if the operator asks — for handing a QA dev/agent; default is no file.
 
-## Don't
-- **Read-only — never mutate.** No writes, commits, file edits, mutating sensors, artifact touches. Guide only.
-- **Derive, never invent.** Every scenario traces to a spec scenario / AC / decision; an untraceable one
-  is flagged a hypothesis, never asserted as required.
-- **Never persist.** No document by default — the walk is the deliverable; a file is an opt-in `export`,
-  not a thing the pipeline maintains (that's what keeps this from sprawling).
-- **Never fix directly, never automate.** On a fail, `fix now` *hands off* to `fine-tune` (which does the
-  edit) — test-guide never touches code itself; generating automated tests is the QA agent's job.
-- **Conservative coverage.** Never mark `✅` on doubt — default `🔲`; surface the `👁`-only scenarios as
-  the real gap (worked once, no regression net).
+## Don't (guardrails — all enforced in the Steps above)
+- **Read-only — never mutate.** No writes, commits, file edits, mutating sensors, artifact touches.
+- **Derive, never invent.** Untraceable scenario → hypothesis, never asserted as required.
+- **Never persist.** The walk is the deliverable; a file is an opt-in `export` only.
+- **Never fix or automate.** A fail hands off to `fine-tune`; generating automated tests is the QA agent's job.
+- **Conservative coverage.** Never `✅` on doubt — default `🔲`; the `👁`-only scenarios are the real gap.
