@@ -39,6 +39,19 @@ it for its forks, but it's useful in any project. Install just this one:
 npx skills add acatl/harness --skill walk-me-through
 ```
 
+## Update
+
+Pull the latest skills:
+
+```bash
+npx skills add acatl/harness
+```
+
+Then re-run **`/harness:init`** in the project to refresh `docs/HARNESS.md` + the CLAUDE.md workflow block.
+`npx skills` updates the skills but never touches your project's `CLAUDE.md`, so re-running `/harness:init`
+is what refreshes them — it rewrites only the managed `<!-- harness:workflow -->` region (edits outside it
+are preserved).
+
 ## Namespace
 
 Every **pipeline** skill is namespaced **`harness:`** (e.g. `/harness:build`) so it's clear where it came
