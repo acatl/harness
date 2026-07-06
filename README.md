@@ -18,11 +18,11 @@ Pull the skills into a project with [vercel-labs/skills](https://github.com/verc
 npx skills add acatl/harness
 ```
 
-It discovers the `skills/<name>/SKILL.md` layout automatically. Or wire them by hand — symlink (live
-edits) or copy each skill dir into the consuming project's `.claude/skills/`:
+It discovers the `.claude/skills/<name>/SKILL.md` layout automatically. Or wire them by hand — symlink
+(live edits) or copy each skill dir into the consuming project's `.claude/skills/`:
 
 ```bash
-ln -s /path/to/harness/skills/harness-build .claude/skills/harness-build
+ln -s /path/to/harness/.claude/skills/harness-build .claude/skills/harness-build
 ```
 
 Then run **`/harness:init`** once in the project to generate its `docs/HARNESS.md` (the binding layer
@@ -30,7 +30,7 @@ every other skill reads). Until that exists, the rest of the pipeline is inert.
 
 ### Also included: `walk-me-through` (general-purpose)
 
-[`walk-me-through`](skills/walk-me-through/SKILL.md) is a standalone, **multi-purpose** skill — not tied to
+[`walk-me-through`](.claude/skills/walk-me-through/SKILL.md) is a standalone, **multi-purpose** skill — not tied to
 the harness. Working with an agent, your job is mostly *deciding*; it turns a wall of questions into a
 clean one-at-a-time flow (indexed options, tradeoffs, a recommendation, an escape hatch). The harness uses
 it for its forks, but it's useful in any project. Install just this one:
@@ -42,7 +42,7 @@ npx skills add acatl/harness --skill walk-me-through
 ## Namespace
 
 Every **pipeline** skill is namespaced **`harness:`** (e.g. `/harness:build`) so it's clear where it came
-from when shared. The general-purpose [`walk-me-through`](skills/walk-me-through/SKILL.md) is the
+from when shared. The general-purpose [`walk-me-through`](.claude/skills/walk-me-through/SKILL.md) is the
 exception — deliberately un-namespaced so it's useful standalone in any project.
 
 ## The pipeline
@@ -112,11 +112,12 @@ moved to `openspec/changes/archive/`.
 
 ```text
 README.md
-docs/          design + reference (blueprint, pipeline, runtime-verification binding)
-templates/     HARNESS.md template that harness:init fills in per project
-skills/        the harness:* skills (skills/harness-<name>/SKILL.md)
-rules/         shared contributor rules (e.g. recon-first)
-scripts/       sync-skill-resources.sh (bundle drift guard) + skill-frontmatter check
+docs/            design + reference (blueprint, pipeline, runtime-verification binding)
+templates/       HARNESS.md template that harness:init fills in per project
+.claude/skills/  the harness:* skills (.claude/skills/harness-<name>/SKILL.md) — canonical
+rules/           shared contributor rules bundled into skills, shipped (e.g. recon-first)
+.claude/rules/   authoring/maintenance rules auto-loaded in this repo, not shipped
+scripts/         sync-skill-resources.sh (bundle drift guard) + skill-frontmatter check
 ```
 
 ## Status

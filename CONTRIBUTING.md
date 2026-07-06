@@ -18,13 +18,14 @@ prose. A few rules keep it consistent.
 ## Authoring skills
 
 - Skill bodies are **telegraphic** — structured, deduplicated, zero rhetoric, every
-  decision-bearing datum kept. See [docs/SKILL-STYLE.md](docs/SKILL-STYLE.md).
+  decision-bearing datum kept. See [.claude/rules/skill-authoring.md](.claude/rules/skill-authoring.md).
 - Frontmatter `description` stays natural-language and trigger-rich (the router reads it).
 - Required frontmatter: `name`, `description`, `metadata.author`, and `metadata.version`. CI enforces
   this. (`metadata.version` is release-managed — see Versioning.)
 - Every **`harness:` pipeline skill** emits **start/end breadcrumbs** and carries the **Operator-input
   (`👉`)** block — both self-contained per SKILL.md (skills travel as standalone dirs). General
-  co-shipped skills like `walk-me-through` aren't part of the pipeline and don't carry these. See SKILL-STYLE.md.
+  co-shipped skills like `walk-me-through` aren't part of the pipeline and don't carry these. See
+  [.claude/rules/skill-authoring.md](.claude/rules/skill-authoring.md).
 
 ## Bundled resources (drift guard)
 
