@@ -36,7 +36,7 @@ verified live via GitHub API, created 2025-10-09) (2026-07-01/02 session).
 | B | No OS test matrix (linux/mac/windows) | OpenSpec matrix-tests a compiled CLI binary; harness has no compiled/executed artifact, only markdown lint. superpowers (closer peer) also runs **no** OS matrix | Treat as resolved not-applicable — flagging only in case `scripts/*.sh` portability becomes a real concern later. |
 | E | No community signals (Discord, stars/downloads/contributors badges, AI-review bot) | Requires public visibility; repo is currently private. superpowers proves this genre *can* reach massive adoption (243K★) — so this isn't a stage-gate to dismiss, it's the actual ceiling if you go public | Confirm: is a public release imminent, or is company-internal the target for now? Determines whether to even track these. |
 | F | No `CODEOWNERS` / `MAINTAINERS.md` | OpenSpec has both; superpowers has **neither**, even at 243K★ (single-owner attribution scales fine in this genre) | Confirm intent — internal company tool (owner = team lead, informal) vs. public OSS. Weight toward "skip" given the closer peer skips it too. |
-| G | `docs/pipeline.md` and `docs/build-source-map.md` reference "kino" as a source project (provenance notes) | Not secret, describes where logic was ported from | **Resolved (2026-07-06):** publishing this repo in place (not a curated snapshot — see log). `build-source-map.md` dropped (repo-only dead weight); `pipeline.md` provenance line degenericized. Remaining name refs (kino/one-shot/ONEST/HSTES) are the author's own personal projects — no NDA surface — kept as history where they appear. |
+| G | `docs/pipeline.md` and `docs/build-source-map.md` reference "kino" as a source project (provenance notes) | Not secret, describes where logic was ported from | **Resolved (2026-07-06):** publishing this repo in place (not a curated snapshot — see log). `build-source-map.md` dropped (repo-only dead weight); the `pipeline.md` provenance line made generic (dropped the "from kino" attribution). Remaining name refs (kino/one-shot/ONEST/HSTES) are the author's own personal projects — no NDA surface — kept as history where they appear. |
 | H | Single-platform (Claude Code only) vs. superpowers' 7-platform plugin structure (Claude/Codex/Cursor/Kimi/OpenCode/Gemini/pi) with a version-sync script across manifests | Only relevant if the company uses more than one coding agent. Building multi-platform packaging speculatively would be a premature abstraction | Does the company standardize on Claude Code only, or is multi-agent support a real near-term need? |
 
 **Resolved, no longer open:**
@@ -68,6 +68,6 @@ verified live via GitHub API, created 2025-10-09) (2026-07-01/02 session).
   client/employer confidentiality surface, and negligible security value (paths expose only the
   already-public `acatl` handle). Full sweep found no secrets/tokens/PII, `private: true` blocks npm
   publish, CI has no `pull_request_target` or custom secrets. Working-tree tidy done same day:
-  dropped `docs/build-source-map.md`, degenericized the `pipeline.md` provenance line, resolved item
+  dropped `docs/build-source-map.md`, made the `pipeline.md` provenance line generic, resolved item
   G. Issues [#5](https://github.com/acatl/harness/issues/5) (scrub) and
   [#4](https://github.com/acatl/harness/issues/4) (live-run validation) closed.
