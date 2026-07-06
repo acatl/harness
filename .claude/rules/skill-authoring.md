@@ -3,13 +3,14 @@ paths:
   - ".claude/skills/**"
   - "rules/**"
   - "templates/**"
+  - "docs/**"
 ---
 
 # Skill authoring style
 
 Skills are read by a machine, not a human. Optimize the **body** for an LLM executor.
 This rule auto-loads (path-scoped) whenever you edit a skill body, a bundled `references/` input,
-or a canonical `rules/`/`templates/` source — the moments skill-authoring judgment applies.
+or a canonical `rules/`/`templates/`/`docs/` source — the moments skill-authoring judgment applies.
 
 ## Form
 - Structured, telegraphic, deduplicated. Zero rhetoric — no prose, motivation, transitions, hedging.
