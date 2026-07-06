@@ -31,12 +31,12 @@ out to N sub-agents.
 > against — resolve via the binding, never bundle). Never hardcode a lint/test/build command.
 
 ## Breadcrumbs
-Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:review-change` followed by the mode/target this run has (e.g. ` · build-run · <change>`, ` · pre-ship`, ` · operator`).
-- **end:** `■ harness:review-change v<hash8> → <outcome>` — one-line result, including `stopped: <fork>` or `skipped: <reason>` when applicable. `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
+- **start:** `▶ harness:review-change` + the mode/target this run has (e.g. ` · build-run · <change>`, ` · pre-ship`, ` · operator`).
+- **end:** `■ harness:review-change v<hash8> → <outcome>` — one-line result; add `stopped: <fork>` / `skipped: <reason>` when applicable. `<hash8>` = first 8 chars of `git hash-object` on this SKILL.md — compute it (run the command) in the end-of-run commands; never a placeholder.
 
 ## Operator input
-👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status). A walk-me-through fork card is already the terminal block — reproduce its `Pick:` line verbatim; it needs no additional `👉`.
+`👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status). A walk-me-through fork card is already the terminal block — reproduce its `Pick:` line verbatim; it needs no additional `👉`.
 
 The review framework (13 lenses, Phase 0/1, severity taxonomy, `Category`/`Disposition`/`Fix class`,
 return format) lives in `references/framework.md`. The four internal stances live in
@@ -397,9 +397,7 @@ Escape (`D`): discuss later.
 
 Escape (`D`): discuss later.
 
-The escape's free-text reply also serves "explain / why": present which lens flagged it, what the
-reviewer verified, what would change the assessment, and any alternative interpretations considered —
-then re-render the same card without recording a decision.
+The escape's free-text reply also serves "explain / why" — handled in **After each reply** below.
 
 **After each reply:**
 

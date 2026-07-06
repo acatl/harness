@@ -28,12 +28,12 @@ job; this only surfaces what to check and how. Works cold.
 > (for the coverage check). Never hardcode.
 
 ## Breadcrumbs
-Emit one line at start and one at end — so harness iteration can trace this run in the session transcript:
-- **start:** `▶ harness:test-guide` followed by any target (e.g. ` · <change>`).
-- **end:** `■ harness:test-guide v<hash8> → <outcome>` — one-line result (e.g. `web-core · 3 walked · 1 fail` / `nothing to test`). `<hash8>` = `git hash-object` of this SKILL.md, first 8 chars — compute it (run the command) as part of the end-of-run commands; never a placeholder.
+Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
+- **start:** `▶ harness:test-guide` + any target (e.g. ` · <change>`).
+- **end:** `■ harness:test-guide v<hash8> → <outcome>` — one-line result (e.g. `web-core · 3 walked · 1 fail` / `nothing to test`). `<hash8>` = first 8 chars of `git hash-object` on this SKILL.md — compute it (run the command) in the end-of-run commands; never a placeholder.
 
 ## Operator input
-👉 **marks the operator's turn.** Prefix any line that needs their answer — a question, a confirm, a pick — with `👉`, and make it the **terminal block**: below the breadcrumb/trail/next, nothing actionable under it. A blocking question buried above a ready action gets skipped — the eye must land on it last. While a `👉` prompt is open, don't render a runnable `/harness:` next as the move; show it as gated behind the answer. Distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
+`👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 **Read-only.** Never writes, commits, opens/edits a file, runs a sensor that mutates, or touches an
 artifact. It reads, derives, and guides. Fixing is fine-tune's move; automating is the QA agent's.
@@ -109,13 +109,9 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
   the **fail list** as the handoff into fine-tune. Offer an **export** (Gherkin + a priority table) only
   if the operator asks — for handing a QA dev/agent; default is no file.
 
-## Don't
-- **Read-only — never mutate.** No writes, commits, file edits, mutating sensors, artifact touches. Guide only.
-- **Derive, never invent.** Every scenario traces to a spec scenario / AC / decision; an untraceable one
-  is flagged a hypothesis, never asserted as required.
-- **Never persist.** No document by default — the walk is the deliverable; a file is an opt-in `export`,
-  not a thing the pipeline maintains (that's what keeps this from sprawling).
-- **Never fix directly, never automate.** On a fail, `fix now` *hands off* to `fine-tune` (which does the
-  edit) — test-guide never touches code itself; generating automated tests is the QA agent's job.
-- **Conservative coverage.** Never mark `✅` on doubt — default `🔲`; surface the `👁`-only scenarios as
-  the real gap (worked once, no regression net).
+## Don't (guardrails — all enforced in the Steps above)
+- **Read-only — never mutate.** No writes, commits, file edits, mutating sensors, artifact touches.
+- **Derive, never invent.** Untraceable scenario → hypothesis, never asserted as required.
+- **Never persist.** The walk is the deliverable; a file is an opt-in `export` only.
+- **Never fix or automate.** A fail hands off to `fine-tune`; generating automated tests is the QA agent's job.
+- **Conservative coverage.** Never `✅` on doubt — default `🔲`; the `👁`-only scenarios are the real gap.
