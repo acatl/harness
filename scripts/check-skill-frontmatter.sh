@@ -10,10 +10,10 @@ cd "$(dirname "$0")/.."
 
 fail=0
 shopt -s nullglob
-skills=(skills/*/SKILL.md)
+skills=(.claude/skills/*/SKILL.md)
 
 if [ ${#skills[@]} -eq 0 ]; then
-  echo "no skills found under skills/*/SKILL.md" >&2
+  echo "no skills found under .claude/skills/*/SKILL.md" >&2
   exit 1
 fi
 

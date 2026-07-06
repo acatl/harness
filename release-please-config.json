@@ -5,22 +5,22 @@
       "release-type": "node",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
-        { "type": "generic", "path": "skills/harness-address-pr-comments/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-architecture/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-build/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-design/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-explore/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-fine-tune/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-finish/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-init/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-recon/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-refine/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-retro/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-review-change/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-ship/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-status/SKILL.md" },
-        { "type": "generic", "path": "skills/harness-test-guide/SKILL.md" },
-        { "type": "generic", "path": "skills/walk-me-through/SKILL.md" }
+        { "type": "generic", "path": ".claude/skills/harness-address-pr-comments/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-architecture/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-build/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-design/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-explore/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-fine-tune/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-finish/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-init/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-recon/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-refine/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-retro/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-review-change/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-ship/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-status/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/harness-test-guide/SKILL.md" },
+        { "type": "generic", "path": ".claude/skills/walk-me-through/SKILL.md" }
       ]
     }
   }
