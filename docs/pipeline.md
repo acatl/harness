@@ -71,7 +71,7 @@ flowchart TB
   - It keeps **its own progress file** under the change's committed `harness/` dir
     (`openspec/changes/<change>/harness/`) so it always knows where it left off — resumable across sessions.
     (All per-change harness artifacts — reviews, recon, decisions, pr-body — live there, committed so the
-    team sees them. Supersedes the legacy `.specd/` from kino.)
+    team sees them. Supersedes the legacy `.specd/` layout.)
 - **Spec-less mode (small changes).** `refine`'s triage recommends `spec-less` for a change that alters no
   spec-worthy behavior ([triage-lenses](../rules/triage-lenses.md)); `build` records it in the
   `harness/spec-mode` marker and skips **only** the `specs/` delta + strict-verify — it still authors
