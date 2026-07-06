@@ -3,14 +3,16 @@ paths:
   - ".claude/skills/**"
   - "rules/**"
   - "templates/**"
-  - "docs/**"
+  - "docs/runtime-verification-binding.md"
 ---
 
 # Skill authoring style
 
 Skills are read by a machine, not a human. Optimize the **body** for an LLM executor.
 This rule auto-loads (path-scoped) whenever you edit a skill body, a bundled `references/` input,
-or a canonical `rules/`/`templates/`/`docs/` source — the moments skill-authoring judgment applies.
+or a canonical `rules/`/`templates/` source (plus the bundled `docs/runtime-verification-binding.md`) —
+the moments skill-authoring judgment applies. (Only that one `docs/` file is a bundled authoring surface;
+the rest of `docs/` is prose design docs, deliberately out of scope.)
 
 ## Form
 - Structured, telegraphic, deduplicated. Zero rhetoric — no prose, motivation, transitions, hedging.
