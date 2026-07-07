@@ -35,16 +35,10 @@ It only reports. Any action is the operator's next move.
 
 ## Steps
 
-### 1. Resolve scope
-- **Arg = a change name** → detail that change (Steps 2–4).
-- **No arg** → `openspec list --json` (open/non-archived). **0** → nothing in flight; suggest starting
-  (`/harness:refine <intent>` or `/harness:build <task>`); stop. **1** → detail it. **N** → one-line
-  position per change (Step 4 compact), then offer to detail one (no fork needed — just list).
-- Also infer from the current branch when it maps to a change (same resolution as `harness:build` Step 0).
-
-### 1a. Workflow-block drift check (READ-ONLY · project-level · once per run)
-Independent of change scope — runs on every invocation, including 0-changes. Signals when the injected
-CLAUDE.md workflow block lags the current bundled template (after `npx skills add` pulled a newer one).
+### 0. Workflow-block drift check (READ-ONLY · project-level · runs first, before scope)
+Runs **before** Step 1 so the 0-changes stop can't skip it — it's project-level, not tied to a change, so
+it must fire on every invocation. Signals when the injected CLAUDE.md workflow block lags the current
+bundled template (after `npx skills add` pulled a newer one). Compute the advisory here; render in Step 4.
 - Read the project `CLAUDE.md`; find the `<!-- harness:workflow START/END -->` region. Absent (block never
   injected, or operator declined) → **skip silently** (no drift possible; not a warning).
 - Extract the stamp from its meta footer (`<!-- harness:workflow meta — template v<hash8> … -->`). No footer
@@ -53,6 +47,14 @@ CLAUDE.md workflow block lags the current bundled template (after `npx skills ad
   same canonical as init's, so byte-identical ⇒ same hash) truncated to 8 chars. Equal ⇒ current, render
   nothing. Differ ⇒ `⚠️ workflow block behind (v<stamp> → v<current>) — re-run /harness:init to refresh`.
 - **Read-only** — never rewrites the block (that's init's job); status only flags.
+
+### 1. Resolve scope
+- **Arg = a change name** → detail that change (Steps 2–4).
+- **No arg** → `openspec list --json` (open/non-archived). **0** → nothing in flight; render the Step 0
+  advisory (if any), then suggest starting (`/harness:refine <intent>` or `/harness:build <task>`) and stop.
+  **1** → detail it. **N** → one-line position per change (Step 4 compact), then offer to detail one (no
+  fork needed — just list).
+- Also infer from the current branch when it maps to a change (same resolution as `harness:build` Step 0).
 
 ### 2. Gather evidence (READ-ONLY)
 Per change, collect — never write:
@@ -86,7 +88,7 @@ by design and its review is `spec-less-review.md`; neither is a gap. **Never** m
 from downstream evidence just to silence the flag.
 
 ### 4. Render (pipeline trail + evidence + one next step)
-If Step 1a found drift, render its `⚠️ workflow block …` line **first, once, as a header advisory** — above
+If Step 0 found drift, render its `⚠️ workflow block …` line **first, once, as a header advisory** — above
 the per-change trail(s), and on every path including 0-changes (it's project-level, not tied to a change).
 No drift (or no block) → render nothing for it.
 
