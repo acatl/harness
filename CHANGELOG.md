@@ -8,6 +8,14 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.0.1](https://github.com/acatl/harness/compare/harness-pipeline-v1.0.0...harness-pipeline-v1.0.1) (2026-07-07)
+
+
+### Bug Fixes
+
+* **init:** complete injected workflow block and document refresh path ([#21](https://github.com/acatl/harness/issues/21)) ([002adbc](https://github.com/acatl/harness/commit/002adbca20392f5a6112a34802376faba117e9cd))
+* **skills:** defer release-model + default-branch conventions to HARNESS.md ([#23](https://github.com/acatl/harness/issues/23)) ([799bb71](https://github.com/acatl/harness/commit/799bb7152a755254c7b13f86dd020f9ae18daf23))
+
 ## [1.0.0](https://github.com/acatl/harness/compare/harness-pipeline-v0.2.0...harness-pipeline-v1.0.0) (2026-07-06)
 
 
