@@ -12,7 +12,7 @@ description: >-
 argument-hint: "[change-name]"
 metadata:
   author: acatl
-  version: "1.0.0" # x-release-please-version
+  version: "1.0.1" # x-release-please-version
 ---
 
 # harness:finish — closeout (sync + archive + land + close)
