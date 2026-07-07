@@ -51,10 +51,11 @@ Each must pass before the next. This set also defines the pre-push gate (see *Ga
 | Key | Value |
 |-----|-------|
 | task-id prefix | `<e.g. PROJ->` |
-| commit contract | Conventional Commits (release automation reads subjects): `feat:`→minor, `fix:`→patch, `feat!:`/`BREAKING CHANGE:`→major, `chore/ci/docs/refactor/test/style`→no release |
-| branch prefixes | `<feat- / fix- / chore-> off latest origin/main`; never commit to `main` |
+| commit contract | Conventional Commits on every subject **and** the PR squash title. `<If the version source derives the release from the title, give the type→bump mapping here — e.g. feat:→minor, fix:→patch, feat!:/BREAKING CHANGE:→major, chore/ci/docs/refactor/test/style→no release. If the project bumps manually, say so: the title stays Conventional for history but carries no release semantics.>` |
+| default branch | `<e.g. main>` — the trunk PRs merge into + reviews diff against (`origin/<default-branch>...HEAD`); often auto-derivable via `git symbolic-ref refs/remotes/origin/HEAD` |
+| branch prefixes | `<feat- / fix- / chore-> off latest origin/<default-branch>`; never commit to the default branch |
 | PR merge | `<squash-merge with a Conventional title>` |
-| version source | `<path / tool that owns the version>` — never hardcode the version |
+| version source | `<path / tool that owns the version — e.g. release-please via the PR title, or a manual bump in package.json>` — never hardcode the version |
 
 ## Context docs (project knowledge the skills ground on)
 

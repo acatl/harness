@@ -26,8 +26,9 @@ verify core), `pre-ship` (ship's pre-push gate), `operator` (manual, out-of-pipe
 context) owns mode-parsing, the operator wizard, and each caller's return contract. Large diffs may fan
 out to N sub-agents.
 
-> **Bindings.** Resolve from `docs/HARNESS.md`: rules dir (Paths — load-bearing guardrail), Sensors
-> (final verification gate), Context docs › quality score (the judge rubric the reviewer grades
+> **Bindings.** Resolve from `docs/HARNESS.md`: **default branch** (the review base —
+> `origin/<default-branch>...HEAD`; never hardcode `main`), rules dir (Paths — load-bearing guardrail),
+> Sensors (final verification gate), Context docs › quality score (the judge rubric the reviewer grades
 > against — resolve via the binding, never bundle). Never hardcode a lint/test/build command.
 
 ## Breadcrumbs
@@ -56,8 +57,8 @@ the return contract — the engine itself is identical.
 | Mode | Caller | Scope | Depth | Clean-tree gate | Fork behavior | Returns |
 |------|--------|-------|-------|-----------------|---------------|---------|
 | `build-run` | `harness:build` Step F.4 | this run's diff (`<change-name>`) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer) · returns `judge_findings` |
-| `pre-ship` | `harness:ship` pre-push | whole branch `origin/main...HEAD` | **thin** (see below) | **no hard abort** (ship's `git add -A` sweeps); show diff summary | decision-needing → wizard | hands back to ship (ship commits) |
-| `operator` | bare `/harness:review-change` | committed `origin/main...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
+| `pre-ship` | `harness:ship` pre-push | whole branch `origin/<default-branch>...HEAD` | **thin** (see below) | **no hard abort** (ship's `git add -A` sweeps); show diff summary | decision-needing → wizard | hands back to ship (ship commits) |
+| `operator` | bare `/harness:review-change` | committed `origin/<default-branch>...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
 
 ¹ **full = all four stances _eligible_** — each runs only when its trigger surface is present (Adaptivity
 › Scale depth to the diff); stage 3 short-circuits when stages 1–2 applied no fixes. "Full" ≠ "all four
@@ -69,7 +70,7 @@ structurally misses, and where the real bugs hide. Stage 1 (baseline lens sweep)
 commits `build-run` never reviewed:
 - Read each `<change-state-dir>/review-change-review.md` on the branch; take its `reviewed-range`
   footer. The **union** of reviewed ranges = already-lens-reviewed.
-- `origin/main..HEAD` **minus** that union = baseline-priority commits (fine-tune commits, hand-edits,
+- `origin/<default-branch>..HEAD` **minus** that union = baseline-priority commits (fine-tune commits, hand-edits,
   or a build that stopped before F.4 — none carry a reviewed-range).
 - Do **not** use the commit `Tasks:` trailer as the signal — it marks _authored_, not _reviewed_, and
   misfires when a build stopped at a fork before F.4.
@@ -77,7 +78,7 @@ commits `build-run` never reviewed:
   change-state dirs → handle gracefully; never crash on a missing dir.
 
 **`build-run` reviewed-range footer.** In `build-run`, stamp the review artifact with a provenance
-footer `reviewed-range: <base>..<head>` (`<base>` = `origin/main` merge-base, `<head>` = `git rev-parse
+footer `reviewed-range: <base>..<head>` (`<base>` = `origin/<default-branch>` merge-base, `<head>` = `git rev-parse
 HEAD` at review time) so `pre-ship` can compute the un-reviewed complement deterministically. Mirrors
 `pr-body.md`'s `folded-against` footer.
 
@@ -99,9 +100,9 @@ The reviewer-fixer **edits the working tree**, so how each mode treats uncommitt
   changes in scope** and say so (_"reviewing N committed + M uncommitted changes"_). The agent's clear
   fixes land on top of your working tree and **blend with your WIP by design** — you're about to review +
   commit the whole tree anyway. End with `git status --short` so your changes and the fixes are both
-  visible before you commit. (Clean tree → just review the committed branch `origin/main..HEAD`.)
+  visible before you commit. (Clean tree → just review the committed branch `origin/<default-branch>..HEAD`.)
 - **`pre-ship`** — **no hard abort, committed-only scope.** Review the committed range
-  `origin/main..HEAD`; ship's Step 4 `git add -A` then sweeps the fixes + any mechanical stragglers
+  `origin/<default-branch>..HEAD`; ship's Step 4 `git add -A` then sweeps the fixes + any mechanical stragglers
   (format pass, refreshed pr-body) into one atomic ship commit, and its diff-summary surfaces the mixing.
   (`operator` also reviews uncommitted work; `pre-ship` doesn't — we never want to ship a dirty tree, and
   ship commits everything itself.)
@@ -161,7 +162,7 @@ Mode-specific spawn-prompt additions:
 - **`operator`** — full depth, whole scope. Run the final sensor gate. `queued` findings → wizard.
 
 The agent gathers data in batches (parallelism per the framework):
-- **Batch 1** (parallel): `git fetch origin main && git log --oneline <scope>`; `git diff --name-only
+- **Batch 1** (parallel): `git fetch origin <default-branch> && git log --oneline <scope>`; `git diff --name-only
   <scope>`; `openspec list --json`; read `CLAUDE.md`, the package manifest, `README.md` (Phase 0);
   in `build-run`, the handed build artifacts.
 - **Gate**: nothing in scope — no diverging commits (and, in `operator` mode, no uncommitted changes) →
