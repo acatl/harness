@@ -58,8 +58,8 @@ For rows where `pr_url`/`merged`/`ci_passed`/`review_comments` are `null` but th
 - **Spec-mode & triage:** split every metric by `spec_mode` (full vs spec-less — a spec-less run *should*
   show `verify_gaps=null`, that's not a regression). Track the spec-less **escalation rate** (spec-less
   runs that flipped to full mid-build): high ⇒ the spec-worthiness **triage lenses** (`triage-lenses.md`,
-  bundled in build/refine) are under-catching at triage time — feed it back to sharpen the disqualifier
-  lenses.
+  bundled in `harness:build` + `harness:refine` — edit them there) are under-catching at triage time —
+  feed it back to sharpen the disqualifier lenses.
 - **Scope intake:** `scope_stops` rate (high ⇒ tasks mis-scoped upstream, not a harness bug).
 - **Reality (post-backfill):** % `merged`, % `ci_passed`, mean `review_comments` — does the harness ship
   changes that hold up, not just green ones?
