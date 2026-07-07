@@ -42,6 +42,18 @@ It only reports. Any action is the operator's next move.
   position per change (Step 4 compact), then offer to detail one (no fork needed — just list).
 - Also infer from the current branch when it maps to a change (same resolution as `harness:build` Step 0).
 
+### 1a. Workflow-block drift check (READ-ONLY · project-level · once per run)
+Independent of change scope — runs on every invocation, including 0-changes. Signals when the injected
+CLAUDE.md workflow block lags the current bundled template (after `npx skills add` pulled a newer one).
+- Read the project `CLAUDE.md`; find the `<!-- harness:workflow START/END -->` region. Absent (block never
+  injected, or operator declined) → **skip silently** (no drift possible; not a warning).
+- Extract the stamp from its meta footer (`<!-- harness:workflow meta — template v<hash8> … -->`). No footer
+  (block predates stamping) → report `⚠️ workflow block unstamped — re-run /harness:init to stamp it`.
+- Compare to `git hash-object references/claude-workflow.md` (skill-relative bundled copy — synced from the
+  same canonical as init's, so byte-identical ⇒ same hash) truncated to 8 chars. Equal ⇒ current, render
+  nothing. Differ ⇒ `⚠️ workflow block behind (v<stamp> → v<current>) — re-run /harness:init to refresh`.
+- **Read-only** — never rewrites the block (that's init's job); status only flags.
+
 ### 2. Gather evidence (READ-ONLY)
 Per change, collect — never write:
 - `openspec status --change "<name>" --json` → artifacts authored / apply-ready / archived.
@@ -74,7 +86,11 @@ by design and its review is `spec-less-review.md`; neither is a gap. **Never** m
 from downstream evidence just to silence the flag.
 
 ### 4. Render (pipeline trail + evidence + one next step)
-Per `references/pipeline-map.md`: the trail with all `✓`, the `▸ here`, and **one** `◦ next`. Add a short
+If Step 1a found drift, render its `⚠️ workflow block …` line **first, once, as a header advisory** — above
+the per-change trail(s), and on every path including 0-changes (it's project-level, not tied to a change).
+No drift (or no block) → render nothing for it.
+
+Then, per `references/pipeline-map.md`: the trail with all `✓`, the `▸ here`, and **one** `◦ next`. Add a short
 evidence line per `✓` so the operator trusts it. End with the **single immediately-runnable next step**
 (the one-runnable-command rule: a human-action step — "review + merge the PR", "test it yourself" — shows
 the *action*, not a `/harness:` command; downstream stays a trail label).

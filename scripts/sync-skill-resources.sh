@@ -18,6 +18,7 @@ cd "$(dirname "$0")/.."
 MAP=(
   "templates/HARNESS.md::.claude/skills/harness-init/templates/HARNESS.md"
   "templates/claude-workflow.md::.claude/skills/harness-init/templates/claude-workflow.md"
+  "templates/claude-workflow.md::.claude/skills/harness-status/references/claude-workflow.md"
   "templates/context-docs/QUALITY_SCORE.md::.claude/skills/harness-init/templates/context-docs/QUALITY_SCORE.md"
   "templates/context-docs/ARCHITECTURE.md::.claude/skills/harness-init/templates/context-docs/ARCHITECTURE.md"
   "templates/context-docs/PRODUCT.md::.claude/skills/harness-init/templates/context-docs/PRODUCT.md"
