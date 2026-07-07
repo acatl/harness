@@ -124,9 +124,11 @@ Runs only on a complete pass (HARNESS.md written, gates cleared — the block po
 - **Managed region (idempotent):** markers already present in the project `CLAUDE.md` → replace **only**
   between them (preserve everything outside). Absent → **append** the block (never rewrite the operator's
   CLAUDE.md). No `CLAUDE.md` at all → offer to create a minimal one containing just the block.
-- **Version-stamp the region (drift signal).** Before writing, compute `git hash-object` of the bundled
-  template (skill-relative `templates/claude-workflow.md`) — piggyback the end-of-run bash that
-  computes the breadcrumb hash. Take first 8 chars; substitute the literal `HASH8` token in the meta footer
+- **Version-stamp the region (drift signal).** Before writing, compute `git hash-object
+  <this-skill-dir>/templates/claude-workflow.md` — anchor the path to **this skill's own dir** (the dir this
+  SKILL.md loads from, e.g. `.claude/skills/harness-init/`); init runs from the **project root**, so a bare
+  relative path would miss. Piggyback the end-of-run bash that computes the breadcrumb hash. Take first 8
+  chars; substitute the literal `HASH8` token in the meta footer
   (`<!-- harness:workflow meta — template vHASH8 … -->`) with it, then write the substituted block. The
   template on disk keeps the literal `HASH8` (never substituted there) so it hashes stably; `harness:status`
   re-hashes the same file and compares. **On re-run** (region already present): extract the existing stamp,

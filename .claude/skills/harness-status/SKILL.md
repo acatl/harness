@@ -43,9 +43,12 @@ bundled template (after `npx skills add` pulled a newer one). Compute the adviso
   injected, or operator declined) → **skip silently** (no drift possible; not a warning).
 - Extract the stamp from its meta footer (`<!-- harness:workflow meta — template v<hash8> … -->`). No footer
   (block predates stamping) → report `⚠️ workflow block unstamped — re-run /harness:init to stamp it`.
-- Compare to `git hash-object references/claude-workflow.md` (skill-relative bundled copy — synced from the
-  same canonical as init's, so byte-identical ⇒ same hash) truncated to 8 chars. Equal ⇒ current, render
-  nothing. Differ ⇒ `⚠️ workflow block behind (v<stamp> → v<current>) — re-run /harness:init to refresh`.
+- Compare to `git hash-object <this-skill-dir>/references/claude-workflow.md` — resolve the absolute path to
+  **this skill's own dir** (the dir this SKILL.md loads from, e.g. `.claude/skills/harness-status/`) and hash
+  the bundled copy there; `/harness:status` runs from the **project root**, so a bare `references/…` would
+  miss (or hit an unrelated project file) — always use the skill-dir-anchored path. That bundled copy is
+  synced from the same canonical as init's ⇒ byte-identical ⇒ same hash. Truncate to 8 chars. Equal ⇒
+  current, render nothing. Differ ⇒ `⚠️ workflow block behind (v<stamp> → v<current>) — re-run /harness:init to refresh`.
 - **Read-only** — never rewrites the block (that's init's job); status only flags.
 
 ### 1. Resolve scope
