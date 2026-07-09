@@ -47,13 +47,15 @@ flowchart TB
   HT -. "want a self-review first" .-> LR["/harness:review-change (operator)<br/>4-stance self-review · fix clear · queue decisions"]:::cmd -.-> HT
   HT -- "ready to ship" --> SH["/harness:ship<br/>pre-ship review (thin) → push + open PR"]:::cmd
 
-  SH --> H3(["👤 review + MERGE PR"]):::human
-  SH -. "PR has comments" .-> APC["/harness:address-pr-comments<br/>triage · auto-fix · reply · resolve"]:::cmd -.-> H3
-  H3 --> F["/harness:finish<br/>sync-specs + archive · merge-gate is CONFIRMABLE<br/>two-merge (chore PR) | single-merge (configurable)"]:::cmd --> H4(["👤 final gate<br/>merge chore PR — or skipped in single-merge"]):::human
+  SH --> MM{"finish merge mode?<br/>HARNESS.md"}:::dec
+  SH -. "PR has comments" .-> APC["/harness:address-pr-comments<br/>triage · auto-fix · reply · resolve"]:::cmd -.-> MM
+  MM -- "two-merge" --> H3(["👤 review + MERGE feature PR"]):::human --> F["/harness:finish<br/>sync-specs + archive → chore PR (2nd merge)"]:::cmd --> H4(["👤 merge chore PR — final gate"]):::human
+  MM -- "single-merge" --> FS["/harness:finish<br/>sync-specs + archive · rides the still-open PR<br/>(archive-before-merge · no 2nd PR)"]:::cmd --> H3S(["👤 review + MERGE feature PR — closes the change"]):::human
 
   %% observability loop — the harness improves itself from data
   CORE -- "append run row" --> LOG[("run-log · JSONL<br/>git-ignored telemetry")]:::cfg
   F -. "backfill reality fields (merged, ci, comments)" .-> LOG
+  FS -. "backfill reality fields" .-> LOG
   LOG --> RV["/harness:retro<br/>aggregate · surface friction · propose edits"]:::cmd
   RV -. "human-approved edits to skills / config" .-> HN
 ```
@@ -102,7 +104,10 @@ flowchart TB
 - **`harness:finish` merge-gate is confirmable, not a wall.** Default = two-merge (feature PR, then a
   chore PR for sync+archive). If it can't confirm the feature merged, it ASKS ("already merged /
   tested in prod / single-merge flow?") rather than hard-stopping. **Single-merge mode** is
-  configurable per project (folds sync+archive into one landing, no second PR).
+  configurable per project (folds sync+archive into one landing, no second PR) — there `finish` runs
+  **before** the merge, riding the still-open feature PR (archive-before-merge); the human merge that
+  follows is the change's close, **not** a skipped step. So the ordering flips by mode: two-merge is
+  `merge → finish`, single-merge is `finish → merge`.
 - **`harness:explore`** is the improved OpenSpec Explore — thinking partner with digestible,
   one-thread-at-a-time output (no more walls of text). Optional; used before `build` on big codebases.
   The native `/opsx:explore` remains available too.
@@ -111,8 +116,9 @@ flowchart TB
 - **Task-tracker touchpoints** run through the verb contract **+ configurable per-stage hooks**: at
   each stage (refined / building / verified / PR-open / merged) the project's HARNESS.md can map a
   tracker action — move column, set status, add label. All optional, all project-configured.
-- **Gate H3** = review + merge the PR (the real review). **`address-pr-comments`** is a side-loop on
-  the open PR, not a linear stage.
+- **Gate H3 / H3S** = review + merge the PR (the real review) — **H3 before `finish`** in two-merge,
+  **H3S after `finish`** in single-merge. **`address-pr-comments`** is a side-loop on the open PR, not a
+  linear stage.
 - **Observability loop (self-improvement).** `build` appends one JSONL row per run to the run-log
   (sensors, failures, iterations, interventions, outcome — keystone `skill_version`). `finish`/`retro`
   backfill reality fields (merged, ci_passed, comments). `harness:retro` aggregates it and **proposes**
