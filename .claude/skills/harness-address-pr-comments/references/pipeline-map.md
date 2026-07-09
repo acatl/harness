@@ -52,9 +52,11 @@ Example (build at the spec-review gate):
 | `fine-tune` · loop pause | … · verify | polishing — approve or continue | ship |
 | `review-change` (operator) end · tree clean | … · verify | branch clean — ready to ship | ship |
 | `review-change` (operator) end · fixes uncommitted | … · verify | fixes applied — commit before shipping | ship |
-| `ship` end (no PR comments) | … · verify · ship | review + merge the PR | finish |
-| `ship` end (PR has comments) | … · verify · ship | review + merge the PR | address comments |
-| `address-pr-comments` end | … · ship | comments handled — merge the PR | finish |
+| `ship` end · two-merge (no comments) | … · verify · ship | review + merge the PR | finish |
+| `ship` end · single-merge (no comments) | … · verify · ship | run `/harness:finish` (rides the open PR) | finish |
+| `ship` end (PR has comments) | … · verify · ship | address the comments | address comments |
+| `address-pr-comments` end · two-merge | … · ship | comments handled — merge the PR | finish |
+| `address-pr-comments` end · single-merge | … · ship | comments handled — run `/harness:finish` | finish |
 | `finish` end · two-merge | … · finish | merge the chore PR | done |
 | `finish` end · single-merge | … · finish | done — nothing left | — |
 

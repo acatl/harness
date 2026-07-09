@@ -24,8 +24,8 @@ conforming to the project's **commit contract**, so whatever release model is in
 broken.
 
 > **Bindings.** Resolve from `docs/HARNESS.md`: format sensor, branch/commit conventions, version
-> source, pre-push gate, task-tracker `link` verb + `PR open` stage hook, PR host, change-state dir.
-> Never hardcode.
+> source, pre-push gate, task-tracker `link` verb + `PR open` stage hook, PR host, change-state dir,
+> **Finish › merge mode** (`single-merge` | `two-merge`) — governs Step 9's Next pointer. Never hardcode.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -100,12 +100,16 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    without asking. (Only mutations to a *different* ticket, or creating/closing tickets outside this one,
    need a confirm.)
 9. **Pipeline trail + Next pointer.** Emit the "you are here" trail for the `ship` end stop per
-   `references/pipeline-map.md` (one line) — its `◦ finish` label carries the after-merge step, so the loop
-   isn't silent. Then a `Next:` line naming **only the immediately-runnable action: review + merge the PR**
-   (a human action — no command to run yet). **Do NOT print `/harness:finish` or "then run X after merge"
-   here** — finish is premature until the PR merges, and naming a not-yet-runnable command invites a
-   mis-fire (one runnable command rule, `references/pipeline-map.md`). finish surfaces as the trail's
-   `◦ finish` label only.
+   `references/pipeline-map.md` (one line), so the loop isn't silent. Then a `Next:` line — **branch on the
+   resolved Finish merge mode** (one runnable command rule, `references/pipeline-map.md`):
+   - **two-merge:** finish is genuinely **post-merge** (its own chore PR). Next = **only the
+     immediately-runnable action: review + merge the PR** (a human action — no command yet). **Do NOT
+     print `/harness:finish` or "then run X after merge"** — naming a not-yet-runnable command invites a
+     mis-fire. finish surfaces as the trail's `◦ finish` label only.
+   - **single-merge:** finish is **pre-merge** — it rides the still-open PR (archive-before-merge). So
+     `/harness:finish` **is** the immediately-runnable next action (folds sync+archive onto the open PR;
+     one squash-merge lands it). Next = `/harness:finish`. Do **not** tell the operator to merge first —
+     that inverts the single-merge flow.
 
 ## Don't
 - **Don't squash-merge yourself** unless asked — merging the PR (and any release PR the project's
