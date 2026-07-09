@@ -58,7 +58,7 @@ Example (build at the spec-review gate):
 | `address-pr-comments` end · two-merge | … · ship | comments handled — merge the PR | finish |
 | `address-pr-comments` end · single-merge | … · ship | comments handled — run `/harness:finish` | finish |
 | `finish` end · two-merge | … · finish | merge the chore PR | done |
-| `finish` end · single-merge | … · finish | done — nothing left | — |
+| `finish` end · single-merge | … · finish | review + merge the PR | done |
 
 - Trim the left side to fit one line if it gets long (e.g. start from the most recent 4–5 `✓`); never
   drop the `▸ here` or the `◦ next`.
