@@ -16,4 +16,5 @@ small changes don't opt out, they run **spec-less** (lighter: no formal spec, st
 
 Bindings (sensors · paths · tracker): `docs/HARNESS.md`.
 *Setup & upkeep: `/harness:init` (bindings) · `/harness:retro` (improve the harness itself).*
+<!-- harness:workflow meta — template vHASH8 · drift → /harness:status flags "block behind"; re-run /harness:init to refresh (HASH8 = git hash-object of the bundled template, substituted at write-time; unsubstituted here so the template hashes stably) -->
 <!-- harness:workflow END -->
