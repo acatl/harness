@@ -8,6 +8,18 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.1.0](https://github.com/acatl/harness/compare/harness-pipeline-v1.0.1...harness-pipeline-v1.1.0) (2026-07-09)
+
+
+### Features
+
+* **harness:** version-stamp the workflow block + drift-detect from status ([#24](https://github.com/acatl/harness/issues/24)) ([9038ec1](https://github.com/acatl/harness/commit/9038ec12281fe56569df16e859231e9f860b2de9))
+
+
+### Bug Fixes
+
+* **pipeline:** resolve Finish merge mode in end-stop next-pointers ([#26](https://github.com/acatl/harness/issues/26)) ([e3c91be](https://github.com/acatl/harness/commit/e3c91be1c941a889f7c035cbd74a45752c14a3fe))
+
 ## [1.0.1](https://github.com/acatl/harness/compare/harness-pipeline-v1.0.0...harness-pipeline-v1.0.1) (2026-07-07)
 
 
