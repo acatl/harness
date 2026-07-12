@@ -8,6 +8,14 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.2.0](https://github.com/acatl/harness/compare/harness-pipeline-v1.1.0...harness-pipeline-v1.2.0) (2026-07-12)
+
+
+### Features
+
+* **explore:** sequence threads build-order with auto-advance and escape hatches ([#28](https://github.com/acatl/harness/issues/28)) ([5533497](https://github.com/acatl/harness/commit/55334974f17cb8f0ee47cd627def30d86ab15e60))
+* **skills:** class-of-issue sweep + guided test-guide ([#27](https://github.com/acatl/harness/issues/27)) ([18c6767](https://github.com/acatl/harness/commit/18c67678e3ee9d8695b3fcbb06335e1a12e50b4f))
+
 ## [1.1.0](https://github.com/acatl/harness/compare/harness-pipeline-v1.0.1...harness-pipeline-v1.1.0) (2026-07-09)
 
 
