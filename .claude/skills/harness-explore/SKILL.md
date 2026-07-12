@@ -68,7 +68,8 @@ fork card (`references/walk-me-through.md`) — pure text, operator replies by l
 - **Overview, then dive.** One-line the ordered list (thread titles only), then immediately enter thread 1
   in `walk-me-through` one-at-a-time style. Don't stop to ask which to open — a thread not worth surfacing
   shouldn't be in the list; making the operator pick which to open first is a dead beat.
-- **Auto-advance.** Finish a thread → move to the next yourself, naming it as you go.
+- **Auto-advance.** Thread wraps → open the next in the *following* turn, naming it. One-thread-per-turn
+  holds — don't stack threads in one message, and don't advance past an open `👉` (finish that exchange first).
 - **Escape hatch (agency, not a menu).** Operator may jump / skip / drop / reorder / go deeper at any turn
   ("skip to #3", "drop #2", "go deeper here"). Remove the upfront *choice*, not the operator's agency.
 
