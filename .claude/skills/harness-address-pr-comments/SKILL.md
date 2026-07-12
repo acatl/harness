@@ -160,9 +160,11 @@ missing return type"). Goal: the bot flags 1 of N identical spots → all N die 
   can never find tier-2. Two steps:
   1. **`rg` the signature** across the touched files **and** the wider repo (scope the repo pass to the
      language/dirs the class can occur in; cap results + note if capped).
-  2. **Classify each hit against the PR patch hunks** (the full patch from Phase 1): hit on an
-     **added/changed line inside a hunk** → **tier-1**; hit **outside every hunk** (unchanged line in a
-     touched file, or an untouched file) → **tier-2**.
+  2. **Classify each hit against the PR patch hunks** (the full patch from Phase 1): tier-1 **only** when
+     the hit is on an **added line** (a `+` line — the new side this PR introduced). **Everything else is
+     tier-2** — a context line *inside* a hunk (unchanged, space-prefixed), an unchanged line outside any
+     hunk, or an untouched file. Key tier-1 off added lines, **never** off "inside a hunk" (hunks carry
+     pre-existing context lines that aren't PR-introduced).
 - **Two tiers by locality:**
   - **Tier 1 (auto-fix):** this-PR-introduced sibling → add to the owning finding's fix batch, same commit.
   - **Tier 2 (surface only):** pre-existing sibling → **never auto-fix** (separate blast radius). Collect
@@ -213,7 +215,7 @@ gate criterion (also walked in 5d / shown in the Decisions table when interactiv
 
 ## Principles
 Correctness over scope · standards are authority · auto-fix is default (Decision Gate is the filter) ·
-sweep the class not just the instance (rg → tier-1 in-hunk auto-fixed, tier-2 surfaced; per-candidate gate) ·
+sweep the class not just the instance (rg → tier-1 added-line auto-fixed, tier-2 surfaced; per-candidate gate) ·
 parallelize aggressively · idempotent by trailer (`[harness:address-pr-comments]`) · YAGNI before
 accepting abstractions · machine-readable replies (trailer mandatory) · resolve what you fixed (dismiss
 stale bot reviews) · stop only at genuine forks (no plan-approval gate) · report is rendered markdown ·
