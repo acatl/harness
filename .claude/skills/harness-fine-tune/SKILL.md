@@ -7,7 +7,8 @@ description: >-
   fix → test → approve → sync-and-commit loop with topic-drift detection, accumulation nudges, and a
   session-start git cleanliness gate. It is a STICKY mode: it re-anchors every turn, survives nested
   skills, and exits only on an explicit "exit"/confirmed-yes. Commits locally; hands off to harness:ship
-  for push + PR.
+  for push + PR. Pass `guided` to auto-run the test-guide instead of waiting for a yes.
+argument-hint: "[guided]"
 metadata:
   author: acatl
   version: "1.1.0" # x-release-please-version
@@ -19,6 +20,8 @@ Lightweight session state machine for iterative polishing after a change is impl
 
 > **Bindings.** Test step uses the `format`/`lint`/`test`/`typecheck` **sensors** (HARNESS.md ›
 > Sensors). Doc-sync targets the change-state dir. Push + PR = `harness:ship`.
+> **Arg `guided`** — the test-guide runs automatically (Step 2), no yes/no gate. Persisted in the marker,
+> so it holds across the sticky loop and context loss.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -36,9 +39,10 @@ silently end:
   completing is NOT an exit (this is the bug to prevent).
 - **Exit only on an explicit signal:** the operator says "exit" / "done" / "stop fine-tuning", **or**
   you ask "Exit fine-tune?" and they confirm.
-- **Marker:** drop `<change-state-dir>/fine-tune-active.md` (topic + status + whether the test-guide
-  offer has been made — see Step 2) at start so the mode survives nested skills + context loss; clear it
-  on exit. On (re)entry, if the marker exists, resume its topic (and don't re-offer the test-guide).
+- **Marker:** drop `<change-state-dir>/fine-tune-active.md` (topic + status + whether the test-guide step
+  is done — offered, or auto-run in guided mode — + the `guided` flag if set — see Step 2) at start so the
+  mode survives nested skills + context loss; clear it on exit. On (re)entry, if the marker exists, resume
+  its topic, its `guided` setting, and don't re-run the test-guide step.
 
 ## Session-start gate (once per session)
 Before the first pass, `git status --porcelain`. Uncommitted changes → stop: "commit or stash first — I
@@ -57,8 +61,10 @@ don't leave red and hand back.
 
 **Offer the test-guide — once per session** (first pass, after sensors are green): if the marker hasn't
 recorded the offer and the change isn't pure-logic-only (nothing behavioral to walk → skip silently, same
-skip-condition as runtime-verification), ask — terminal `👉` block — `👉 Walk the manual/behavioral test
-scenarios with /harness:test-guide before continuing? (yes / no)`. **yes** → run `harness:test-guide` as a
+skip-condition as runtime-verification) — **guided mode** (arg `guided`, or the marker records `guided`) →
+**skip the ask, auto-run `harness:test-guide`** directly (no `👉` gate); **otherwise** ask — terminal `👉`
+block — `👉 Walk the manual/behavioral test scenarios with /harness:test-guide before continuing?
+(yes / no)` and run it only on **yes**. When invoked, `harness:test-guide` runs as a
 **nested skill** (non-terminal — resume this loop after, per Sticky mode). **Route from test-guide's own
 outcome** — `fix now` → the finding becomes the next fix pass; `note & continue` / `stop` → don't force a
 fix, just resume the loop. Record `test-guide-offered` in the marker **either way** so it's not re-asked on
