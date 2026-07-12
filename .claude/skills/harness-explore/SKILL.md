@@ -63,7 +63,7 @@ question or a small pick. If a stop needs a pick between alternatives, render it
 fork card (`references/walk-me-through.md`) — pure text, operator replies by letter; never `AskUserQuestion`.
 
 **Sequence + auto-advance — don't ask "which thread first?".** When ≥2 threads surface:
-- **Order build-order** — foundational → dependent, each thread building on the prior where it applies;
+- **Build-order the threads** — foundational → dependent, each building on the prior where it applies;
   independent threads → order by logical progression, not by importance.
 - **Overview, then dive.** One-line the ordered list (thread titles only), then immediately enter thread 1
   in `walk-me-through` one-at-a-time style. Don't stop to ask which to open — a thread not worth surfacing
