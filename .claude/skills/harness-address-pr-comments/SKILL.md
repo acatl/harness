@@ -92,7 +92,7 @@ Main agent
       2 fetch all comment threads + thread IDs (GraphQL), idempotency filter
       3 read project standards + derive verify commands
       4 per-thread verdict (fan out when N>10)
-      4.5 class-of-issue sweep (tier-1 siblings in-diff → fix batch; tier-2 → surface)
+      4.5 class-of-issue sweep (rg for siblings → classify vs hunks: tier-1 fix / tier-2 surface; per-candidate gate)
  ├ Phase 5: overview + thread table + decision wizard (DECISION-NEEDED forks only)
  └ Phase 6: execute end-to-end (implement → verify → commit → push → reply → dismiss → resolve → report)
 ```
@@ -102,7 +102,7 @@ Main agent
 2. `gh pr view <n> --json number,title,headRefName,url,author,state,reviewDecision,body,baseRefName`.
 3. Repo coords: `gh repo view --json owner,name --jq '{owner:.owner.login,name:.name}'` → store `$OWNER/$NAME` (never re-fetch).
 4. Linked issues: `gh pr view <n> --json closingIssuesReferences --jq '.closingIssuesReferences[]'`.
-5. Diff: `gh pr diff <n> --name-only`.
+5. Diff: `gh pr diff <n> --name-only` (file list for scope) **+ `gh pr diff <n>`** (full patch — Phase 4.5 needs hunk boundaries to classify tier-1 vs tier-2).
 6. Scope statement (linked issue → title/desc → diff) — context only; does not gate fixes (principle 1).
 
 ## Phase 1.5 — pre-flight git state (HARD GATE; abort on any failure)
@@ -152,26 +152,33 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
 - **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts) + per-thread block (`#`, `ThreadID`, `RootCommentID`, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/`Option A`/`Option B`/`Blocker`, `Reply tag`, `Code context`).
 
 ## Phase 4.5 — class-of-issue sweep (kill repeat bot rounds)
-For each **AUTO-FIX** finding, derive a **class signature** — the transformable pattern, not the literal
-line (e.g. "mapper returns raw Date", "handler missing null-guard on a route param", "exported fn missing
-return type"). Grep the **PR diff** for sibling instances the reviewer didn't flag. Goal: the bot flags 1
-of N identical spots → all N die this round, no round 2.
+Sweep only classes whose fix is **AUTO-FIX-taxonomy mechanical** (Decision Gate); a DECISION-NEEDED class
+isn't swept. For each such finding, derive a **class signature** — the transformable pattern, not the
+literal line (e.g. "mapper returns raw Date", "handler missing null-guard on a route param", "exported fn
+missing return type"). Goal: the bot flags 1 of N identical spots → all N die this round, no round 2.
+- **Discover with `rg`, not the diff** — a diff omits unchanged lines + untouched files, so grepping it
+  can never find tier-2. Two steps:
+  1. **`rg` the signature** across the touched files **and** the wider repo (scope the repo pass to the
+     language/dirs the class can occur in; cap results + note if capped).
+  2. **Classify each hit against the PR patch hunks** (the full patch from Phase 1): hit on an
+     **added/changed line inside a hunk** → **tier-1**; hit **outside every hunk** (unchanged line in a
+     touched file, or an untouched file) → **tier-2**.
 - **Two tiers by locality:**
-  - **Tier 1 (auto-fix):** sibling on an **added/changed line this PR introduced** (inside a diff hunk) →
-    add to the owning finding's fix batch, same commit.
-  - **Tier 2 (surface only):** sibling in a **touched file but outside the diff hunks**, or elsewhere in
-    the repo → **never auto-fix** (pre-existing debt, separate blast radius). Collect for the report + a
-    copy-paste follow-up-issue command. Not caused by this PR → don't smuggle a repo-wide refactor into a
+  - **Tier 1 (auto-fix):** this-PR-introduced sibling → add to the owning finding's fix batch, same commit.
+  - **Tier 2 (surface only):** pre-existing sibling → **never auto-fix** (separate blast radius). Collect
+    for the report + a copy-paste follow-up-issue command. Don't smuggle a repo-wide refactor into a
     comment-resolution run.
-- **Gate:** sweep **only** classes whose fix is AUTO-FIX-taxonomy mechanical (Decision Gate). A
-  DECISION-NEEDED class is **not** blanket-applied — a sibling's context can differ, and the operator's
-  per-thread decision doesn't authorize siblings.
-- **Candidate ≠ confirmed:** the sweep yields *candidates* by signature; the Phase-6a implementer
-  verifies each candidate genuinely matches the class before fixing — no blind find-replace.
+- **Per-candidate Decision Gate (not just the class):** the class being AUTO-FIX authorizes the *sweep*,
+  not each sibling. Re-run the Decision Gate on **every confirmed tier-1 candidate** — a sibling matching a
+  mechanical signature can still sit on a public-contract / schema / architectural / load-bearing surface.
+  Any candidate that trips a gate criterion → **DECISION-NEEDED** (5d wizard if interactive, else report),
+  never auto-fixed — even though the originating class was AUTO-FIX.
+- **Candidate ≠ confirmed:** `rg` yields *candidates* by signature; the Phase-6a implementer verifies each
+  genuinely matches the class before fixing — no blind find-replace.
 - **Dedup vs reviewer:** a sibling already covered by another thread is **already handled**, not swept —
   count only instances no thread flagged.
-- **Emit** per swept class: `{class, source_thread, tier1_siblings:[file:line], tier2_instances:[file:line]}`
-  → tier1 carried into 6a, both into the report.
+- **Emit** per swept class: `{class, source_thread, tier1_siblings:[file:line], tier2_instances:[file:line],
+  gate_deferred:[file:line]}` → tier1 → 6a; tier2 + gate_deferred → report (gate_deferred also → 5d when interactive).
 
 ## Phase 5 — overview + decision-only wizard
 Main agent renders from returned data (no re-fetch).
@@ -188,7 +195,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 - **6c commit:** **race check** — `test "$(git rev-parse HEAD)" = "$START_SHA"` else abort. **Empty-diff** — `git diff --quiet HEAD && SKIP_COMMIT=true`. Else semantic commit, `git add <specific files — never -A>`, body lists `Addresses PR #N review:` with `<reviewer> L<line>: <one-line> (<comment-url>)`, prerequisite inline fixes named with causal reason (HARNESS.md conventions). **Never `--no-verify`**; pre-commit hook fail → diagnose, fix, **new commit (never amend)**.
 - **6c.1 empty-diff short-circuit:** SKIP_COMMIT=true (all DECLINE/ALREADY/UNCLEAR) → skip commit + push, go to reply/resolve; report `Commits: none — no fixes required.`
 - **6d push:** `git push` (`-u origin <branch>` if no upstream; never force-push without explicit request). Capture CI URL: `CI_RUN_URL=$(gh run list --branch "$BRANCH" --limit 1 --json url --jq '.[0].url // ""')` (empty ok).
-- **6e reply in-thread (machine-readable):** tags — `fixed: <what>. commit:<sha7>` (when Phase-4.5 tier-1 siblings were fixed under this thread, append ` swept:<N> same class. files:<f1,f2>` before `commit:` — tells the reviewer/bot the class was cleared) · DECISION-NEEDED `fixed: <what>. choice:<A|B|custom>. commit:<sha7>` · `wontfix: <reason>. ref:<path/rule>` · `already: <where>. commit:<sha7|pre-existing>` · `unclear: <question>` · `deferred: <issue-url>`. No greetings/thanks/backticks; ASCII; ≤200 chars (hard cap 500 excl. trailer); tag is first token (parsers split on `:`). **Mandatory signature trailer** — blank line then `[harness:address-pr-comments]` on its own final line (idempotency). Post: inline reply `gh api repos/$OWNER/$NAME/pulls/$PR/comments/$ROOT_COMMENT_ID/replies -f body="$(printf '%s\n\n[harness:address-pr-comments]\n' "$BODY")"` (use `-f body=`, not `--input -`); top-level review/issue → issue comment with a parseable `Re-review-<review-id>:` header line + the tagged reply. Throttle `sleep 2`; on 422 abuse / 403 Retry-After honor header or wait 60s, retry. >20 replies → single aliased GraphQL mutation.
+- **6e reply in-thread (machine-readable):** tags — `fixed: <what>. commit:<sha7>` (when Phase-4.5 tier-1 siblings were fixed under this thread, append ` swept:<N> same class` before `commit:` — tells the reviewer/bot the class was cleared; add up to 2 file **basenames** only if the fully-serialized body incl. trailer stays ≤200, else emit the count alone — the report's Class-sweep section carries the full file list) · DECISION-NEEDED `fixed: <what>. choice:<A|B|custom>. commit:<sha7>` · `wontfix: <reason>. ref:<path/rule>` · `already: <where>. commit:<sha7|pre-existing>` · `unclear: <question>` · `deferred: <issue-url>`. No greetings/thanks/backticks; ASCII; ≤200 chars (hard cap 500 excl. trailer); tag is first token (parsers split on `:`). **Validate the serialized body length (incl. trailer) before the API call** — over 200 → drop the `swept` file list first, then truncate `<what>`; never exceed the 500 hard cap. **Mandatory signature trailer** — blank line then `[harness:address-pr-comments]` on its own final line (idempotency). Post: inline reply `gh api repos/$OWNER/$NAME/pulls/$PR/comments/$ROOT_COMMENT_ID/replies -f body="$(printf '%s\n\n[harness:address-pr-comments]\n' "$BODY")"` (use `-f body=`, not `--input -`); top-level review/issue → issue comment with a parseable `Re-review-<review-id>:` header line + the tagged reply. Throttle `sleep 2`; on 422 abuse / 403 Retry-After honor header or wait 60s, retry. >20 replies → single aliased GraphQL mutation.
 - **6e.1 dismiss stale top-level reviews:** for each `CHANGES_REQUESTED` review whose inline findings were all handled — **bot reviewers** (login ends `[bot]`) auto-dismiss (`gh api -X PUT repos/$OWNER/$NAME/pulls/$PR/reviews/$REVIEW_ID/dismissals --field message='superseded by commit:<sha7>'`); **human reviewers** → surface command in report, don't auto-dismiss. Failures non-fatal.
 - **6e.2 bulk reply (N>20):** one aliased GraphQL mutation (`r1: addPullRequestReviewThreadReply(...)`, `r2: ...`), two requests total. REST fallback ≤20 with throttle.
 - **6e.3 failure handling:** continue on failure; per call capture stderr+status, retry once on 422 abuse / 403 Retry-After, then record `{ids, command, error}` in `FAILURES`; surface a copy-paste retry block in the report.
@@ -198,13 +205,15 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 
 ## Final report (rendered markdown, never a code fence; omit zero-count rows)
 Lead (bold, one line): `✅ PR #N — <title> · X fixed · Y resolved · pushed <sha7>` (⚠️ + failure count if anything failed). Then: **Outcome table** (status/count/detail — 🔧 Fixed · 🤔 Decided · 🚫 Declined · ✅ Already · ❓ Unclear · ⏭️ Deferred · ⏭️ Skipped); **Decisions table** (only if ≥1 operator decision); **Verification + GitHub** (Typecheck/Lint/Tests ✅/❌/➖ · Threads resolved · Replies posted · Stale reviews dismissed · Re-request review · CI run link); **Files touched** (clickable bullets); **Tail** (cascading auto-fixes if any); **Class sweep** (only if
-Phase 4.5 found siblings) — per class: `<class> — <T1> tier-1 fixed · <T2> tier-2 surfaced`, then for
+Phase 4.5 found siblings) — per class: `<class> — <T1> tier-1 fixed · <T2> tier-2 surfaced · <G> gate-deferred`
+(omit a zero term), then the **tier-1 `file:line` list** (the full swept-file list a 6e reply may abbreviate); for
 tier-2 a `> ⚠️` callout listing `file:line` instances + a copy-paste `gh issue create` command (never
-auto-filed — pre-existing debt, operator's call). **Failures block** (only if non-empty): `> ⚠️` callout + fenced bash of copy-paste retry commands. **Decision log** (when this PR maps to a harness change with a `harness/` dir): append each *load-bearing* decision — a `🔧 fix`, `🚫 decline`, or `⏭️ defer` with its reasoning, and any 5d-wizard pick the **human** made — to `<change-state-dir>/decisions.md` per `references/decision-log.md` (`🤖 address-pr-comments` / `👤 human`). Skip routine auto-fixes. **Refresh PR summary** (same condition — this PR maps to a harness change with a `harness/` dir, and a commit landed this run): after the decision-log append, re-fold `<change-state-dir>/pr-body.md` per `references/pr-summary.md` (it now carries the new commits + decisions) and update the PR description with it (`gh pr edit <n> --body-file <change-state-dir>/pr-body.md`, rewriting only inside the managed region). **Idempotency key:** if no commit landed this run (empty-diff short-circuit 6c.1) the body is unchanged → **skip the refresh.** On a fold, stamp the footer (`folded-against` = pushed HEAD; `generated-by: harness:address-pr-comments v<hash8>`). **Pipeline trail** (one line, before the next pointer): the "you are here" trail for the `address-pr-comments` end stop per `references/pipeline-map.md`. **Next pointer** (one line) — **branch on the resolved Finish merge mode** (one runnable command rule): **two-merge** → finish is post-merge; name **only the immediately-runnable action — review + merge the PR** (human action, no command yet), **do NOT print `/harness:finish` or "run X after merge"** (premature, mis-fire risk); finish surfaces as the trail's `◦ finish` label only. **single-merge** → finish rides the still-open PR (archive-before-merge), so `/harness:finish` **is** runnable now; Next = `/harness:finish` (don't tell the operator to merge first — that inverts single-merge).
+auto-filed — pre-existing debt, operator's call); for gate-deferred a `> 🤔` callout listing `file:line` +
+gate criterion (also walked in 5d / shown in the Decisions table when interactive). **Failures block** (only if non-empty): `> ⚠️` callout + fenced bash of copy-paste retry commands. **Decision log** (when this PR maps to a harness change with a `harness/` dir): append each *load-bearing* decision — a `🔧 fix`, `🚫 decline`, or `⏭️ defer` with its reasoning, and any 5d-wizard pick the **human** made — to `<change-state-dir>/decisions.md` per `references/decision-log.md` (`🤖 address-pr-comments` / `👤 human`). Skip routine auto-fixes. **Refresh PR summary** (same condition — this PR maps to a harness change with a `harness/` dir, and a commit landed this run): after the decision-log append, re-fold `<change-state-dir>/pr-body.md` per `references/pr-summary.md` (it now carries the new commits + decisions) and update the PR description with it (`gh pr edit <n> --body-file <change-state-dir>/pr-body.md`, rewriting only inside the managed region). **Idempotency key:** if no commit landed this run (empty-diff short-circuit 6c.1) the body is unchanged → **skip the refresh.** On a fold, stamp the footer (`folded-against` = pushed HEAD; `generated-by: harness:address-pr-comments v<hash8>`). **Pipeline trail** (one line, before the next pointer): the "you are here" trail for the `address-pr-comments` end stop per `references/pipeline-map.md`. **Next pointer** (one line) — **branch on the resolved Finish merge mode** (one runnable command rule): **two-merge** → finish is post-merge; name **only the immediately-runnable action — review + merge the PR** (human action, no command yet), **do NOT print `/harness:finish` or "run X after merge"** (premature, mis-fire risk); finish surfaces as the trail's `◦ finish` label only. **single-merge** → finish rides the still-open PR (archive-before-merge), so `/harness:finish` **is** runnable now; Next = `/harness:finish` (don't tell the operator to merge first — that inverts single-merge).
 
 ## Principles
 Correctness over scope · standards are authority · auto-fix is default (Decision Gate is the filter) ·
-sweep the class not just the instance (tier-1 in-diff auto-fixed, tier-2 surfaced) ·
+sweep the class not just the instance (rg → tier-1 in-hunk auto-fixed, tier-2 surfaced; per-candidate gate) ·
 parallelize aggressively · idempotent by trailer (`[harness:address-pr-comments]`) · YAGNI before
 accepting abstractions · machine-readable replies (trailer mandatory) · resolve what you fixed (dismiss
 stale bot reviews) · stop only at genuine forks (no plan-approval gate) · report is rendered markdown ·
