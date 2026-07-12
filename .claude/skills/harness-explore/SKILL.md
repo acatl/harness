@@ -62,6 +62,16 @@ One thread per turn · 2–4 directions max · short blocks, diagram over prose 
 question or a small pick. If a stop needs a pick between alternatives, render it as a walk-me-through
 fork card (`references/walk-me-through.md`) — pure text, operator replies by letter; never `AskUserQuestion`.
 
+**Sequence + auto-advance — don't ask "which thread first?".** When ≥2 threads surface:
+- **Order build-order** — foundational → dependent, each thread building on the prior where it applies;
+  independent threads → order by logical progression, not by importance.
+- **Overview, then dive.** One-line the ordered list (thread titles only), then immediately enter thread 1
+  in `walk-me-through` one-at-a-time style. Don't stop to ask which to open — a thread not worth surfacing
+  shouldn't be in the list; making the operator pick which to open first is a dead beat.
+- **Auto-advance.** Finish a thread → move to the next yourself, naming it as you go.
+- **Escape hatch (agency, not a menu).** Operator may jump / skip / drop / reorder / go deeper at any turn
+  ("skip to #3", "drop #2", "go deeper here"). Remove the upfront *choice*, not the operator's agency.
+
 ## Ending
 No required ending — flow into a proposal, update artifacts, leave the user with clarity, or continue
 later. Optional crystallization summary: problem · approach (if one emerged) · open questions · next steps.
