@@ -12,7 +12,7 @@ description: >-
 argument-hint: "[pr-title]"
 metadata:
   author: acatl
-  version: "1.2.0" # x-release-please-version
+  version: "1.2.1" # x-release-please-version
 ---
 
 # harness:ship — push + open PR

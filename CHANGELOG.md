@@ -8,6 +8,13 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.2.1](https://github.com/acatl/harness/compare/harness-pipeline-v1.2.0...harness-pipeline-v1.2.1) (2026-07-13)
+
+
+### Bug Fixes
+
+* **fine-tune:** guard exit handoff against premature /harness:finish pointer ([#30](https://github.com/acatl/harness/issues/30)) ([d2fc7f4](https://github.com/acatl/harness/commit/d2fc7f4f3ad216ad64db4e162adff74c8fedfa9b))
+
 ## [1.2.0](https://github.com/acatl/harness/compare/harness-pipeline-v1.1.0...harness-pipeline-v1.2.0) (2026-07-12)
 
 

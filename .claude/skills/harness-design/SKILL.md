@@ -14,7 +14,7 @@ description: >-
 argument-hint: "[change-name] [gated]"
 metadata:
   author: acatl
-  version: "1.2.0" # x-release-please-version
+  version: "1.2.1" # x-release-please-version
 ---
 
 # harness:design — pre-apply UX/design gate
