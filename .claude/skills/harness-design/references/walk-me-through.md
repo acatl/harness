@@ -15,7 +15,7 @@ person to weigh blind.
 Reproduce the counter, `Cost if <letter>:` line, `Escape:` line, and `Pick:` line **verbatim** — they are
 not optional and not substitutable by prose. The shape below is the contract, not a loose guide.
 
-**The ` ```text ` fence below is presentational — it delimits the template for reading. Emit the card as
+**The `text` code fence below is presentational — it delimits the template for reading. Emit the card as
 live markdown (rendered table), NEVER wrapped in a code fence. A fenced card shows raw `|` pipes to the
 operator and breaks the interaction.**
 
