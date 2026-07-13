@@ -83,7 +83,7 @@ d. **Ask what's next:** "What do you want to fine-tune next?" Wait. Done → exi
    Before this ask, emit the **pipeline trail** for the `fine-tune · loop pause` stop per
    `references/pipeline-map.md` (one line) so the operator sees polish sits between verify and ship.
    On exit, the next line names **only** `/harness:ship` — never `/harness:finish` (see Handoff ›
-   one runnable command).
+   Exit trail + next).
 
 ## Accumulation nudge
 Track approved passes without a sync-commit. After 4–5 (related or not), nudge: "You've got N unsynced
@@ -108,12 +108,14 @@ Fine-tune commits **locally**. When the operator is ready to ship, hand off to *
 + PR). It is **not** a substitute for the PR/review cycle, nor for the final `harness:finish` (main-spec
 sync + archive).
 
-**Exit trail + next (one runnable command).** On exit, emit the `fine-tune · loop pause` trail
-(`references/pipeline-map.md`) — `◦ ship` is the next stage — and name **only** `/harness:ship` as the
-runnable next. **Never print `/harness:finish`** (nor "then finish after it merges"): finish is gated
-behind ship → PR → merge, so naming it now is a mis-fire (one-runnable-command rule, `references/pipeline-map.md`).
-finish surfaces from **ship's own** end-stop, branched by merge mode. Applies whether the operator exits
-via Step 4d or a direct "exit"/"done".
+**Exit trail + next (one runnable command).** The exit hands off to ship. Emit the `fine-tune · loop
+pause` trail (`references/pipeline-map.md`) **once** — Step 4d already emits it when the operator exits
+through the "what's next?" ask; a direct "exit"/"done" emits it here — then name **only** `/harness:ship`
+as the runnable next (`◦ ship` is the next stage). **Never print `/harness:finish`** (nor "then finish
+after it merges"): finish is gated behind ship (it needs the PR ship opens), and whether it then becomes
+runnable **before** the merge (single-merge — rides the open PR) or **after** it (two-merge) depends on
+the resolved merge mode — so naming it at fine-tune exit is a mis-fire (one-runnable-command rule,
+`references/pipeline-map.md`). finish surfaces from **ship's own** end-stop, branched by merge mode.
 
 ## Don't
 - **Don't exit on a nested skill completing** — resume the loop.
