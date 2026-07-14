@@ -64,7 +64,7 @@ exception — deliberately un-namespaced so it's useful standalone in any projec
 |-------|------|
 | `harness:init` | Scan a project, interview the operator, generate its `docs/HARNESS.md` (the binding layer). Run this first — every other skill is inert without it. |
 | `harness:refine` | Turn a rough ticket into a well-formed, spec-ready task. |
-| `harness:explore` | Optional. Thinking partner for big codebases (improved OpenSpec Explore, digestible output). |
+| `harness:chart` | Optional. Charts the *how* — survey approaches, weigh the live routes, pick one to hand to `build`. The *how*, not the *what* (that's `refine`); runs between refine and build. |
 | `harness:build` | The workhorse. Author the spec (proposal → recon → design → reviews → tasks) if none exists, else resume; then implement → verify. `gated` (default) / `yolo`. Stops at *verified, not shipped*. |
 | `harness:fine-tune` | Sticky polish loop after build (fix → test → approve → commit). Exits only on explicit signal. |
 | `harness:review-change` | The review engine, run at three altitudes via a `mode` arg: `build-run` (build's Step F.4), `pre-ship` (ship's pre-push gate, thin), `operator` (bare — self-review out-of-pipeline changes). One isolated reviewer-fixer sub-agent (doer ≠ judge) runs four escalating stances, auto-fixes clear findings, surfaces only decision-needing ones. |

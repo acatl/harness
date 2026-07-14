@@ -11,7 +11,7 @@ description: >-
   Persists to the task tracker. Also recommends the build mode — full spec vs lightweight spec-less — for
   the change, without creating anything. Use for "/harness:refine <id>", "/harness:refine <intent>", "refine
   this task", "make this a well-formed task". Stops at the well-formed task — never creates an OpenSpec
-  change or proposes a technical approach (that's harness:explore + the OpenSpec layer).
+  change or proposes a technical approach (that's harness:chart + the OpenSpec layer).
 argument-hint: "[task-id | intent]"
 metadata:
   author: acatl
@@ -24,7 +24,7 @@ Act as the project's **Technical Product Owner**. Turn a rough task or bare inte
 spec-ready task. **WHAT only** — keep HOW out of the AC (load-bearing choices → impl notes). Beyond
 transcription, two jobs (both in step 5): **complete** the feature (companion states the operator
 skipped) and **expand** it (adjacent affordances they didn't picture). **Stop at the well-formed
-task** — never create an OpenSpec change/spec or propose a technical approach (that's `harness:explore`
+task** — never create an OpenSpec change/spec or propose a technical approach (that's `harness:chart`
 + the OpenSpec layer).
 
 > **Bindings.** Resolve from `docs/HARNESS.md`: task-tracker (id prefix + the ops below), Context docs
@@ -276,7 +276,7 @@ closing block **in THIS order — the build pointer is LAST so it's the clear fi
   1. `Committed.` + what folded (one line).
   2. **Out:** a one-line summary of this run (verdict · key reshape · ACs added · improvements folded).
   3. *(optional, feature/idea only)* **thinking-partner note** — one plain line the operator can ignore
-     (e.g. "worth a quick `/harness:explore` first to pressure-test X"). Clearly optional; not a fork.
+     (e.g. "worth a quick `/harness:chart` first to pressure-test the approach to X"). Clearly optional; not a fork.
   4. `■ harness:refine → <outcome>` — the end breadcrumb.
   5. **pipeline trail, then the build pointer (LAST):** `✓ refine → ▸ build → ◦ build`, then
      `Next: /harness:build <task-id>` — carry the **spec-mode** from 5b: append `--spec-less` when spec-less

@@ -23,7 +23,7 @@ flowchart TB
   HN -. "read by every skill" .-> R
 
   R["/harness:refine<br/>ticket → well-formed task"]:::cmd --> H1(["👤 task ready"]):::human
-  H1 --> XP["/harness:explore<br/>(optional · digestible thinking partner · improved)"]:::cmd --> B
+  H1 --> CH["/harness:chart<br/>(optional · chart the how · options → weigh → pick)"]:::cmd --> B
   H1 --> B["/harness:build [gated*|yolo]<br/>keeps a progress file → resumable"]:::cmd
 
   B --> DET{"authored spec exists?<br/>openspec list --json"}:::dec
@@ -108,9 +108,11 @@ flowchart TB
   **before** the merge, riding the still-open feature PR (archive-before-merge); the human merge that
   follows is the change's close, **not** a skipped step. So the ordering flips by mode: two-merge is
   `merge → finish`, single-merge is `finish → merge`.
-- **`harness:explore`** is the improved OpenSpec Explore — thinking partner with digestible,
-  one-thread-at-a-time output (no more walls of text). Optional; used before `build` on big codebases.
-  The native `/opsx:explore` remains available too.
+- **`harness:chart`** plots the *how* — given a settled *what* (from `refine` or a clear goal), it
+  surveys the approaches, weighs the genuinely-live routes one at a time, and converges on a chosen
+  route to hand to `build`. Focused successor to OpenSpec Explore's stance (the *how*, not the *what*);
+  decomposes into decision areas when a change genuinely has several. Optional; runs between `refine`
+  and `build`. The native `/opsx:explore` remains available for broad ideation.
 - **Behavioral-verify** is a HARNESS.md binding (bring up → exercise → observe → verdict) — the Swift
   `run` skill generalized. See [runtime-verification-binding.md](runtime-verification-binding.md).
 - **Task-tracker touchpoints** run through the verb contract **+ configurable per-stage hooks**: at
