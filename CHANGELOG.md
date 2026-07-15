@@ -8,6 +8,13 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.2.2](https://github.com/acatl/harness/compare/harness-pipeline-v1.2.1...harness-pipeline-v1.2.2) (2026-07-14)
+
+
+### Bug Fixes
+
+* **walk-me-through:** fix fork card rendering and fence callout markup ([#32](https://github.com/acatl/harness/issues/32)) ([b4ea161](https://github.com/acatl/harness/commit/b4ea161587d19b3b6895fdc8f41c4657bcdc115b))
+
 ## [1.2.1](https://github.com/acatl/harness/compare/harness-pipeline-v1.2.0...harness-pipeline-v1.2.1) (2026-07-13)
 
 
