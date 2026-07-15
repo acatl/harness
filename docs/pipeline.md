@@ -110,9 +110,9 @@ flowchart TB
   `merge → finish`, single-merge is `finish → merge`.
 - **`harness:chart`** plots the *how* — given a settled *what* (from `refine` or a clear goal), it
   surveys the approaches, weighs the genuinely-live routes one at a time, and converges on a chosen
-  route to hand to `build`. Focused successor to OpenSpec Explore's stance (the *how*, not the *what*);
-  decomposes into decision areas when a change genuinely has several. Optional; runs between `refine`
-  and `build`. The native `/opsx:explore` remains available for broad ideation.
+  route to hand to `build` — the *how*, not the *what*; decomposes into decision areas when a change
+  genuinely has several. Its output is a recommendation build may deviate from (logged), not a mandate.
+  Optional; runs between `refine` and `build`. Broad, open-ended ideation lives in `/opsx:explore`.
 - **Behavioral-verify** is a HARNESS.md binding (bring up → exercise → observe → verdict) — the Swift
   `run` skill generalized. See [runtime-verification-binding.md](runtime-verification-binding.md).
 - **Task-tracker touchpoints** run through the verb contract **+ configurable per-stage hooks**: at

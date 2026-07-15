@@ -3,8 +3,8 @@ name: harness:chart
 description: >-
   Chart the *how* of a change whose *what* is already settled — survey the space of approaches, lay out
   the genuinely-live candidate routes, weigh them one at a time, and converge on a chosen route to hand
-  to build. The focused successor to OpenSpec Explore's thinking-partner stance: it plans the technical
-  approach (options → tradeoffs → pick a route), it does not re-settle requirements (that's
+  to build. A focused thinking partner for the technical approach: it plans the *how* (options →
+  tradeoffs → pick a route), it does not re-settle requirements (that's
   harness:refine) or write code (that's harness:build). Decomposes a change into decision areas when it
   genuinely has several, and charts each. Use when the user asks how to build something, wants to compare
   approaches or technologies, weigh options and tradeoffs, pick an architecture or pattern, or plan the
@@ -12,7 +12,7 @@ description: >-
   build", "how do we approach this", "what's the approach", "compare approaches", "weigh the options",
   "which pattern", "which tech", "plan the how", "options for building this". For thinking, not
   implementing — never writes app code (capturing the chosen route as an OpenSpec proposal is fine). For
-  broad pre-task ideation with no settled destination, that's raw /opsx:explore or harness:refine.
+  broad pre-task ideation with no settled destination, that's /opsx:explore or harness:refine.
 metadata:
   author: acatl
   version: "1.2.1" # x-release-please-version
