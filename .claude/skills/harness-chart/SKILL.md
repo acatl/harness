@@ -35,13 +35,16 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 **Every pick is a walk-me-through fork card** (`references/walk-me-through.md`) — pure text: counter, indexed options (pros/cons), a grounded recommendation, `Cost if …`, `Escape:`, and the `Pick:` line, reproduced **verbatim**; operator replies by letter. **Never `AskUserQuestion` or any native picker.** A fork card *is* the terminal block — don't `👉`-prefix it; `👉` is only for a **bare inline ask** (e.g. the refine bounce), not a fork card. One fork per turn. (The closing handoff is the one deliberate exception — a lighter bold-led pick, below.)
 
 ## Stance
-Grounded (chart the real codebase, not theory) · visual (ASCII sketches over prose) · convergent (drive
-to a chosen route) · light (do the least the situation needs).
+Grounded (chart the real codebase, not theory) · visual (tables for comparisons · ASCII sketches for
+flows — see Digestible output) · convergent (drive to a chosen route) · light (do the least the situation needs).
 
 ## Digestible output
-Short blocks · diagram over prose · **never a wall of text** — every turn, not just picks. One decision
-area (or one route) per turn; end on the turn's single pick or `👉`. Survey and compose included — a chart
-run reads like a conversation, not a report.
+Short blocks · **never a wall of text** — every turn, not just picks. One decision area (or one route) per
+turn; end on the turn's single pick or `👉`. Survey and compose included — a chart run reads like a
+conversation, not a report.
+**Match form to shape** — comparison / option×axis matrix / two-column mapping → **markdown table**;
+flow / sequence / dependency / state / tree → **fenced ASCII sketch**. Both beat prose — but never
+hand-align tabular data inside a code fence (that's a table).
 
 ## What chart is / isn't
 - **Charts the *how*** — technologies, patterns, architecture, integration approach, light prior-art. Converges to a chosen route + the ones rejected.
