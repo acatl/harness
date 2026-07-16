@@ -27,10 +27,10 @@ Do this once. You only re-run it when your project's setup changes.
 flowchart LR
   R["/harness:refine<br/>rough ticket → clear task"]
   B["/harness:build<br/>spec + code, verified"]
-  T["/harness:test-guide<br/>test it (or by hand)"]
+  FT["/harness:fine-tune<br/>test + polish until right"]
   S["/harness:ship<br/>open the PR"]
   F["/harness:finish<br/>close it out"]
-  R --> B --> T --> S --> F
+  R --> B --> FT --> S --> F
 ```
 
 Five steps, same order, every time. That's the whole thing.
@@ -39,15 +39,15 @@ Five steps, same order, every time. That's the whole thing.
 |------|---------|--------------|-------------------|
 | **Refine** | `/harness:refine` | A rough ticket turned into a clear, spec-ready task. | You have a ticket or an idea, but it's fuzzy. |
 | **Build** | `/harness:build` | The spec written *and* the code implemented — verified, but **not shipped**. | The task is clear and you're ready to make it real. |
-| **Test it** | `/harness:test-guide` *(or by hand)* | Confidence it actually works. `test-guide` walks you through the scenarios one at a time; or just drive it yourself. | Right after build. |
-| **Ship** | `/harness:ship` | A pushed branch and an open PR. | You've tested it and it's good. |
+| **Fine-tune** | `/harness:fine-tune` | Where you land after build: test it, fix what's off, commit — batched so edits stay on-ticket and don't drift. | Right after build, until it's right. |
+| **Ship** | `/harness:ship` | A pushed branch and an open PR. | You've tested + polished and it's good. |
 | **Finish** | `/harness:finish` | Specs synced, change archived, ticket closed. | The PR is merged. |
 
 That's the spine. If you only remember these five, you can run the harness.
 
-> **Tested it and it's close but not quite?** → `/harness:fine-tune` — a fix → test → repeat loop
-> that polishes the change until you're happy, then hands back to ship. Reach for it between *test* and
-> *ship*, as many rounds as you need.
+> **How you test inside fine-tune:** `/harness:test-guide` walks you through the scenarios one at a
+> time (or just drive the change by hand). It's the *test step* of the fine-tune loop — and you can
+> run it on its own any time you only want to test, not fix.
 
 ---
 
@@ -62,7 +62,7 @@ branch off, use it, rejoin.
 flowchart LR
   R["/harness:refine"] --> B["/harness:build"] --> FT["/harness:fine-tune"] --> S["/harness:ship"] --> F["/harness:finish"]
 
-  R --> XP["/harness:explore"]:::help --> B
+  R --> CH["/harness:chart"]:::help --> B
   FT --> TG["/harness:test-guide"]:::help --> FT
   S --> APC["/harness:address-pr-comments"]:::help --> F
   RV["/harness:review-change"]:::help -. "inside ship · or standalone" .- S
@@ -76,9 +76,9 @@ Two more aren't tied to a phase — reach for them any time:
 
 | Helper | Reach for it when |
 |--------|-------------------|
-| `/harness:explore` | The codebase is big or unfamiliar and you want to think before building. *(before build)* |
-| `/harness:fine-tune` | Build's result is close but needs polish — a fix-test-repeat loop. *(after build)* |
-| `/harness:review-change` | You want a skeptical self-review before you ship. *(before ship)* |
+| `/harness:chart` | You're not sure *how* to build it — compare approaches, weigh tradeoffs, pick a route to hand to build. *(before build)* |
+| `/harness:test-guide` | You want to walk through testing, one scenario at a time. *(fine-tune runs this; call it alone to just test)* |
+| `/harness:review-change` | You want a skeptical self-review. *(ship runs this; call it alone for out-of-pipeline changes)* |
 | `/harness:address-pr-comments` | Your PR came back with review comments to work through. *(after ship)* |
 | `/harness:status` | You lost the thread — "where is this change, and what's next?" *(any time)* |
 | `/harness:retro` | You want the harness itself to get better, from data on past runs. *(occasional)* |
@@ -90,7 +90,7 @@ Two more aren't tied to a phase — reach for them any time:
 `build` can write a full spec or skip the spec — decided per change. `harness:refine` recommends which,
 and `build` sets it. You rarely choose by hand.
 
-One question decides it: **does this change what a feature _does_ or _promises_?**
+One question decides it: **does this change what a feature *does* or *promises*?**
 
 | Mode | What `build` writes | Pick it when |
 |------|---------------------|--------------|
@@ -137,7 +137,7 @@ simpler, and you can switch later.
 /harness:init            # once — sets up this project
 /harness:refine          # turn your ticket into a clear task
 /harness:build           # spec it and build it
-# → try the change yourself (or /harness:test-guide)
+/harness:fine-tune       # test (via test-guide) + polish until it's right
 /harness:ship            # open the PR
 # → get it merged
 /harness:finish          # close it out
