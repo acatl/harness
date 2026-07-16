@@ -31,6 +31,9 @@ ln -s /path/to/harness/.claude/skills/harness-build .claude/skills/harness-build
 Then run **`/harness:init`** once in the project to generate its `docs/HARNESS.md` (the binding layer
 every other skill reads). Until that exists, the rest of the pipeline is inert.
 
+Set up and wondering what to actually run? → **[The golden path](docs/getting-started.md)** walks the
+loop, step by step.
+
 ### Also included: `walk-me-through` (general-purpose)
 
 [`walk-me-through`](.claude/skills/walk-me-through/SKILL.md) is a standalone, **multi-purpose** skill — not tied to
@@ -61,22 +64,25 @@ Every **pipeline** skill is namespaced **`harness:`** (e.g. `/harness:build`) so
 from when shared. The general-purpose [`walk-me-through`](.claude/skills/walk-me-through/SKILL.md) is the
 exception — deliberately un-namespaced so it's useful standalone in any project.
 
-## The pipeline
+## The skills (reference)
 
-| Skill | Role |
-|-------|------|
-| `harness:init` | Scan a project, interview the operator, generate its `docs/HARNESS.md` (the binding layer). Run this first — every other skill is inert without it. |
-| `harness:refine` | Turn a rough ticket into a well-formed, spec-ready task. |
-| `harness:chart` | Optional. Charts the *how* — survey approaches, weigh the live routes, pick one to hand to `build`. The *how*, not the *what* (that's `refine`); runs between refine and build. |
-| `harness:build` | The workhorse. Author the spec (proposal → recon → design → reviews → tasks) if none exists, else resume; then implement → verify. `gated` (default) / `yolo`. Stops at *verified, not shipped*. |
-| `harness:fine-tune` | Sticky polish loop after build (fix → test → approve → commit). Exits only on explicit signal. |
+The catalog — what each skill *is*. For the order you run them in and when to reach for each, see
+**[the golden path](docs/getting-started.md)**.
+
+| Skill | What it is |
+|-------|------------|
+| `harness:init` | Scans a project, interviews the operator, generates its `docs/HARNESS.md` — the binding layer every other skill reads. |
+| `harness:refine` | Turns a rough ticket into a well-formed, spec-ready task. |
+| `harness:chart` | Optional. Charts the *how* — survey approaches, weigh the live routes, pick one to hand to `build`. The *how*, not the *what* (that's `refine`). |
+| `harness:build` | The workhorse. Authors the spec (proposal → recon → design → reviews → tasks) if none exists, else resumes; then implements → verifies. `gated` (default) / `yolo`. Stops at *verified, not shipped*. |
+| `harness:fine-tune` | Sticky polish loop — fix → test → approve → commit. Exits only on an explicit signal. |
 | `harness:review-change` | The review engine, run at three altitudes via a `mode` arg: `build-run` (build's Step F.4), `pre-ship` (ship's pre-push gate, thin), `operator` (bare — self-review out-of-pipeline changes). One isolated reviewer-fixer sub-agent (doer ≠ judge) runs four escalating stances, auto-fixes clear findings, surfaces only decision-needing ones. |
-| `harness:test-guide` | Read-only test companion. Derives a change's test scenarios from spec scenarios + AC + decisions, skips what automated tests already cover, and walks you through the gap one at a time (ROI-first) with how-to-drive steps + pass/fail/skip. Persists nothing. |
-| `harness:ship` | Push + open the PR. Deliberate, post-test. |
-| `harness:finish` | Post-merge close: sync specs + archive. Confirmable merge-gate; two-merge or single-merge. Backfills run-log reality fields. |
-| `harness:address-pr-comments` | Triage + resolve PR review comments. |
-| `harness:retro` | Aggregate the harness run-log, surface recurring friction, propose harness improvements (data-backed, never auto-applied). |
-| `harness:status` | Read-only. Derive where a change is in the pipeline and the one next step from live state (openspec, the change's `harness/` artifacts, git/PR, tracker). Works cold — no stored pointer. |
+| `harness:test-guide` | Read-only test companion. Derives a change's test scenarios from spec scenarios + AC + decisions, skips what automated tests already cover, and walks you through the gap one at a time (ROI-first) with pass/fail/skip. Persists nothing. |
+| `harness:ship` | Pushes + opens the PR, following the repo's commit + PR-title conventions. |
+| `harness:finish` | Closes a change: sync specs + archive. Confirmable merge-gate (two-merge / single-merge). Backfills run-log reality fields. |
+| `harness:address-pr-comments` | Triages + resolves PR review comments. |
+| `harness:retro` | Aggregates the harness run-log, surfaces recurring friction, proposes harness improvements (data-backed, never auto-applied). |
+| `harness:status` | Read-only. Derives where a change is in the pipeline and the one next step from live state (openspec, the change's `harness/` artifacts, git/PR, tracker). Works cold — no stored pointer. |
 
 `harness:build` calls three **review sub-skills** during authoring — `harness:recon` (prior-art reuse
 ledger), `harness:architecture` (engineering gate), `harness:design` (UX gate) — each with its own full
