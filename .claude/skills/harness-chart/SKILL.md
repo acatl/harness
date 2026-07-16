@@ -38,6 +38,11 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 Grounded (chart the real codebase, not theory) · visual (ASCII sketches over prose) · convergent (drive
 to a chosen route) · light (do the least the situation needs).
 
+## Digestible output
+Short blocks · diagram over prose · **never a wall of text** — every turn, not just picks. One decision
+area (or one route) per turn; end on the turn's single pick or `👉`. Survey and compose included — a chart
+run reads like a conversation, not a report.
+
 ## What chart is / isn't
 - **Charts the *how*** — technologies, patterns, architecture, integration approach, light prior-art. Converges to a chosen route + the ones rejected.
 - **Not the *what*** — the destination comes from `harness:refine` (or a clear operator goal). Unsettled/contested *what* → soft-bounce: ask `refine` first (operator can override by stating the goal).
@@ -131,5 +136,5 @@ Drop **Proposal only** when it doesn't apply → clean binary. **Build it** alwa
 them naturally, and **offer** to fold the chart where it belongs (operator decides — don't auto-capture).
 
 ## Don't
-- **Don't implement** — never write application code. OpenSpec artifacts are fine (capturing thinking).
+- **Don't implement** — never write application code (OpenSpec artifacts are fine — capturing thinking). Asked to implement → chart is thinking-only; remind them to exit and run `harness:build`.
 - **Don't settle the *what*** — bounce to `refine`; charting a contested destination wastes the run.
