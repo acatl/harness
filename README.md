@@ -10,6 +10,9 @@ The design goal: the **skills are generic mechanism; a per-project `docs/HARNESS
 place stack-specifics live.** The same `harness:build` runs against a Swift app and a web service —
 it just reads a different HARNESS.md.
 
+> **New here?** → **[The golden path](docs/getting-started.md)** walks the one path most work follows,
+> in plain terms. For every fork and gate, see the full map in [docs/pipeline.md](docs/pipeline.md).
+
 ## Install
 
 Pull the skills into a project with [vercel-labs/skills](https://github.com/vercel-labs/skills):
