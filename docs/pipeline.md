@@ -91,11 +91,13 @@ flowchart TB
   step you trigger when ready.
 - **`harness:fine-tune`** is the **usual post-build landing** — the polish loop (fix → test → approve
   → commit) you drop into once the core is verified (ship-direct stays valid when there's nothing to
-  polish). Its test step is `harness:test-guide` (which binds to HARNESS.md sensors, and also runs
-  standalone when you only want to test, not fix); it hands off to `harness:ship` when you're done.
+  polish). Its normal test step runs the configured HARNESS.md sensors; it **offers** `harness:test-guide`
+  for scenario-based testing (auto-runs it in `guided` mode; runs standalone when you only want to test,
+  not fix); it hands off to `harness:ship` when you're done.
   Commits are local; ship owns push + PR. **It is a sticky mode**: it re-anchors every turn, survives
-  nested skills (runs them, then resumes the loop), and exits ONLY on an explicit "exit" or an
-  asked-and-confirmed yes — backed by a small "fine-tune active" marker so it never forgets it was
+  nested skills (runs them, then resumes the loop), and exits ONLY on an explicit signal ("exit" /
+  "done" / "stop fine-tuning") or an asked-and-confirmed yes — backed by a small "fine-tune active"
+  marker so it never forgets it was
   fine-tuning.
 - **`harness:review-change`** is the **one review engine, run at three altitudes** via a `mode` arg —
   a single isolated reviewer-fixer sub-agent (doer ≠ judge) runs four escalating stances (baseline →

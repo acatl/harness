@@ -49,7 +49,7 @@ Five steps, same order, every time. That's the whole thing.
 | **Build**     | `/harness:build`     | The spec written _and_ the code implemented — verified, but **not shipped**.                                   | The task is clear and you're ready to make it real. |
 | **Fine-tune** | `/harness:fine-tune` | Where you land after build: test it, fix what's off, commit — batched so edits stay on-ticket and don't drift. | Right after build, until it's right.                |
 | **Ship**      | `/harness:ship`      | A pushed branch and an open PR.                                                                                | You've tested + polished and it's good.             |
-| **Finish**    | `/harness:finish`    | Specs synced, change archived, and the tracker updated if your project wired that hook.                        | The PR is merged.                                   |
+| **Finish**    | `/harness:finish`    | Specs synced, change archived, and the tracker updated if your project wired that hook.                        | You're closing out the change (see finish modes below). |
 
 That's the spine. If you only remember these five, you can run the harness.
 
@@ -73,7 +73,7 @@ flowchart LR
 
   R --> CH["/harness:chart"]:::help --> B
   FT --> TG["/harness:test-guide"]:::help --> FT
-  S --> APC["/harness:address-pr-comments"]:::help --> F
+  S -. "PR has comments" .- APC["/harness:address-pr-comments"]:::help
   FT -. "self-review · also runs inside ship" .- RV["/harness:review-change"]:::help
 
   classDef help fill:#8957e5,stroke:#4b277a,color:#fff
@@ -136,8 +136,9 @@ flowchart LR
 | **single-merge** | The spec-sync + archive ride _inside_ the feature PR. One review, one merge.                                     | You want the least ceremony — solo work, small teams, fast iteration. Fewer moving parts.                                                             |
 | **two-merge**    | The feature PR merges first (code only). Then `finish` opens a _second_ "chore" PR with the spec-sync + archive. | You want the feature PR's diff to stay **clean code, no bookkeeping churn** — strict review, protected branches, larger teams, separate audit trails. |
 
-Same skills either way — only the last step differs. Not sure? Start with **single-merge**; it's
-simpler, and you can switch later.
+Same skills either way — only the last step differs. Neither is the "right" one — pick by your case
+(the columns above). `init` asks when you set up (it defaults to two-merge if you don't pick), and you
+can switch anytime.
 
 ---
 
@@ -149,13 +150,14 @@ simpler, and you can switch later.
 /harness:build           # spec it and build it
 /harness:fine-tune       # polish until it's right (offers test-guide to test)
 /harness:ship            # open the PR
-/harness:finish          # sync + archive onto the still-open PR
-# → merge the PR — closes the change
+# → close it out: merge the PR + run /harness:finish
+#   (which comes first depends on your finish mode — see the note)
 ```
 
-> That last order is **single-merge** (the recommended default): `finish` runs _before_ the merge, so
-> the spec-sync + archive ride the open PR. In **two-merge** it flips — merge the feature PR first, then
-> run `/harness:finish` to open the chore PR. See [_One setup choice_](#one-setup-choice-how-finish-lands) above.
+> **The last two steps swap by finish mode.** In **two-merge** (init's default): merge the feature PR,
+> then `/harness:finish` opens a chore PR with the spec-sync + archive. In **single-merge**: run
+> `/harness:finish` onto the still-open PR (the archive rides along), then one merge closes everything.
+> See [_One setup choice_](#one-setup-choice-how-finish-lands) above.
 
 Everything else is a detour off this line, taken only when you need it.
 
