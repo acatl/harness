@@ -23,7 +23,9 @@ openspec init --tools claude                  # once, in the project
 **`docs/HARNESS.md`** — the one file that tells every other skill how _your_ project builds, tests,
 and ships. Until this exists, nothing else works.
 
-Do this once. You only re-run it when your project's setup changes.
+If your project is missing something `init` needs — an essential sensor (build / test / lint) or a
+required context doc — it **stops, tells you what to set up, and waits**. Fix that, then re-run it: once
+`docs/HARNESS.md` is written you only re-run it when your project's setup changes.
 
 ---
 
@@ -52,8 +54,9 @@ Five steps, same order, every time. That's the whole thing.
 That's the spine. If you only remember these five, you can run the harness.
 
 > **How you test inside fine-tune:** `/harness:test-guide` walks you through the scenarios one at a
-> time (or just drive the change by hand). It's the _test step_ of the fine-tune loop — and you can
-> run it on its own any time you only want to test, not fix.
+> time. fine-tune **offers** it once — say yes to walk them, or just drive the change by hand (it skips
+> the offer for pure-logic changes with nothing to walk). You can also run it on its own any time you
+> only want to test, not fix.
 
 ---
 
@@ -83,7 +86,7 @@ Two more aren't tied to a phase — reach for them any time:
 | Helper                         | Reach for it when                                                                                                        |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
 | `/harness:chart`               | You're not sure _how_ to build it — compare approaches, weigh tradeoffs, pick a route to hand to build. _(before build)_ |
-| `/harness:test-guide`          | You want to walk through testing, one scenario at a time. _(fine-tune runs this; call it alone to just test)_            |
+| `/harness:test-guide`          | You want to walk through testing, one scenario at a time. _(fine-tune offers this; call it alone to just test)_          |
 | `/harness:review-change`       | You want a skeptical self-review. _(ship runs this; call it alone for out-of-pipeline changes)_                          |
 | `/harness:address-pr-comments` | Your PR came back with review comments to work through. _(after ship)_                                                   |
 | `/harness:status`              | You lost the thread — "where is this change, and what's next?" _(any time)_                                              |
@@ -104,7 +107,8 @@ One question decides it: **does this change what a feature _does_ or _promises_?
 | **spec-less**        | Everything except the spec deltas — proposal, a lean design, a review, tasks. Still verified and shipped the same way.                    | The behavior stays the same — refactors, cleanups, internal fixes. _(Even across many files: a pure refactor is spec-less no matter how big.)_ |
 
 Default is **full**; spec-less is the earned exception. And it's safe — if `build` discovers the change
-_does_ touch real behavior partway through, it upgrades itself to full automatically.
+_does_ touch real behavior partway through, it stops and asks: escalate to a full spec, or log the reason
+and stay spec-less. Your call, no work lost — nothing spec-worthy slips through unnoticed.
 
 > **On the spec deltas:** in full mode, `build` writes them as OpenSpec spec files — the Given/When/Then
 > scenarios that become your project's _living spec_. That's the heart of how OpenSpec works; see the
@@ -143,7 +147,7 @@ simpler, and you can switch later.
 /harness:init            # once — sets up this project
 /harness:refine          # turn your ticket into a clear task
 /harness:build           # spec it and build it
-/harness:fine-tune       # test (via test-guide) + polish until it's right
+/harness:fine-tune       # polish until it's right (offers test-guide to test)
 /harness:ship            # open the PR
 /harness:finish          # sync + archive onto the still-open PR
 # → merge the PR — closes the change

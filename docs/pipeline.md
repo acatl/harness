@@ -81,8 +81,9 @@ flowchart TB
   `harness/spec-mode` marker and skips **only** the `specs/` delta + strict-verify — it still authors
   proposal + a lean design + tasks, runs a single lightweight **spec-less review** against `proposal.md` + `design.md`
   ([spec-less-review](../rules/spec-less-review.md)), and keeps sensors + behavioral-verify + ship. If impl
-  uncovers a spec-worthy change, an **escalation tripwire** flips it to full (author specs, run the heavy
-  reviews) with no lost work. The mode is an **explicit flag, never inferred** from a missing `specs/` —
+  uncovers a spec-worthy change, an **escalation tripwire** stops at a fork — **escalate to full** (author
+  specs, run the heavy reviews) or **log + defer** (stay spec-less) — with no lost work either way. The
+  mode is an **explicit flag, never inferred** from a missing `specs/` —
   absent ⇒ full, so every existing change is unaffected.
 - **Nothing ships automatically.** The core ends at *verified locally, not shipped*. You test it
   yourself — usually in `harness:fine-tune` (polish it, testing via `harness:test-guide` as needed); if there's
