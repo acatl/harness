@@ -10,7 +10,7 @@ The design goal: the **skills are generic mechanism; a per-project `docs/HARNESS
 place stack-specifics live.** The same `harness:build` runs against a Swift app and a web service —
 it just reads a different HARNESS.md.
 
-> **New here?** → **[The golden path](docs/getting-started.md)** walks the one path most work follows,
+> **New here?** → **[docs/getting-started.md](docs/getting-started.md)** walks the one path most work follows,
 > in plain terms. For every fork and gate, see the full map in [docs/pipeline.md](docs/pipeline.md).
 
 ## Install
@@ -29,15 +29,12 @@ ln -s /path/to/harness/.claude/skills/harness-build .claude/skills/harness-build
 ```
 
 Then run **`/harness:init`** once in the project to generate its `docs/HARNESS.md` (the binding layer
-every other skill reads). Until that exists, the rest of the pipeline is inert.
+every other skill reads). Until that exists, the rest of the pipeline can't run.
 
-Set up and wondering what to actually run? → **[The golden path](docs/getting-started.md)** walks the
-loop, step by step.
-
-### Also included: `walk-me-through` (general-purpose)
+## Also included: `walk-me-through` (general-purpose)
 
 [`walk-me-through`](.claude/skills/walk-me-through/SKILL.md) is a standalone, **multi-purpose** skill — not tied to
-the harness. Working with an agent, your job is mostly *deciding*; it turns a wall of questions into a
+the harness. Working with an agent, your job is mostly _deciding_; it turns a wall of questions into a
 clean one-at-a-time flow (indexed options, tradeoffs, a recommendation, an escape hatch). The harness uses
 it for its forks, but it's useful in any project. Install just this one:
 
@@ -66,23 +63,23 @@ exception — deliberately un-namespaced so it's useful standalone in any projec
 
 ## The skills (reference)
 
-The catalog — what each skill *is*. For the order you run them in and when to reach for each, see
-**[the golden path](docs/getting-started.md)**.
+The catalog — what each skill _is_. For the order you run them in and when to reach for each, see
+**[docs/getting-started.md](docs/getting-started.md)**.
 
-| Skill | What it is |
-|-------|------------|
-| `harness:init` | Scans a project, interviews the operator, generates its `docs/HARNESS.md` — the binding layer every other skill reads. |
-| `harness:refine` | Turns a rough ticket into a well-formed, spec-ready task. |
-| `harness:chart` | Optional. Charts the *how* — survey approaches, weigh the live routes, pick one to hand to `build`. The *how*, not the *what* (that's `refine`). |
-| `harness:build` | The workhorse. Authors the spec (proposal → recon → design → reviews → tasks) if none exists, else resumes; then implements → verifies. `gated` (default) / `yolo`. Stops at *verified, not shipped*. |
-| `harness:fine-tune` | Sticky polish loop — fix → test → approve → commit. Exits only on an explicit signal. |
-| `harness:review-change` | The review engine, run at three altitudes via a `mode` arg: `build-run` (build's Step F.4), `pre-ship` (ship's pre-push gate, thin), `operator` (bare — self-review out-of-pipeline changes). One isolated reviewer-fixer sub-agent (doer ≠ judge) runs four escalating stances, auto-fixes clear findings, surfaces only decision-needing ones. |
-| `harness:test-guide` | Read-only test companion. Derives a change's test scenarios from spec scenarios + AC + decisions, skips what automated tests already cover, and walks you through the gap one at a time (ROI-first) with pass/fail/skip. Persists nothing. |
-| `harness:ship` | Pushes + opens the PR, following the repo's commit + PR-title conventions. |
-| `harness:finish` | Closes a change: sync specs + archive. Confirmable merge-gate (two-merge / single-merge). Backfills run-log reality fields. |
-| `harness:address-pr-comments` | Triages + resolves PR review comments. |
-| `harness:retro` | Aggregates the harness run-log, surfaces recurring friction, proposes harness improvements (data-backed, never auto-applied). |
-| `harness:status` | Read-only. Derives where a change is in the pipeline and the one next step from live state (openspec, the change's `harness/` artifacts, git/PR, tracker). Works cold — no stored pointer. |
+| Skill                         | What it is                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `harness:init`                | Scans a project, interviews the operator, generates its `docs/HARNESS.md` — the binding layer every other skill reads.                                                                                                                                                                                                                           |
+| `harness:refine`              | Turns a rough ticket into a well-formed, spec-ready task.                                                                                                                                                                                                                                                                                        |
+| `harness:chart`               | Optional. Charts the _how_ — survey approaches, weigh the live routes, pick one to hand to `build`. The _how_, not the _what_ (that's `refine`).                                                                                                                                                                                                 |
+| `harness:build`               | The workhorse. Authors the spec (proposal → recon → design → reviews → tasks) if none exists, else resumes; then implements → verifies. `gated` (default) / `yolo`. Stops at _verified, not shipped_.                                                                                                                                            |
+| `harness:fine-tune`           | Sticky polish loop — fix → test → approve → commit. Exits only on an explicit signal.                                                                                                                                                                                                                                                            |
+| `harness:review-change`       | The review engine, run at three altitudes via a `mode` arg: `build-run` (build's Step F.4), `pre-ship` (ship's pre-push gate, thin), `operator` (bare — self-review out-of-pipeline changes). One isolated reviewer-fixer sub-agent (doer ≠ judge) runs four escalating stances, auto-fixes clear findings, surfaces only decision-needing ones. |
+| `harness:test-guide`          | Read-only test companion. Derives a change's test scenarios from spec scenarios + AC + decisions, skips what automated tests already cover, and walks you through the gap one at a time (ROI-first) with pass/fail/skip. Persists nothing.                                                                                                       |
+| `harness:ship`                | Pushes + opens the PR, following the repo's commit + PR-title conventions.                                                                                                                                                                                                                                                                       |
+| `harness:finish`              | Closes a change: sync specs + archive. Confirmable merge-gate (two-merge / single-merge). Backfills run-log reality fields.                                                                                                                                                                                                                      |
+| `harness:address-pr-comments` | Triages + resolves PR review comments.                                                                                                                                                                                                                                                                                                           |
+| `harness:retro`               | Aggregates the harness run-log, surfaces recurring friction, proposes harness improvements (data-backed, never auto-applied).                                                                                                                                                                                                                    |
+| `harness:status`              | Read-only. Derives where a change is in the pipeline and the one next step from live state (openspec, the change's `harness/` artifacts, git/PR, tracker). Works cold — no stored pointer.                                                                                                                                                       |
 
 `harness:build` calls three **review sub-skills** during authoring — `harness:recon` (prior-art reuse
 ledger), `harness:architecture` (engineering gate), `harness:design` (UX gate) — each with its own full
@@ -115,16 +112,16 @@ Full chain with all forks and gates: [docs/pipeline.md](docs/pipeline.md).
 Beyond the code your change introduces, the pipeline writes a small set of **per-change artifacts** so
 a run is auditable and resumable cold (by you later, or a teammate who wasn't there):
 
-| Artifact | Written by | Purpose |
-|----------|-----------|---------|
-| `docs/HARNESS.md` | `harness:init` | The per-project binding layer (sensors, tracker verbs, runtime-verification recipe, paths). |
-| `openspec/changes/<change>/` | `harness:build` | The OpenSpec change: `proposal.md`, `design.md`, `tasks.md`, `specs/<cap>/spec.md` (Given/When/Then scenarios). |
-| `…/<change>/harness/recon.md` | `harness:recon` | Prior-art reuse ledger. |
-| `…/<change>/harness/architecture-review.md` · `design-review.md` | `harness:architecture` · `harness:design` | The engineering + UX review gates. |
-| `…/<change>/harness/decisions.md` | every stage | Load-bearing decision ledger (attributed); folded into the PR body. |
-| `…/<change>/harness/pr-body.md` | `harness:build` | The PR description, folded from the run + decisions; reused by `harness:ship`. |
-| `…/<change>/harness/progress.md` | `harness:build` | Resume state for an interrupted build. |
-| `.claude/harness/runs.jsonl` | `harness:build` | Self-observation run-log (JSONL); `harness:retro` aggregates it. See [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md). |
+| Artifact                                                         | Written by                                | Purpose                                                                                                                                    |
+| ---------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `docs/HARNESS.md`                                                | `harness:init`                            | The per-project binding layer (sensors, tracker verbs, runtime-verification recipe, paths).                                                |
+| `openspec/changes/<change>/`                                     | `harness:build`                           | The OpenSpec change: `proposal.md`, `design.md`, `tasks.md`, `specs/<cap>/spec.md` (Given/When/Then scenarios).                            |
+| `…/<change>/harness/recon.md`                                    | `harness:recon`                           | Prior-art reuse ledger.                                                                                                                    |
+| `…/<change>/harness/architecture-review.md` · `design-review.md` | `harness:architecture` · `harness:design` | The engineering + UX review gates.                                                                                                         |
+| `…/<change>/harness/decisions.md`                                | every stage                               | Load-bearing decision ledger (attributed); folded into the PR body.                                                                        |
+| `…/<change>/harness/pr-body.md`                                  | `harness:build`                           | The PR description, folded from the run + decisions; reused by `harness:ship`.                                                             |
+| `…/<change>/harness/progress.md`                                 | `harness:build`                           | Resume state for an interrupted build.                                                                                                     |
+| `.claude/harness/runs.jsonl`                                     | `harness:build`                           | Self-observation run-log (JSONL); `harness:retro` aggregates it. See [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md). |
 
 `harness:status` and `harness:test-guide` are **read-only** — they derive from the above and persist
 nothing. On `harness:finish`, the change's specs are merged into the main specs and the change dir is
