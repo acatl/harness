@@ -8,6 +8,13 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.3.0](https://github.com/acatl/harness/compare/harness-pipeline-v1.2.2...harness-pipeline-v1.3.0) (2026-07-16)
+
+
+### Features
+
+* **chart:** refocus explore into harness:chart — chart the how, advisory to build ([#35](https://github.com/acatl/harness/issues/35)) ([5af3bde](https://github.com/acatl/harness/commit/5af3bde7d7e246d25056e3e8e1bd9a855c3cd6fc))
+
 ## [1.2.2](https://github.com/acatl/harness/compare/harness-pipeline-v1.2.1...harness-pipeline-v1.2.2) (2026-07-14)
 
 
