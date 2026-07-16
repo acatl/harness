@@ -14,7 +14,7 @@ description: >-
 argument-hint: "[change-name] [gated]"
 metadata:
   author: acatl
-  version: "1.2.2" # x-release-please-version
+  version: "1.3.0" # x-release-please-version
 ---
 
 # harness:architecture — pre-apply engineering gate

@@ -14,7 +14,7 @@ description: >-
 argument-hint: "[build-run|pre-ship|operator] [change-name|scope]"
 metadata:
   author: acatl
-  version: "1.2.2" # x-release-please-version
+  version: "1.3.0" # x-release-please-version
 ---
 
 # harness:review-change — one review engine, three altitudes

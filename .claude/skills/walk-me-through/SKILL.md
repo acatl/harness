@@ -3,7 +3,7 @@ name: walk-me-through
 description: Convert multi-question or multi-decision responses into a one-question-at-a-time interactive flow. Use this skill whenever you are about to send the user a response that contains ≥3 distinct questions, OR ≥2 questions where any one has ≥3 options, OR a wall of text presenting multiple decisions the user needs to make in sequence. Also triggers on user phrases like "walk me through", "one at a time", "step through these", "ask me one by one", "don't wall me", or when the user pushes back on a batched question set. Replaces the wall with a queue drained one question per turn, each rendered as a tight TLDR + why-it-matters line + indexed options table (Pros/Cons) + recommendation with reasoning and cost + an escape hatch for the user to propose alternatives or discuss. Minimizes text-at-decision-time while preserving full signal.
 metadata:
   author: acatl
-  version: "1.2.2" # x-release-please-version
+  version: "1.3.0" # x-release-please-version
 ---
 
 # walk-me-through

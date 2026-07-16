@@ -11,7 +11,7 @@ description: >-
 argument-hint: "[guided]"
 metadata:
   author: acatl
-  version: "1.2.2" # x-release-please-version
+  version: "1.3.0" # x-release-please-version
 ---
 
 # harness:fine-tune — sticky polish loop
