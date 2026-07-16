@@ -9,7 +9,13 @@ One rule to remember: **you set it up once, then you run the same loop for every
 
 ## 1. Set up — once per project
 
+The harness runs on [OpenSpec](https://github.com/Fission-AI/OpenSpec) — a hard dependency. Install it
+and initialize it in your project **before** `harness:init`:
+
 ```text
+npm install -g @fission-ai/openspec@latest   # once, globally
+openspec init --tools claude                  # once, in the project
+
 /harness:init  →  writes docs/HARNESS.md
 ```
 
@@ -41,7 +47,7 @@ Five steps, same order, every time. That's the whole thing.
 | **Build**     | `/harness:build`     | The spec written _and_ the code implemented — verified, but **not shipped**.                                   | The task is clear and you're ready to make it real. |
 | **Fine-tune** | `/harness:fine-tune` | Where you land after build: test it, fix what's off, commit — batched so edits stay on-ticket and don't drift. | Right after build, until it's right.                |
 | **Ship**      | `/harness:ship`      | A pushed branch and an open PR.                                                                                | You've tested + polished and it's good.             |
-| **Finish**    | `/harness:finish`    | Specs synced, change archived, ticket closed.                                                                  | The PR is merged.                                   |
+| **Finish**    | `/harness:finish`    | Specs synced, change archived, and the tracker updated if your project wired that hook.                        | The PR is merged.                                   |
 
 That's the spine. If you only remember these five, you can run the harness.
 
@@ -65,7 +71,7 @@ flowchart LR
   R --> CH["/harness:chart"]:::help --> B
   FT --> TG["/harness:test-guide"]:::help --> FT
   S --> APC["/harness:address-pr-comments"]:::help --> F
-  RV["/harness:review-change"]:::help -. "inside ship · or standalone" .- S
+  FT -. "self-review · also runs inside ship" .- RV["/harness:review-change"]:::help
 
   classDef help fill:#8957e5,stroke:#4b277a,color:#fff
 ```
@@ -139,9 +145,13 @@ simpler, and you can switch later.
 /harness:build           # spec it and build it
 /harness:fine-tune       # test (via test-guide) + polish until it's right
 /harness:ship            # open the PR
-# → get it merged
-/harness:finish          # close it out
+/harness:finish          # sync + archive onto the still-open PR
+# → merge the PR — closes the change
 ```
+
+> That last order is **single-merge** (the recommended default): `finish` runs _before_ the merge, so
+> the spec-sync + archive ride the open PR. In **two-merge** it flips — merge the feature PR first, then
+> run `/harness:finish` to open the chore PR. See [_One setup choice_](#one-setup-choice-how-finish-lands) above.
 
 Everything else is a detour off this line, taken only when you need it.
 

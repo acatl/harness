@@ -85,7 +85,7 @@ flowchart TB
   reviews) with no lost work. The mode is an **explicit flag, never inferred** from a missing `specs/` —
   absent ⇒ full, so every existing change is unaffected.
 - **Nothing ships automatically.** The core ends at *verified locally, not shipped*. You test it
-  yourself — usually in `harness:fine-tune` (test via `harness:test-guide`, then polish); if there's
+  yourself — usually in `harness:fine-tune` (polish it, testing via `harness:test-guide` as needed); if there's
   nothing to polish you can ship directly. `harness:ship` (push + open PR) is a separate, deliberate
   step you trigger when ready.
 - **`harness:fine-tune`** is the **usual post-build landing** — the polish loop (fix → test → approve
