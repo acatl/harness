@@ -37,7 +37,7 @@ MAP=(
   "rules/walk-me-through.md::.claude/skills/harness-architecture/references/walk-me-through.md"
   "rules/walk-me-through.md::.claude/skills/harness-build/references/walk-me-through.md"
   "rules/walk-me-through.md::.claude/skills/harness-design/references/walk-me-through.md"
-  "rules/walk-me-through.md::.claude/skills/harness-explore/references/walk-me-through.md"
+  "rules/walk-me-through.md::.claude/skills/harness-chart/references/walk-me-through.md"
   "rules/walk-me-through.md::.claude/skills/harness-finish/references/walk-me-through.md"
   "rules/walk-me-through.md::.claude/skills/harness-recon/references/walk-me-through.md"
   "rules/walk-me-through.md::.claude/skills/harness-ship/references/walk-me-through.md"

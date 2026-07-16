@@ -100,7 +100,7 @@ or any native picker.** Yes/no gates (H2, plan-approval) and plain selections st
    `--spec-less` token (stripped like `--yolo`), or the mode carried from a `harness:refine` handoff;
    else `full`. (Orthogonal to gated/yolo — see **Spec mode**.)
 2. **Resolve the change id.** Passed name/idea → derive a kebab-case id (never pass a sentence to the
-   CLI). Inferred from conversation (build runs after `harness:explore`/`harness:refine`) → echo a
+   CLI). Inferred from conversation (build runs after `harness:chart`/`harness:refine`) → echo a
    one-line confirmation before creating anything. Else ask once, derive kebab.
 3. **Detect start state** via `openspec list --json` + `openspec status --change "<name>" --json`:
    - No change dir for `<name>` → **AUTHOR** (Step A).
@@ -134,6 +134,9 @@ after reviews so it derives from the reviewed spec.
    derive-from-reviewed-spec guarantee is N/A, skip Step D. **1** → normal. **N** → hold + later
    generate all members.
 4. **Author proposal first**, then **recon**, then the rest:
+   - **A charted approach is advisory.** If a `harness:chart` run preceded, treat its recommended route
+     as a *prior*, not a spec — adopt it where it holds; **deviate + log why** (decision log) where the
+     code proves it wrong. The *how* is yours; `refine`'s task/AC + any spec still bind.
    - Author `proposal.md` (the `proposal` prerequisite) via `openspec instructions proposal --change
      "<name>" --json`; author from `template`; apply `context`/`rules` as constraints, never copy those
      blocks into the file.
@@ -414,5 +417,5 @@ On any failure not caused by this change → STOP + surface (don't patch around 
   `openspec status --json`, `openspec instructions <artifact> --json`, `openspec-verify-change`.
 - Invokes (Skill tool): `harness:recon`, `harness:architecture`, `harness:design`, `harness:review-change`
   (`build-run` mode — Step F.4 skeptical review).
-- Runs after: `harness:explore` / `harness:refine`. Hands off to: `harness:fine-tune` (polish) and
+- Runs after: `harness:chart` / `harness:refine`. Hands off to: `harness:fine-tune` (polish) and
   `harness:ship` (push + PR) once you've tested.

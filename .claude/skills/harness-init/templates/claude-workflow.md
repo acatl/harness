@@ -5,7 +5,7 @@
 Engineering work runs through the **harness** pipeline, not ad-hoc edits. Route *every* change through it —
 small changes don't opt out, they run **spec-less** (lighter: no formal spec, still sensors + review + ship).
 
-- **Think first (optional)** → `/harness:explore` — scope an idea or investigate before committing to a change.
+- **Plan the *how* (optional)** → `/harness:chart` — after `refine` settles the *what*, chart the technical approach (options → weigh → pick a route) before `build`.
 - **New work** → `/harness:refine <intent>` → `/harness:build` (full-spec *or* spec-less → implement → verify)
   - `refine` picks the weight: **full** spec for behavior/contract changes · lightweight **spec-less** for
     small ones (`build` records the mode and adapts, escalating to full if a small change turns spec-worthy).
