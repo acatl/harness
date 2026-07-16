@@ -15,7 +15,7 @@ description: >-
   broad pre-task ideation with no settled destination, that's /opsx:explore or harness:refine.
 metadata:
   author: acatl
-  version: "1.2.1" # x-release-please-version
+  version: "1.2.2" # x-release-please-version
 ---
 
 # harness:chart — chart the *how*

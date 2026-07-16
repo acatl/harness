@@ -13,7 +13,7 @@ description: >-
   "what should I test".
 metadata:
   author: acatl
-  version: "1.2.1" # x-release-please-version
+  version: "1.2.2" # x-release-please-version
 ---
 
 # harness:test-guide — what do I test, walked one at a time (derived, never persisted)
