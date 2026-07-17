@@ -142,8 +142,7 @@ scripts/         sync-skill-resources.sh (bundle drift guard) + skill-frontmatte
 ## Status
 
 The full `harness:*` pipeline (15 skills + `walk-me-through`) is built and dogfooded on real
-projects. See [CHANGELOG.md](CHANGELOG.md) for what shipped and [docs/OS-READINESS.md](docs/OS-READINESS.md)
-for current open-source/company-readiness work in flight.
+projects. See [CHANGELOG.md](CHANGELOG.md) for what shipped.
 
 ## Contributing & license
 
