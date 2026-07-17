@@ -10,7 +10,7 @@ description: >-
   status", "what's the next step", "where are we on <change>", "what do I run now".
 metadata:
   author: acatl
-  version: "1.2.2" # x-release-please-version
+  version: "1.3.0" # x-release-please-version
 ---
 
 # harness:status — where am I, what's next (derived, never persisted)
