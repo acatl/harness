@@ -43,9 +43,11 @@ flowchart TB
   end
 
   CORE --> HT(["👤 verified locally — NOT shipped<br/>test it yourself"]):::human
-  HT -. "needs polish" .-> FT["/harness:fine-tune<br/>fix → test → approve → commit loop"]:::cmd -.-> HT
+  HT -- "usually → test + polish" --> FT["/harness:fine-tune<br/>fix → test → approve → commit loop"]:::cmd
+  FT -. "test the change" .-> TG["/harness:test-guide<br/>walk scenarios · pass/fail/skip · read-only"]:::cmd -.-> FT
   HT -. "want a self-review first" .-> LR["/harness:review-change (operator)<br/>4-stance self-review · fix clear · queue decisions"]:::cmd -.-> HT
-  HT -- "ready to ship" --> SH["/harness:ship<br/>pre-ship review (thin) → push + open PR"]:::cmd
+  FT --> SH["/harness:ship<br/>pre-ship review (thin) → push + open PR"]:::cmd
+  HT -. "nothing to polish → ship direct" .-> SH
 
   SH --> MM{"finish merge mode?<br/>HARNESS.md"}:::dec
   SH -. "PR has comments" .-> APC["/harness:address-pr-comments<br/>triage · auto-fix · reply · resolve"]:::cmd -.-> MM
@@ -79,18 +81,24 @@ flowchart TB
   `harness/spec-mode` marker and skips **only** the `specs/` delta + strict-verify — it still authors
   proposal + a lean design + tasks, runs a single lightweight **spec-less review** against `proposal.md` + `design.md`
   ([spec-less-review](../rules/spec-less-review.md)), and keeps sensors + behavioral-verify + ship. If impl
-  uncovers a spec-worthy change, an **escalation tripwire** flips it to full (author specs, run the heavy
-  reviews) with no lost work. The mode is an **explicit flag, never inferred** from a missing `specs/` —
+  uncovers a spec-worthy change, an **escalation tripwire** stops at a fork — **escalate to full** (author
+  specs, run the heavy reviews) or **log + defer** (stay spec-less) — with no lost work either way. The
+  mode is an **explicit flag, never inferred** from a missing `specs/` —
   absent ⇒ full, so every existing change is unaffected.
 - **Nothing ships automatically.** The core ends at *verified locally, not shipped*. You test it
-  yourself; iterate with `harness:fine-tune` if needed. `harness:ship` (push + open PR) is a separate,
-  deliberate step you trigger when ready.
-- **`harness:fine-tune`** is the polish loop (fix → test → approve → commit), reused as-is except its
-  test step binds to HARNESS.md sensors and it hands off to `harness:ship` when you're done. Commits
-  are local; ship owns push + PR. **It is a sticky mode** (like OpenSpec Explore): it re-anchors
-  every turn, survives nested skills (runs them, then resumes the loop), and exits ONLY on an explicit
-  "exit" or an asked-and-confirmed yes — backed by a small "fine-tune active" marker so it never
-  forgets it was fine-tuning.
+  yourself — usually in `harness:fine-tune` (polish it, testing via `harness:test-guide` as needed); if there's
+  nothing to polish you can ship directly. `harness:ship` (push + open PR) is a separate, deliberate
+  step you trigger when ready.
+- **`harness:fine-tune`** is the **usual post-build landing** — the polish loop (fix → test → approve
+  → commit) you drop into once the core is verified (ship-direct stays valid when there's nothing to
+  polish). Its normal test step runs the configured HARNESS.md sensors; it **offers** `harness:test-guide`
+  for scenario-based testing (auto-runs it in `guided` mode; runs standalone when you only want to test,
+  not fix); it hands off to `harness:ship` when you're done.
+  Commits are local; ship owns push + PR. **It is a sticky mode**: it re-anchors every turn, survives
+  nested skills (runs them, then resumes the loop), and exits ONLY on an explicit signal ("exit" /
+  "done" / "stop fine-tuning") or an asked-and-confirmed yes — backed by a small "fine-tune active"
+  marker so it never forgets it was
+  fine-tuning.
 - **`harness:review-change`** is the **one review engine, run at three altitudes** via a `mode` arg —
   a single isolated reviewer-fixer sub-agent (doer ≠ judge) runs four escalating stances (baseline →
   cross-cutting → adversarial-verify → docs-alignment), auto-fixing clear/no-trade-off findings and
