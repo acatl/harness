@@ -42,8 +42,10 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 The review framework (13 lenses, Phase 0/1, severity taxonomy, `Category`/`Disposition`/`Fix class`,
 return format) lives in `references/framework.md`. The four internal stances live in
 `references/deep-stances.md`. Every single-pick decision renders as a pure-text fork card per
-`references/walk-me-through.md` — **never** `AskUserQuestion` or any native picker. The pipeline "you
-are here" trail follows `references/pipeline-map.md`.
+`references/walk-me-through.md` — **never** `AskUserQuestion` or any native picker. Emit each card as
+**live rendered markdown** (the table renders), **never** wrapped in a code fence — a fenced card shows
+raw `|` pipes to the operator and breaks the interaction; the example cards below are written unfenced for
+exactly this reason. The pipeline "you are here" trail follows `references/pipeline-map.md`.
 
 ---
 
@@ -305,7 +307,6 @@ Then stop. Skip the wizard. (Still render the auto-fixed table + gate result abo
 After Stage 1, before the wizard, render one single-pick fork card (`references/walk-me-through.md`
 shape — pure text, reply by letter):
 
-```text
 Q1 of 1: Ready to walk through the findings?
 
 TLDR: N decision-needing findings queued — pick how much of the queue to walk now.
@@ -325,7 +326,6 @@ Cost if A: ~N cards, a few minutes.
 Escape: E discuss / propose other.
 
 Pick: A / B / C / D / E?
-```
 
 If the operator picks **D**: output the Change Summary (concept-level bullets derived from the diff,
 max 5, verb-led past tense), then re-render this same fork card. Honor the scope pick throughout the
@@ -338,8 +338,7 @@ wizard — skip excluded severity levels entirely.
 For each finding in scope (Blockers → Warnings → Style, respecting the scope pick), render one fork
 card:
 
-```text
-#<N> of <total in scope> — <short summary> <🔴/🟠/🟡>
+Finding #<N> of <total in scope> — <short summary> <🔴/🟠/🟡>
 
 `<file path>` | Lens: <lens name>
 
@@ -362,7 +361,6 @@ Cost if <letter>: <concrete>
 Escape: <next-letter> discuss / propose other.
 
 Pick: A / B / C / <escape-letter>?
-```
 
 **Option sets by severity** — fill the card's options table with the matching set below. The escape
 letter always means "discuss later" (deferred to a post-wizard discussion) — do not add it as a lettered
@@ -418,7 +416,6 @@ Do not elaborate, re-explain, or offer follow-up on confirmed decisions. Momentu
 
 After the **last Blocker card** (before starting Warnings), if Warnings are in scope, render:
 
-```text
 Blockers done. Handle Warnings one by one, or decide for all?
 
 TLDR: N Warnings queued — pick per-item review or one bulk call for all of them.
@@ -438,7 +435,6 @@ Cost if A: N more cards.
 Escape: E discuss / propose other.
 
 Pick: A / B / C / D / E?
-```
 
 After the **last Warning card** (before starting Style), if Style findings are in scope, render the
 same shape with options: One by one / Defer all to separate PR _(Recommended)_ / Ignore all / Fix all
@@ -522,7 +518,6 @@ _Highest severity: 🟠_ | _Can parallel: No — depends on Batch 1_
 
 After presenting the action plan, render one fork card:
 
-```text
 Ready to proceed?
 
 TLDR: N batches of operator-approved fixes queued for implementation.
@@ -540,7 +535,6 @@ Cost if A: implements every listed change now.
 Escape: D discuss / adjust first.
 
 Pick: A / B / C / D?
-```
 
 **When the operator says "go" (or equivalent):** Proceed directly to implementation. Do not re-plan or
 ask for further confirmation.
