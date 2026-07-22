@@ -659,13 +659,22 @@ code) can make, not the caller folding findings after the fact:
 - **clear** — one obvious correct resolution, no trade-off: a missing test, a
   wrong OpenAPI shape vs runtime, a stale doc reference, an unused export, a
   lint/type/style fix. The fix does not change product scope or pick between
-  defensible alternatives.
+  defensible alternatives. **Severity is orthogonal to fix class** — an obvious
+  fix that is within the change's scope and aligned with the project's documented
+  principles / quality gates is `clear` **regardless of severity** (🟡 Style and
+  🟠 Warning included), and is auto-applied, not queued. Queuing an obvious
+  in-scope in-principle fix builds an unnecessary gate — the operator's own rules
+  say to just apply it (depth-axis: correct fix within scope = do it).
 - **decision-needing** — a trade-off, a scope question, an architectural call,
   or anything where two reasonable engineers could pick differently. These reach
   the operator; they are never auto-fixed.
 
-When in doubt, classify **decision-needing**. Surfacing a borderline finding is
-cheap; silently auto-fixing a judgment call is not.
+When in doubt, classify **decision-needing** — but the doubt that queues is doubt
+about **which resolution** is right (a real trade-off), or **scope-axis** (the fix
+expands the change, adds a dependency, touches an unrelated surface, or alters a
+load-bearing convention). "It's only a Warning/Style" or "the fix is obvious but I'm
+nervous to touch it" is **not** that doubt — auto-apply it. Surfacing a genuine
+borderline finding is cheap; silently auto-fixing a judgment call is not.
 
 ### `Disposition` field (what happened to the finding)
 

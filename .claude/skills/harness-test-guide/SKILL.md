@@ -82,15 +82,19 @@ So a product owner can do the top few and stop; deeper testers continue. Priorit
 ### 5. Walk one at a time (the companion)
 One scenario per turn — plain language, not raw Gherkin. For each:
 
+**The `text` code fence below is presentational — it delimits the template for reading. Emit the card as
+live markdown (bold labels, blank lines between blocks), NEVER wrapped in a code fence. A fenced card
+renders as raw monospace to the operator instead of rendered markdown.**
+
 ```text
-Test <N> of <M>  ·  <P#>  ·  <coverage tag>
-<scenario title>
+**Test <N> of <M>**  ·  <P#>  ·  <coverage tag>
+**<scenario title>**
 
-Drive:  <concrete steps to exercise it — bring-up + action, from the HARNESS.md Runtime-verification
-        recipe (launch/driver). Reuse it; don't reinvent how to launch the app.>
-Expect: <the THEN / observable outcome, in plain words>
+**Drive:** <concrete steps to exercise it — bring-up + action, from the HARNESS.md Runtime-verification
+recipe (launch/driver). Reuse it; don't reinvent how to launch the app.>
+**Expect:** <the THEN / observable outcome, in plain words>
 
-→ pass / fail / skip?  (or: stop · jump to <n>)
+→ pass / fail / skip?  (or: stop · jump to test `n`)
 ```
 Wait for the answer before the next. **Escape always:** the operator can stop anytime (do the P0s, quit),
 or jump. Track pass/fail/skip **in-session only** (conversation memory — no file).
