@@ -11,7 +11,7 @@ description: >-
   `harness:review-change`.)
 metadata:
   author: acatl
-  version: "1.3.0" # x-release-please-version
+  version: "1.3.1" # x-release-please-version
 ---
 
 # harness:retro — close the loop from data to a better harness

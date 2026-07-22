@@ -9,7 +9,7 @@ description: >
   clobbering bindings already set.
 metadata:
   author: acatl
-  version: "1.3.0" # x-release-please-version
+  version: "1.3.1" # x-release-please-version
 ---
 
 # harness:init — generate the binding layer
