@@ -94,7 +94,7 @@ renders as raw monospace to the operator instead of rendered markdown.**
 recipe (launch/driver). Reuse it; don't reinvent how to launch the app.>
 **Expect:** <the THEN / observable outcome, in plain words>
 
-→ pass / fail / skip?  (or: stop · jump to <n>)
+→ pass / fail / skip?  (or: stop · jump to test `n`)
 ```
 Wait for the answer before the next. **Escape always:** the operator can stop anytime (do the P0s, quit),
 or jump. Track pass/fail/skip **in-session only** (conversation memory — no file).
