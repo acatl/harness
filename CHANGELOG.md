@@ -8,6 +8,14 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.3.1](https://github.com/acatl/harness/compare/harness-pipeline-v1.3.0...harness-pipeline-v1.3.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* de-fence test-guide scenario cards and stop review-change gating obvious fixes ([#42](https://github.com/acatl/harness/issues/42)) ([7826a03](https://github.com/acatl/harness/commit/7826a038f3e7b9a0e6f152d76b6f3f6f8d87e4aa))
+* **review-change:** de-fence fork-card templates so they render as markdown ([#40](https://github.com/acatl/harness/issues/40)) ([c919648](https://github.com/acatl/harness/commit/c919648eaebc40be988b33677cca2f0c47ee1926))
+
 ## [1.3.0](https://github.com/acatl/harness/compare/harness-pipeline-v1.2.2...harness-pipeline-v1.3.0) (2026-07-16)
 
 

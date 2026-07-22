@@ -12,7 +12,7 @@ description: >-
 license: MIT
 metadata:
   author: acatl
-  version: "1.3.0" # x-release-please-version
+  version: "1.3.1" # x-release-please-version
 ---
 
 # harness:recon — prior-art recon before design
