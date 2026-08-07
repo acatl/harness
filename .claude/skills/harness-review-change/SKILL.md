@@ -158,6 +158,10 @@ The spawn prompt is **mode-aware** — say, in substance:
 > single context**. Carry every finding in memory — **never re-report** a finding from an earlier
 > stage; build on it. Apply `Fix class: clear` fixes to the working tree as you go, obeying every
 > project rule loaded (`CLAUDE.md` + the rules dir in `docs/HARNESS.md` › Paths). **Never commit.**
+> **Edit only the files a finding names** (plus its pinning test) — no repo-wide sweeps, no untouched
+> surfaces. **No destructive operations** (`git reset --hard` / `checkout --` / `clean`, `rm -rf`,
+> deleting branches or stashes) and no network calls beyond the sensors: the tree may hold the
+> operator's uncommitted work, and losing it is unrecoverable.
 > Return the structured format in `references/framework.md` (preamble + one block per finding, each
 > tagged Severity + Lens + Category + Fix class + Disposition; plus a `refuted` block for
 > considered-and-dropped concerns).
@@ -208,6 +212,15 @@ commits + re-runs sensors depends on the mode:
   auto-fix a trade-off, scope question, or architectural call. When in doubt, decision-needing.
 - **Load-bearing is never auto-fixed.** Any fix touching a scope-axis / load-bearing convention (per
   `CLAUDE.md` + the rules dir) is decision-needing regardless of how "clear" it looks.
+- **Edits stay inside the finding's blast radius.** A fix touches only the files the finding names (plus
+  the test that pins it). Autonomy is over _what_ to fix, never over _how far_ to reach: a repo-wide
+  sweep, a refactor of untouched files, or a fix in a surface no finding flagged is out of bounds — that
+  is a decision-needing scope question, not a clear fix.
+- **Non-destructive, no side channels.** The agent edits files and runs the declared sensors. It never
+  runs destructive git or filesystem operations (`reset --hard`, `checkout --` over operator work,
+  `clean`, `rm -rf`, branch/stash deletion), never commits or pushes (Model-A fix ownership), and makes
+  no network calls beyond what the sensors themselves do. Reviewing uncommitted work (`operator` mode)
+  means the operator's WIP is in the tree — destroying it is unrecoverable, and no finding justifies it.
 - **No re-report.** All prior-stage findings live in context — the queue is already deduplicated.
 - **Refute honestly.** A considered-and-dropped concern is a `refuted` block, not a silent drop — the
   run-log records honest refutation.
@@ -516,7 +529,8 @@ _Highest severity: 🟠_ | _Can parallel: No — depends on Batch 1_
 
 **No "ready to proceed?" confirm.** Each "Fix now" in the plan was already picked by the operator, card
 by card — re-confirming the batch asks the same question twice. Print the plan as an announcement and
-**implement immediately**, in batch order. Do not re-plan, do not ask.
+**implement immediately** — dependent batches in their sequenced order, independent batches in parallel
+per Batching rule 4. Do not re-plan, do not ask.
 
 The only stop after the plan: a batch turns out to need a decision the wizard didn't cover (a fix has no
 single correct shape, or it reaches a scope-axis surface) → render that as its own fork card, resolve,
