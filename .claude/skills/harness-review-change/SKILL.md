@@ -63,11 +63,14 @@ the return contract — the engine itself is identical.
 | `operator` | bare `/harness:review-change` | committed `origin/<default-branch>...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
 
 **Autonomous by default — every mode.** The review runs to completion without permission checkpoints:
-clear fixes are applied, sensors re-run, results reported. The **only** stop in the interactive modes is
-a **per-finding genuine fork** (≥2 defensible resolutions, per `Fix class: decision-needing`). Never ask
-whether to walk the queue, whether to apply decisions already made, or whether to proceed to the next
-stage — those are ceremony, not decisions, and the operator's answer is always the same. A stop must
-carry a real pick; if it doesn't, announce and continue.
+clear fixes are applied, results reported (plus the final sensor gate in `pre-ship` / `operator` — in
+`build-run` build owns that gate; see Final verification gate). The **only** stop in the interactive
+modes is a **genuine fork** (≥2 defensible resolutions, per `Fix class: decision-needing`) — normally one
+card per finding, or **one bulk card standing in for ≥3 same-severity findings** (Stage 2 › bulk
+shortcuts), which is the same decision asked once instead of N times. Never ask whether to walk the
+queue, whether to apply decisions already made, or whether to proceed to the next stage — those are
+ceremony, not decisions, and the operator's answer is always the same. A stop must carry a real pick; if
+it doesn't, announce and continue.
 
 ¹ **full = all four stances _eligible_** — each runs only when its trigger surface is present (Adaptivity
 › Scale depth to the diff); stage 3 short-circuits when stages 1–2 applied no fixes. "Full" ≠ "all four
@@ -314,8 +317,9 @@ Then stop. Skip the wizard. (Still render the auto-fixed table + gate result abo
 **Never ask "ready to walk through the findings?" or offer a queue-scope pick.** Stage 1 → Stage 2
 directly, walking the **whole** queue (Blockers → Warnings → Style). Reaching the wizard at all means
 genuine forks exist; asking permission to ask them is a stop with no decision in it (the answer is
-always "all"). The only stops in interactive modes are the **per-finding fork cards** — each a real
-≥2-defensible-option pick — plus the flagged-item discussion the operator opts into.
+always "all"). The only stops in interactive modes are the **finding fork cards** — each a real
+≥2-defensible-option pick, one per finding or one bulk card per ≥3-finding severity group (Stage 2 ›
+bulk shortcuts) — plus the flagged-item discussion the operator opts into.
 
 Announce instead, one line, then start card #1: _"N decisions need your call — walking them now,
 Blockers first."_
@@ -326,7 +330,7 @@ Blockers first."_
 
 For each queued finding (Blockers → Warnings → Style — the whole queue), render one fork card:
 
-Finding #<N> of <total in scope> — <short summary> <🔴/🟠/🟡>
+Finding #<N> of <total queued> — <short summary> <🔴/🟠/🟡>
 
 `<file path>` | Lens: <lens name>
 

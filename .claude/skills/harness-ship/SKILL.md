@@ -64,8 +64,9 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    atomic ship commit (never a second commit or an amend). **A clean review does not stop** — announce
    "review clean" and continue. **The review is autonomous**: it applies its clear fixes and reports them;
    it never asks whether to fix them, whether to walk its findings, or whether to proceed. Only a
-   **decision-needing** finding stops, and it stops as **one fork card per finding** (no "ready to walk
-   the queue?" preamble, no post-plan re-confirm) — resolve, apply the chosen fixes, continue. That's the
+   **decision-needing** finding stops, and it stops as a **fork card carrying a real pick** — one per
+   finding, or one bulk card per ≥3-finding severity group (no "ready to walk the queue?" preamble, no
+   post-plan re-confirm) — resolve, apply the chosen fixes, continue. That's the
    Contract's genuine-fork carve-out, not a new push gate. Skip only when the change has genuinely **no reviewable behavior/contract
    surface** — pure prose (README/CHANGELOG/comments), formatting, or CI-config. A file being markdown
    doesn't make it inert: a skill or a rules-file edit is behavior, not docs.
