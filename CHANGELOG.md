@@ -8,6 +8,13 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.3.2](https://github.com/acatl/harness/compare/harness-pipeline-v1.3.1...harness-pipeline-v1.3.2) (2026-08-07)
+
+
+### Bug Fixes
+
+* **review-change:** drop ceremony gates so pre-ship review runs autonomous ([#43](https://github.com/acatl/harness/issues/43)) ([c705394](https://github.com/acatl/harness/commit/c705394a41bc9df346da023a343c30b715d41091))
+
 ## [1.3.1](https://github.com/acatl/harness/compare/harness-pipeline-v1.3.0...harness-pipeline-v1.3.1) (2026-07-22)
 
 
