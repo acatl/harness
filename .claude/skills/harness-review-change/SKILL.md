@@ -406,12 +406,16 @@ Do not elaborate, re-explain, or offer follow-up on confirmed decisions. Momentu
 
 **Bulk decision shortcuts — between severity groups:**
 
-**Threshold: render only when ≥3 findings remain in the group being entered.** For 1–2 the card costs
-more than the cards it saves — go straight to them.
+**Trigger = entering the group, not finishing the previous one.** Before the first card of the Warnings
+group, and again before the first card of the Style group, render the shortcut **iff ≥3 findings are
+queued in the group being entered**. Independent of whether the preceding group had any cards — a queue
+of 3 Warnings and 0 Blockers still gets the Warnings shortcut. (For 1–2 the card costs more than the
+cards it saves — go straight to them.) Never render it for Blockers: a Blocker's option set has no
+"do nothing", so there's nothing to bulk.
 
-After the **last Blocker card** (before starting Warnings), if ≥3 Warnings remain, render:
+Entering Warnings with ≥3 queued, render:
 
-Blockers done. Handle Warnings one by one, or decide for all?
+Handle Warnings one by one, or decide for all?
 
 TLDR: N Warnings queued — pick per-item review or one bulk call for all of them.
 Why it matters: a bulk pick applies the same decision to every remaining Warning.
@@ -431,9 +435,8 @@ Escape: E discuss / propose other.
 
 Pick: A / B / C / D / E?
 
-After the **last Warning card** (before starting Style), if ≥3 Style findings remain, render the
-same shape with options: One by one / Defer all to separate PR _(Recommended)_ / Ignore all / Fix all
-now.
+Entering Style with ≥3 queued, render the same shape with options: One by one / Defer all to separate
+PR _(Recommended)_ / Ignore all / Fix all now.
 
 If the operator picks a bulk option, record that decision for all remaining findings in the group,
 confirm in one line (_"Got it — all N Warnings → Defer."_), and move on.
