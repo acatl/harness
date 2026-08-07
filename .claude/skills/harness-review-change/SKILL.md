@@ -160,8 +160,10 @@ The spawn prompt is **mode-aware** — say, in substance:
 > project rule loaded (`CLAUDE.md` + the rules dir in `docs/HARNESS.md` › Paths). **Never commit.**
 > **Edit only the files a finding names** (plus its pinning test) — no repo-wide sweeps, no untouched
 > surfaces. **No destructive operations** (`git reset --hard` / `checkout --` / `clean`, `rm -rf`,
-> deleting branches or stashes) and no network calls beyond the sensors: the tree may hold the
-> operator's uncommitted work, and losing it is unrecoverable.
+> deleting branches or stashes). **Network only for** the Batch 1 `git fetch origin <default-branch>`
+> (required — a stale base ref reviews the wrong delta) and whatever the declared sensors do
+> themselves. Rationale: the tree may hold the operator's uncommitted work, and losing it is
+> unrecoverable.
 > Return the structured format in `references/framework.md` (preamble + one block per finding, each
 > tagged Severity + Lens + Category + Fix class + Disposition; plus a `refuted` block for
 > considered-and-dropped concerns).
@@ -219,7 +221,9 @@ commits + re-runs sensors depends on the mode:
 - **Non-destructive, no side channels.** The agent edits files and runs the declared sensors. It never
   runs destructive git or filesystem operations (`reset --hard`, `checkout --` over operator work,
   `clean`, `rm -rf`, branch/stash deletion), never commits or pushes (Model-A fix ownership), and makes
-  no network calls beyond what the sensors themselves do. Reviewing uncommitted work (`operator` mode)
+  no network calls beyond the **Batch 1 base-branch `git fetch`** (required — reviewing against a stale
+  `origin/<default-branch>` reads the wrong delta) and what the sensors themselves do. Read-only git
+  (`log` / `diff` / `rev-parse`) is gathering, not a side channel. Reviewing uncommitted work (`operator` mode)
   means the operator's WIP is in the tree — destroying it is unrecoverable, and no finding justifies it.
 - **No re-report.** All prior-stage findings live in context — the queue is already deduplicated.
 - **Refute honestly.** A considered-and-dropped concern is a `refuted` block, not a silent drop — the
