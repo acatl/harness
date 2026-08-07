@@ -62,6 +62,16 @@ the return contract — the engine itself is identical.
 | `pre-ship` | `harness:ship` pre-push | whole branch `origin/<default-branch>...HEAD` | **thin** (see below) | **no hard abort** (ship's `git add -A` sweeps); show diff summary | decision-needing → wizard | hands back to ship (ship commits) |
 | `operator` | bare `/harness:review-change` | committed `origin/<default-branch>...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
 
+**Autonomous by default — every mode.** The review runs to completion without permission checkpoints:
+clear fixes are applied, results reported (plus the final sensor gate in `pre-ship` / `operator` — in
+`build-run` build owns that gate; see Final verification gate). The **only** stop in the interactive
+modes is a **genuine fork** (≥2 defensible resolutions, per `Fix class: decision-needing`) — normally one
+card per finding, or **one bulk card standing in for ≥3 same-severity findings** (Stage 2 › bulk
+shortcuts), which is the same decision asked once instead of N times. Never ask whether to walk the
+queue, whether to apply decisions already made, or whether to proceed to the next stage — those are
+ceremony, not decisions, and the operator's answer is always the same. A stop must carry a real pick; if
+it doesn't, announce and continue.
+
 ¹ **full = all four stances _eligible_** — each runs only when its trigger surface is present (Adaptivity
 › Scale depth to the diff); stage 3 short-circuits when stages 1–2 applied no fixes. "Full" ≠ "all four
 always run" — a trivial single-surface diff may run only the baseline.
@@ -148,6 +158,12 @@ The spawn prompt is **mode-aware** — say, in substance:
 > single context**. Carry every finding in memory — **never re-report** a finding from an earlier
 > stage; build on it. Apply `Fix class: clear` fixes to the working tree as you go, obeying every
 > project rule loaded (`CLAUDE.md` + the rules dir in `docs/HARNESS.md` › Paths). **Never commit.**
+> **Edit only the files a finding names** (plus its pinning test) — no repo-wide sweeps, no untouched
+> surfaces. **No destructive operations** (`git reset --hard` / `checkout --` / `clean`, `rm -rf`,
+> deleting branches or stashes). **Network only for** the Batch 1 `git fetch origin <default-branch>`
+> (required — a stale base ref reviews the wrong delta) and whatever the declared sensors do
+> themselves. Rationale: the tree may hold the operator's uncommitted work, and losing it is
+> unrecoverable.
 > Return the structured format in `references/framework.md` (preamble + one block per finding, each
 > tagged Severity + Lens + Category + Fix class + Disposition; plus a `refuted` block for
 > considered-and-dropped concerns).
@@ -198,6 +214,17 @@ commits + re-runs sensors depends on the mode:
   auto-fix a trade-off, scope question, or architectural call. When in doubt, decision-needing.
 - **Load-bearing is never auto-fixed.** Any fix touching a scope-axis / load-bearing convention (per
   `CLAUDE.md` + the rules dir) is decision-needing regardless of how "clear" it looks.
+- **Edits stay inside the finding's blast radius.** A fix touches only the files the finding names (plus
+  the test that pins it). Autonomy is over _what_ to fix, never over _how far_ to reach: a repo-wide
+  sweep, a refactor of untouched files, or a fix in a surface no finding flagged is out of bounds — that
+  is a decision-needing scope question, not a clear fix.
+- **Non-destructive, no side channels.** The agent edits files and runs the declared sensors. It never
+  runs destructive git or filesystem operations (`reset --hard`, `checkout --` over operator work,
+  `clean`, `rm -rf`, branch/stash deletion), never commits or pushes (Model-A fix ownership), and makes
+  no network calls beyond the **Batch 1 base-branch `git fetch`** (required — reviewing against a stale
+  `origin/<default-branch>` reads the wrong delta) and what the sensors themselves do. Read-only git
+  (`log` / `diff` / `rev-parse`) is gathering, not a side channel. Reviewing uncommitted work (`operator` mode)
+  means the operator's WIP is in the tree — destroying it is unrecoverable, and no finding justifies it.
 - **No re-report.** All prior-stage findings live in context — the queue is already deduplicated.
 - **Refute honestly.** A considered-and-dropped concern is a `refuted` block, not a silent drop — the
   run-log records honest refutation.
@@ -302,43 +329,25 @@ Then stop. Skip the wizard. (Still render the auto-fixed table + gate result abo
 | --- | ----------------------------------- | ------------- | ---------------- | --------------------- |
 | N   | 🔴 Blocker / 🟠 Warning / 🟡 Style | `<lens name>` | `<file path>`   | `<one-line summary>` |
 
-### Transition fork
+### No transition fork
 
-After Stage 1, before the wizard, render one single-pick fork card (`references/walk-me-through.md`
-shape — pure text, reply by letter):
+**Never ask "ready to walk through the findings?" or offer a queue-scope pick.** Stage 1 → Stage 2
+directly, walking the **whole** queue (Blockers → Warnings → Style). Reaching the wizard at all means
+genuine forks exist; asking permission to ask them is a stop with no decision in it (the answer is
+always "all"). The only stops in interactive modes are the **finding fork cards** — each a real
+≥2-defensible-option pick, one per finding or one bulk card per ≥3-finding severity group (Stage 2 ›
+bulk shortcuts) — plus the flagged-item discussion the operator opts into.
 
-Q1 of 1: Ready to walk through the findings?
-
-TLDR: N decision-needing findings queued — pick how much of the queue to walk now.
-Why it matters: scopes the wizard; any severity you skip still ships with the branch.
-
-| # | Option | Pros | Cons |
-|---|--------|------|------|
-| A | All of them | full coverage before shipping | most time now |
-| B | Blockers only | fastest unblock | Warnings/Style ship unreviewed |
-| C | Blockers + Warnings | skips only Style | Style ships unreviewed |
-| D | Show the change summary first | concept-level orientation before deciding | one extra step |
-
-Recommendation: **A — All of them.** Cheapest point to catch issues is pre-ship, and N findings is a
-small queue.
-Cost if A: ~N cards, a few minutes.
-
-Escape: E discuss / propose other.
-
-Pick: A / B / C / D / E?
-
-If the operator picks **D**: output the Change Summary (concept-level bullets derived from the diff,
-max 5, verb-led past tense), then re-render this same fork card. Honor the scope pick throughout the
-wizard — skip excluded severity levels entirely.
+Announce instead, one line, then start card #1: _"N decisions need your call — walking them now,
+Blockers first."_
 
 ### Stage 2: Wizard
 
 **Main agent runs this.** Do not re-fetch anything — render cards from reviewer results.
 
-For each finding in scope (Blockers → Warnings → Style, respecting the scope pick), render one fork
-card:
+For each queued finding (Blockers → Warnings → Style — the whole queue), render one fork card:
 
-Finding #<N> of <total in scope> — <short summary> <🔴/🟠/🟡>
+Finding #<N> of <total queued> — <short summary> <🔴/🟠/🟡>
 
 `<file path>` | Lens: <lens name>
 
@@ -414,9 +423,16 @@ Do not elaborate, re-explain, or offer follow-up on confirmed decisions. Momentu
 
 **Bulk decision shortcuts — between severity groups:**
 
-After the **last Blocker card** (before starting Warnings), if Warnings are in scope, render:
+**Trigger = entering the group, not finishing the previous one.** Before the first card of the Warnings
+group, and again before the first card of the Style group, render the shortcut **iff ≥3 findings are
+queued in the group being entered**. Independent of whether the preceding group had any cards — a queue
+of 3 Warnings and 0 Blockers still gets the Warnings shortcut. (For 1–2 the card costs more than the
+cards it saves — go straight to them.) Never render it for Blockers: a Blocker's option set has no
+"do nothing", so there's nothing to bulk.
 
-Blockers done. Handle Warnings one by one, or decide for all?
+Entering Warnings with ≥3 queued, render:
+
+Handle Warnings one by one, or decide for all?
 
 TLDR: N Warnings queued — pick per-item review or one bulk call for all of them.
 Why it matters: a bulk pick applies the same decision to every remaining Warning.
@@ -436,9 +452,8 @@ Escape: E discuss / propose other.
 
 Pick: A / B / C / D / E?
 
-After the **last Warning card** (before starting Style), if Style findings are in scope, render the
-same shape with options: One by one / Defer all to separate PR _(Recommended)_ / Ignore all / Fix all
-now.
+Entering Style with ≥3 queued, render the same shape with options: One by one / Defer all to separate
+PR _(Recommended)_ / Ignore all / Fix all now.
 
 If the operator picks a bulk option, record that decision for all remaining findings in the group,
 confirm in one line (_"Got it — all N Warnings → Defer."_), and move on.
@@ -516,28 +531,27 @@ _Highest severity: 🟠_ | _Can parallel: No — depends on Batch 1_
 | --- | ---- | ------ | -------- | --------- |
 | ... | ...  | ...    | ...      | ...       |
 
-After presenting the action plan, render one fork card:
+**No "ready to proceed?" confirm.** Each "Fix now" in the plan was already picked by the operator, card
+by card — re-confirming the batch asks the same question twice. Print the plan as an announcement and
+**implement immediately** — dependent batches in their sequenced order, independent batches in parallel
+per Batching rule 4. Do not re-plan, do not ask.
 
-Ready to proceed?
+**Re-validate each remaining fix against the tree as its batch starts** — an earlier batch changed the
+same files, so a queued fix can already be resolved or no longer fit. Already resolved → `Disposition:
+applied` with a `Fix note` naming the batch that resolved it, and skip the edit (never re-apply); still
+valid but the surface moved → adjust the fix to the current code. **Not `refuted`** — the finding was
+real and is now fixed; `refuted` means considered-and-rejected (`references/framework.md` › Disposition)
+and using it here would skew the run-log optimistic. This re-checks the _fix_, not the operator's
+decision — it is not re-planning and never re-asks.
 
-TLDR: N batches of operator-approved fixes queued for implementation.
-Why it matters: this is the last checkpoint before implementing them.
+**Any re-validation change makes the already-rendered outcome stale** (Decisions Summary + Overall
+Assessment print before this plan). After execution, emit a short **delta** — only the affected rows,
+their corrected disposition, and the updated counts — not a re-render of the whole outcome. No change →
+emit nothing.
 
-| # | Option | Pros | Cons |
-|---|--------|------|------|
-| A | Go — implement all batches in order | fully resolved before shipping | no partial checkpoint |
-| B | Go, but skip [#] | ships everything else now | skipped items tracked separately |
-| C | Just batch [N] | tightest scope | remaining batches still open |
-
-Recommendation: **A — Go.** Unless a batch is risky enough to want isolated verification.
-Cost if A: implements every listed change now.
-
-Escape: D discuss / adjust first.
-
-Pick: A / B / C / D?
-
-**When the operator says "go" (or equivalent):** Proceed directly to implementation. Do not re-plan or
-ask for further confirmation.
+The only stop after the plan: a batch turns out to need a decision the wizard didn't cover (a fix has no
+single correct shape, or it reaches a scope-axis surface) → render that as its own fork card, resolve,
+continue.
 
 _(In `pre-ship` mode the resolved decisions hand back to ship, which commits them in the ship commit;
 the wizard does not push. In `operator` mode approved fixes are applied to the working tree and left
