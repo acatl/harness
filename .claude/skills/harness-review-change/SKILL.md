@@ -537,9 +537,17 @@ by card — re-confirming the batch asks the same question twice. Print the plan
 per Batching rule 4. Do not re-plan, do not ask.
 
 **Re-validate each remaining fix against the tree as its batch starts** — an earlier batch changed the
-same files, so a queued fix can already be resolved or no longer fit. Already resolved → `refuted` with
-the reason, skip it (never re-apply); still valid but the surface moved → adjust the fix to the current
-code. This re-checks the _fix_, not the operator's decision — it is not re-planning and never re-asks.
+same files, so a queued fix can already be resolved or no longer fit. Already resolved → `Disposition:
+applied` with a `Fix note` naming the batch that resolved it, and skip the edit (never re-apply); still
+valid but the surface moved → adjust the fix to the current code. **Not `refuted`** — the finding was
+real and is now fixed; `refuted` means considered-and-rejected (`references/framework.md` › Disposition)
+and using it here would skew the run-log optimistic. This re-checks the _fix_, not the operator's
+decision — it is not re-planning and never re-asks.
+
+**Any re-validation change makes the already-rendered outcome stale** (Decisions Summary + Overall
+Assessment print before this plan). After execution, emit a short **delta** — only the affected rows,
+their corrected disposition, and the updated counts — not a re-render of the whole outcome. No change →
+emit nothing.
 
 The only stop after the plan: a batch turns out to need a decision the wizard didn't cover (a fix has no
 single correct shape, or it reaches a scope-axis surface) → render that as its own fork card, resolve,
