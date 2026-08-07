@@ -62,6 +62,13 @@ the return contract — the engine itself is identical.
 | `pre-ship` | `harness:ship` pre-push | whole branch `origin/<default-branch>...HEAD` | **thin** (see below) | **no hard abort** (ship's `git add -A` sweeps); show diff summary | decision-needing → wizard | hands back to ship (ship commits) |
 | `operator` | bare `/harness:review-change` | committed `origin/<default-branch>...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
 
+**Autonomous by default — every mode.** The review runs to completion without permission checkpoints:
+clear fixes are applied, sensors re-run, results reported. The **only** stop in the interactive modes is
+a **per-finding genuine fork** (≥2 defensible resolutions, per `Fix class: decision-needing`). Never ask
+whether to walk the queue, whether to apply decisions already made, or whether to proceed to the next
+stage — those are ceremony, not decisions, and the operator's answer is always the same. A stop must
+carry a real pick; if it doesn't, announce and continue.
+
 ¹ **full = all four stances _eligible_** — each runs only when its trigger surface is present (Adaptivity
 › Scale depth to the diff); stage 3 short-circuits when stages 1–2 applied no fixes. "Full" ≠ "all four
 always run" — a trivial single-surface diff may run only the baseline.
@@ -302,41 +309,22 @@ Then stop. Skip the wizard. (Still render the auto-fixed table + gate result abo
 | --- | ----------------------------------- | ------------- | ---------------- | --------------------- |
 | N   | 🔴 Blocker / 🟠 Warning / 🟡 Style | `<lens name>` | `<file path>`   | `<one-line summary>` |
 
-### Transition fork
+### No transition fork
 
-After Stage 1, before the wizard, render one single-pick fork card (`references/walk-me-through.md`
-shape — pure text, reply by letter):
+**Never ask "ready to walk through the findings?" or offer a queue-scope pick.** Stage 1 → Stage 2
+directly, walking the **whole** queue (Blockers → Warnings → Style). Reaching the wizard at all means
+genuine forks exist; asking permission to ask them is a stop with no decision in it (the answer is
+always "all"). The only stops in interactive modes are the **per-finding fork cards** — each a real
+≥2-defensible-option pick — plus the flagged-item discussion the operator opts into.
 
-Q1 of 1: Ready to walk through the findings?
-
-TLDR: N decision-needing findings queued — pick how much of the queue to walk now.
-Why it matters: scopes the wizard; any severity you skip still ships with the branch.
-
-| # | Option | Pros | Cons |
-|---|--------|------|------|
-| A | All of them | full coverage before shipping | most time now |
-| B | Blockers only | fastest unblock | Warnings/Style ship unreviewed |
-| C | Blockers + Warnings | skips only Style | Style ships unreviewed |
-| D | Show the change summary first | concept-level orientation before deciding | one extra step |
-
-Recommendation: **A — All of them.** Cheapest point to catch issues is pre-ship, and N findings is a
-small queue.
-Cost if A: ~N cards, a few minutes.
-
-Escape: E discuss / propose other.
-
-Pick: A / B / C / D / E?
-
-If the operator picks **D**: output the Change Summary (concept-level bullets derived from the diff,
-max 5, verb-led past tense), then re-render this same fork card. Honor the scope pick throughout the
-wizard — skip excluded severity levels entirely.
+Announce instead, one line, then start card #1: _"N decisions need your call — walking them now,
+Blockers first."_
 
 ### Stage 2: Wizard
 
 **Main agent runs this.** Do not re-fetch anything — render cards from reviewer results.
 
-For each finding in scope (Blockers → Warnings → Style, respecting the scope pick), render one fork
-card:
+For each queued finding (Blockers → Warnings → Style — the whole queue), render one fork card:
 
 Finding #<N> of <total in scope> — <short summary> <🔴/🟠/🟡>
 
@@ -414,7 +402,10 @@ Do not elaborate, re-explain, or offer follow-up on confirmed decisions. Momentu
 
 **Bulk decision shortcuts — between severity groups:**
 
-After the **last Blocker card** (before starting Warnings), if Warnings are in scope, render:
+**Threshold: render only when ≥3 findings remain in the group being entered.** For 1–2 the card costs
+more than the cards it saves — go straight to them.
+
+After the **last Blocker card** (before starting Warnings), if ≥3 Warnings remain, render:
 
 Blockers done. Handle Warnings one by one, or decide for all?
 
@@ -436,7 +427,7 @@ Escape: E discuss / propose other.
 
 Pick: A / B / C / D / E?
 
-After the **last Warning card** (before starting Style), if Style findings are in scope, render the
+After the **last Warning card** (before starting Style), if ≥3 Style findings remain, render the
 same shape with options: One by one / Defer all to separate PR _(Recommended)_ / Ignore all / Fix all
 now.
 
@@ -516,28 +507,13 @@ _Highest severity: 🟠_ | _Can parallel: No — depends on Batch 1_
 | --- | ---- | ------ | -------- | --------- |
 | ... | ...  | ...    | ...      | ...       |
 
-After presenting the action plan, render one fork card:
+**No "ready to proceed?" confirm.** Each "Fix now" in the plan was already picked by the operator, card
+by card — re-confirming the batch asks the same question twice. Print the plan as an announcement and
+**implement immediately**, in batch order. Do not re-plan, do not ask.
 
-Ready to proceed?
-
-TLDR: N batches of operator-approved fixes queued for implementation.
-Why it matters: this is the last checkpoint before implementing them.
-
-| # | Option | Pros | Cons |
-|---|--------|------|------|
-| A | Go — implement all batches in order | fully resolved before shipping | no partial checkpoint |
-| B | Go, but skip [#] | ships everything else now | skipped items tracked separately |
-| C | Just batch [N] | tightest scope | remaining batches still open |
-
-Recommendation: **A — Go.** Unless a batch is risky enough to want isolated verification.
-Cost if A: implements every listed change now.
-
-Escape: D discuss / adjust first.
-
-Pick: A / B / C / D?
-
-**When the operator says "go" (or equivalent):** Proceed directly to implementation. Do not re-plan or
-ask for further confirmation.
+The only stop after the plan: a batch turns out to need a decision the wizard didn't cover (a fix has no
+single correct shape, or it reaches a scope-axis surface) → render that as its own fork card, resolve,
+continue.
 
 _(In `pre-ship` mode the resolved decisions hand back to ship, which commits them in the ship commit;
 the wizard does not push. In `operator` mode approved fixes are applied to the working tree and left
