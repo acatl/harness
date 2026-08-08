@@ -28,8 +28,8 @@ two files that exist.
 **Spec-worthiness is an escalation, not a finding.** The change turns out to alter an observable
 behavior or contract → return **`STATUS: escalate — <reason + the observable change>`** and stop. Not a
 finding to patch: a finding can be applied and the run continues to task generation, shipping the
-contract change with no `specs/` delta. Escalation re-routes the whole change — the caller authors
-`specs/`, flips the marker to `full`, and re-runs this review. Same contract as the spec-less review's
+contract change with no `specs/` delta. You report the trigger only — **the route is the caller's fork**
+(escalate to full vs log + defer); never presume which. Same contract as the spec-less review's
 escalation catch. `full` → normal.
 
 **Prior-art parity** (only if `proposal.md` has a `<!-- harness:recon:start -->` block). Per recon

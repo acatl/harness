@@ -113,10 +113,13 @@ On return:
 - `STATUS: skip` → print the one-line skip note + reason, end run (no gate artifact; breadcrumb
   `skipped: <reason>`).
 - `STATUS: escalate` → spec-less change found spec-worthy. **Terminal: apply nothing, write no spec
-  edits.** Print the reason + the observable behavior/contract it changes, and hand back the escalation
-  (caller authors `specs/`, flips the marker to `full`, re-runs this review — build's Step E). Breadcrumb
-  `stopped: spec-worthy → escalate to full`. Never downgrade it to a finding — an applied finding lets
-  the run continue to task generation and ships the contract change with no `specs/` delta.
+  edits.** Print the reason + the observable behavior/contract it changes, then return it as a
+  **blocking signal to the caller** — escalate-vs-defer is the caller's fork, not ours (build's Step E:
+  **(A) escalate to full** / **(B) log + defer**; load-bearing, always logged). Don't author `specs/`,
+  don't flip the spec-mode marker, don't pick an outcome. Standalone (no caller to fork) → render that
+  same two-option card yourself. Breadcrumb `stopped: spec-worthy → caller fork`. Never downgrade it to
+  a finding — an applied finding lets the run continue to task generation and ships the contract change
+  with no `specs/` delta.
 - `STATUS: reviewed` → print the payload's Setup Confirmation block verbatim, continue.
 - Malformed / missing payload → **never fabricate findings.** autonomous: respawn once silently;
   second malformed return → emit a one-line skip note (`skipped: auditor returned no usable payload`)
