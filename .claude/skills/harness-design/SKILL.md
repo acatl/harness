@@ -99,9 +99,10 @@ On return:
 Payload's `## Fork cards` non-empty → surface each as a walk-me-through fork card
 (`references/walk-me-through.md`), severity order TRADEOFF → UNCLEAR, one at a time. Cards arrive
 **complete** (auditor drafts the full shape, counters included) — render verbatim, don't renumber.
-Fold each answer into the finding #s the card names (adjust the finding's Proposed language to the
-chosen option; "leave as spec gap" → brief note in the finding). **Mark every folded finding # locked
-— Step 5 must not re-ask it.** Types: ⚠️ Tradeoff · ❓ Unclear. None → straight to report.
+Fold each answer into the finding #s the card names — the finding's Proposed language becomes the
+**chosen option's own `Proposed` cell** (each option carries one; never draft your own); "leave as spec
+gap" → brief note in the finding, nothing written. **Mark every folded finding # locked — Step 5 must
+not re-ask it.** Types: ⚠️ Tradeoff · ❓ Unclear. None → straight to report.
 
 ## Step 4 — Report
 Render from the payload; **summary only** (full detail delivered in the triage loop).
@@ -147,9 +148,9 @@ Per finding: number + one-sentence problem + one-sentence user impact. Then by `
   - autonomous: record approved + move on (no prompt).
   - gated: **Apply / Edit first / Skip**. Edit → ask changes, show revised, "Good?", record on confirm.
 - **Options** (real choice or `→ Downstream` — **fork, stops both modes**): **locked by a Step 3 fork
-  card → never re-ask; carry the locked choice through as Straightforward.** Otherwise render the
-  payload's options table + recommendation; ask choice or invite their own direction; draft from input,
-  "Good?", record.
+  card → never re-ask; carry it through as Straightforward on the chosen option's `Proposed` language.**
+  Otherwise render the payload's options table + recommendation; ask choice or invite their own
+  direction; record the picked option's `Proposed` (their own direction → draft from input, "Good?").
 - **Missing Journey**: autonomous → record the payload's drafted requirement as approved (capturing is
   the improvement-aligned default; only a genuine now-vs-later tradeoff → Options fork). gated →
   "Spec now or track as future work?".

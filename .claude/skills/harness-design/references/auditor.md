@@ -136,7 +136,10 @@ STATUS: reviewed
 - Impact: <user-facing / second-order consequence>
 - Evidence: <spec quote or screen/flow grounding the finding>
 - Proposed: `<target file>` · <layer> → <exact language to write>          (straightforward / journey)
-- Options: | Option | Meaning | Upside | Downside | + 1-sentence recommendation   (options type)
+- Options: | Option | Meaning | Upside | Downside | Proposed | + 1-sentence recommendation  (options type)
+  Every option's `Proposed` cell carries its OWN `<target file>` · <layer> → exact language — the
+  orchestrator writes the picked option's language verbatim and never drafts its own. An option
+  without it is unusable: the pick resolves to nothing to write.
 - Downstream: <consequence>                                                (only when annotated)
 ---
 <repeat per finding>
