@@ -41,8 +41,12 @@ Emit one line at start + one at end — so harness iteration can trace this run 
   Invocation = consent to write. Genuine forks still stop.
 - **gated** (`gated` arg): every finding through the Step 5 triage loop (Apply/Edit/Skip); ask
   add-vs-track for MTCs; confirm before any write. Forks stop too.
+- **standalone**: not an arg — the **caller**. Operator invoked this skill directly (vs `harness:build`
+  calling it in its Step C chain). Same write behavior as autonomous; **report differs** — a human is
+  reading mid-stream, so Step 4 keeps TL;DR / Strengths / Overall Assessment.
 - Detect: trailing standalone `gated`/`--gated` (any case) → gated, stripped; remaining token = change
-  name. `gated` substring inside a name ≠ mode token. No token → autonomous.
+  name. `gated` substring inside a name ≠ mode token. No token → autonomous when build invoked this run,
+  else standalone (build passes only `<change-name>`, so args alone can't distinguish them — the caller can).
 
 ## Genuine forks — stop in BOTH modes
 - **TRADEOFF / UNCLEAR / RISK** (Step 3): real technical choice / underspecified spec / committed
