@@ -104,10 +104,13 @@ autonomous mode writes that bogus finding into the spec. Two known items, both f
 - **Spec mode** — `spec-less` authors no `specs/` delta at all (build › Spec mode), yet build still
   invokes this review for a large / load-bearing / invariant-bearing change. Unforwarded, the auditor
   flags the missing capability spec and proposes spec language — **creating the very delta spec-less
-  forbids.** Resolve it by the harness-wide **reader rule** — read `<change-state-dir>/spec-mode`;
-  spec-less **only if** that file exists and literally says `spec-less`; absent / empty / unreadable /
-  `full` ⇒ `full`. Applies to **every** invocation, standalone included — never skip the read, and
-  **never infer the mode from an absent `specs/`**.
+  forbids.** Resolve it by the harness-wide **reader rule** — read `<change-state-dir>/spec-mode`, whose
+  producer writes the single line `spec_mode: spec-less` (build › Spec mode). **Parse the `spec_mode:`
+  value**; spec-less only if that value is exactly `spec-less`. Absent / empty / unreadable / any other
+  value ⇒ `full`. Don't string-equal the whole file against `spec-less` — it never matches the format
+  build writes, and a false `full` tells the auditor to expect capability specs. Applies to **every**
+  invocation, standalone included — never skip the read, and **never infer the mode from an absent
+  `specs/`**.
 
 Adding a caller with its own intentional-absence rule → add it here **and** to the spawn prompt.
 
