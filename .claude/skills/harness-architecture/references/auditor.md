@@ -55,7 +55,10 @@ frontend/component → Frontend Component Architecture lens (+ concurrency's fro
 closures, out-of-order async, double-submit, optimistic rollback); pure refactor → separation +
 testability + backwards-compat. Don't force every lens on every spec.
 
-Minimal technical surface (docs/copy) → return `STATUS: skip` + one-line reason; no findings.
+Minimal technical surface (docs/copy) → return `STATUS: skip` + one-line reason **only when nothing
+architectural is affected at all**. Something still affected — an error contract, a config surface, a
+documented invariant — → review it: short note, findings limited to that surface (Calibration). A blanket
+skip here would hand the caller a clean gate for a change nobody judged.
 
 ## A4 — Load lenses
 **Read `architecture-lenses.md` now** — sibling file in this same directory; resolve it against the
