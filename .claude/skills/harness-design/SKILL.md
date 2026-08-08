@@ -86,7 +86,7 @@ pulling them into main context defeats the topology. Spawn prompt, in substance:
 > Caller context (each item changes what counts as a defect):
 > · Held artifacts: **`<roles intentionally not-yet-authored, or "none">`** — absent by design; never a finding.
 > · Spec mode: **`<full | spec-less>`** — spec-less has no `specs/` delta by design; never flag its
->   absence and never propose capability-spec language.
+> absence and never propose capability-spec language.
 > **Read-only: never write or edit any file.** Your final message is the structured payload —
 > return it exactly per the auditor's Return format, nothing else.
 
