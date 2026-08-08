@@ -41,7 +41,8 @@ testability + backwards-compat. Don't force every lens on every spec.
 Minimal technical surface (docs/copy) → return `STATUS: skip` + one-line reason; no findings.
 
 ## A4 — Load lenses
-**Read `references/architecture-lenses.md` now** (detailed criteria; same dir as this file). The 15 lenses:
+**Read `architecture-lenses.md` now** — sibling file in this same directory; resolve it against the
+absolute path you were handed for *this* file, never the project cwd. (Detailed criteria.) The 15 lenses:
 1 API Design Quality · 2 API Contract Consistency · 3 Data Model Decisions · 4 Separation of Concerns
 · 5 Security Surface · 6 Error Handling & Failure Modes · 7 Observability · 8 Concurrency & Races ·
 9 Performance Shape · 10 Dependency Decisions · 11 Testability · 12 Migration & Backwards Compat ·
@@ -81,14 +82,23 @@ routine logging omissions — those are just "add it" findings, and downstream a
 dilutes the signal.
 
 ## A6 — Detect forks (draft cards; never ask)
+**Read `walk-me-through.md` first** — sibling file in this same directory (resolve as in A4). The card
+shape it defines is a contract: every labeled line mandatory. You draft **complete** cards — the
+orchestrator renders them verbatim, so a missing line ships broken.
+
+Each card carries the full walk-me-through shape: `Q<N> of <total>` counter · TLDR · Why it matters ·
+options table with terse Pros/Cons · Recommendation naming a concrete signal · `Cost if <letter>:` ·
+`Escape:` · `Pick:`. Number cards in the order the orchestrator renders them — severity order
+TRADEOFF → UNCLEAR → RISK — so counters read true; don't leave `<total>` for someone else to fill.
+
 Check for TRADEOFF / UNCLEAR / RISK — you draft the card content, the orchestrator asks the operator:
 - **TRADEOFF** — real choice, no objectively correct option (REST vs event, sync vs async, cursor vs offset).
-  Card: title + 2–3 concrete options (label = approach; desc = upside/downside/rough effort); mark "(Recommended)".
+  Options: 2–3 concrete (label = approach; Pros/Cons = upside/downside/rough effort); mark "(Recommended)".
 - **UNCLEAR** — spec too underspecified to evaluate a lens (migration referenced not described; retry
-  behavior undefined; error contract unspecified). Card: "spec doesn't define [X] — intended behavior?";
+  behavior undefined; error contract unspecified). Title: "spec doesn't define [X] — intended behavior?";
   2–4 likely options + "Not sure — leave as spec gap".
 - **RISK** — chosen approach carries known risk, no alternative being weighed (table-locking migration no
-  downtime plan; TOCTOU no coordination; sync external call no timeout/breaker). Card: "Mitigate before
+  downtime plan; TOCTOU no coordination; sync external call no timeout/breaker). Options: "Mitigate before
   apply" / "Accept with documented TODO" / "Explain more".
 Per card, note which finding #s the answer folds into.
 
@@ -115,8 +125,11 @@ Severities: 🔴 Critical (correctness/security/data-loss/ops failure — fix be
 (fix before apply, won't fail immediately; compounding debt) · 🟡 Nice-to-Have (polish/edge/future).
 Number findings sequentially (#1, #2…); Missing Technical Concerns separately (T1, T2…).
 
+Emit exactly ONE status line, first line of the payload — either `STATUS: reviewed` or
+`STATUS: skip — <one-line reason>`. Never emit the alternation itself.
+
 ```text
-STATUS: reviewed | skip: <one-line reason>
+STATUS: reviewed
 
 ## Setup Confirmation
 **Spec files read:** proposal.md ✓/✗ · design.md ✓/✗ · tasks.md ✓/✗ · specs/<cap>/spec.md ✓ (list)

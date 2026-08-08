@@ -70,7 +70,8 @@ Locate the change, in order:
 2. `openspec list --json`; exactly one active → use it, name it in one sentence.
 3. Multiple active → stop, ask which (offer list). Never guess.
 4. None → stop; tell user to pass a name or create one.
-CLI unavailable → list `openspec/changes/` dirs (exclude `archive/`), ask. Never default to most-recent.
+CLI unavailable → list the changes root from the change-state-dir binding (HARNESS.md; the binding minus
+`<change>/harness/`), excluding `archive/`; ask. Never default to most-recent.
 
 ## Step 2 — Spawn the auditor
 One general sub-agent, foreground (result needed before continuing). **Do NOT read
@@ -94,14 +95,16 @@ On return:
 - Malformed / missing payload → **never fabricate findings.** autonomous: respawn once silently;
   second malformed return → emit a one-line skip note (`skipped: auditor returned no usable payload`)
   and end — never stall a build chain on an unanswerable question. gated: offer one respawn as a
-  `👉` terminal-block ask.
+  `👉` terminal-block ask; declined, or the respawn also malformed → same one-line skip note and end.
+  Never a third attempt.
 
 ## Step 3 — Fork cards (before the report)
 Payload's `## Fork cards` non-empty → surface each as a walk-me-through fork card
 (`references/walk-me-through.md`), severity order TRADEOFF → UNCLEAR → RISK, one at a time. Cards
-arrive pre-drafted — render verbatim. Fold each answer into the finding #s the card names (adjust the
-finding's Proposed language to the chosen option; "leave as spec gap" → brief note in the finding).
-Types: ⚠️ Tradeoff · ❓ Unclear · 🔺 Risk. None → straight to report.
+arrive **complete** (auditor drafts the full shape, counters included) — render verbatim, don't
+renumber. Fold each answer into the finding #s the card names (adjust the finding's Proposed language
+to the chosen option; "leave as spec gap" → brief note in the finding). **Mark every folded finding #
+locked — Step 5 must not re-ask it.** Types: ⚠️ Tradeoff · ❓ Unclear · 🔺 Risk. None → straight to report.
 
 ## Step 4 — Report
 Render from the payload; **summary only** (full detail delivered in the triage loop).
@@ -146,9 +149,10 @@ Per finding: number + one-sentence problem + one-sentence technical consequence.
   language (already layered right).
   - autonomous: record approved + move on (no prompt).
   - gated: **Apply / Edit first / Skip**. Edit → ask changes, show revised, "Good?", record on confirm.
-- **Options** (real choice or `→ Downstream` — **fork, stops both modes**): render the payload's
-  options table + recommendation; ask choice or invite their own direction; draft from input, "Good?",
-  record.
+- **Options** (real choice or `→ Downstream` — **fork, stops both modes**): **locked by a Step 3 fork
+  card → never re-ask; carry the locked choice through as Straightforward.** Otherwise render the
+  payload's options table + recommendation; ask choice or invite their own direction; draft from input,
+  "Good?", record.
 - **Missing Technical Concern**: autonomous → record the payload's drafted requirement/constraint as
   approved (capturing is the improvement-aligned default; only a genuine now-vs-later tradeoff →
   Options fork). gated → "Add to spec now or track as future work?".

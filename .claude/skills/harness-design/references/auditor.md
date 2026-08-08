@@ -26,7 +26,8 @@ frontend journey exists (flag it) or error messages surface in the UI (findings 
 Admin/internal → operational-workflow completeness, not just public UX.
 
 ## A4 — Load lenses
-**Read `references/design-lenses.md` now** (detailed criteria; same dir as this file). The 11 lenses:
+**Read `design-lenses.md` now** — sibling file in this same directory; resolve it against the absolute
+path you were handed for *this* file, never the project cwd. (Detailed criteria.) The 11 lenses:
 1 Form UX · 2 Navigation & wayfinding · 3 State coverage (loading/empty/error/partial-failure) ·
 4 Destructive actions & data safety · 5 Feedback & system status · 6 Accessibility · 7 Design-system
 alignment · 8 Microcopy & content · 9 Edge cases & scalability · 10 Missing journeys · 11 Flow mapping.
@@ -74,12 +75,21 @@ quality, or common accessibility gaps — those are "add it" findings; downstrea
 items dilutes the signal.
 
 ## A6 — Detect forks (draft cards; never ask)
+**Read `walk-me-through.md` first** — sibling file in this same directory (resolve as in A4). The card
+shape it defines is a contract: every labeled line mandatory. You draft **complete** cards — the
+orchestrator renders them verbatim, so a missing line ships broken.
+
+Each card carries the full walk-me-through shape: `Q<N> of <total>` counter · TLDR · Why it matters ·
+options table with terse Pros/Cons · Recommendation naming a concrete signal · `Cost if <letter>:` ·
+`Escape:` · `Pick:`. Number cards in the order the orchestrator renders them — severity order
+TRADEOFF → UNCLEAR — so counters read true; don't leave `<total>` for someone else to fill.
+
 Check for TRADEOFF / UNCLEAR — you draft the card content, the orchestrator asks the operator:
 - **TRADEOFF** — genuine design choice, no objectively correct option; depends on product direction
   (paginate vs infinite scroll, required-at-draft vs at-submit, modal vs page, single vs multi-step).
-  Card: title + 2–3 concrete options (label = approach; desc = upside/downside/rough effort); mark "(Recommended)".
+  Options: 2–3 concrete (label = approach; Pros/Cons = upside/downside/rough effort); mark "(Recommended)".
 - **UNCLEAR** — spec too underspecified to evaluate a lens (form described but no fields listed;
-  status change specced but user-facing label undefined; API called but no error states). Card: "spec
+  status change specced but user-facing label undefined; API called but no error states). Title: "spec
   doesn't define [X] — intended behavior?"; 2–4 likely options + "Not sure — leave as spec gap".
 Per card, note which finding #s the answer folds into ("leave as gap" → brief note in the relevant lens
 section of the findings).
@@ -104,8 +114,11 @@ Severities: 🔴 Critical Gap (meaningfully hurts users / confusion / operationa
 before launch) · 🟠 Recommended (before launch, won't fail immediately) · 🟡 Nice-to-Have.
 Number findings sequentially (#1…); Missing Journeys separately (J1…).
 
+Emit exactly ONE status line, first line of the payload — either `STATUS: reviewed` or
+`STATUS: skip — <one-line reason>`. Never emit the alternation itself.
+
 ```text
-STATUS: reviewed | skip: <one-line reason>
+STATUS: reviewed
 
 ## Setup Confirmation
 **Spec files read:** proposal.md ✓/✗ · design.md ✓/✗ · tasks.md ✓/✗ · specs/<cap>/spec.md ✓ (list)
