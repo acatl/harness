@@ -23,9 +23,14 @@ testability gap from it, and don't note its absence. `none` → judge every arti
 **Spec mode** (spawn prompt). `spec-less` → the change authors **no `specs/` delta by design**;
 `proposal.md` + `design.md` are the contract. Never flag the missing capability spec, and never write
 `Proposed` targeting one — that would create the delta spec-less exists to avoid. Judge the plan on the
-two files that exist. If the change genuinely *is* spec-worthy, say so as a finding **recommending
-escalation to full spec mode** (the caller owns that route) — never by drafting spec language yourself.
-`full` → normal.
+two files that exist.
+
+**Spec-worthiness is an escalation, not a finding.** The change turns out to alter an observable
+behavior or contract → return **`STATUS: escalate — <reason + the observable change>`** and stop. Not a
+finding to patch: a finding can be applied and the run continues to task generation, shipping the
+contract change with no `specs/` delta. Escalation re-routes the whole change — the caller authors
+`specs/`, flips the marker to `full`, and re-runs this review. Same contract as the spec-less review's
+escalation catch. `full` → normal.
 
 **Prior-art parity** (only if `proposal.md` has a `<!-- harness:recon:start -->` block). Per recon
 verdict:
@@ -137,8 +142,9 @@ Severities: 🔴 Critical (correctness/security/data-loss/ops failure — fix be
 (fix before apply, won't fail immediately; compounding debt) · 🟡 Nice-to-Have (polish/edge/future).
 Number findings sequentially (#1, #2…); Missing Technical Concerns separately (T1, T2…).
 
-Emit exactly ONE status line, first line of the payload — either `STATUS: reviewed` or
-`STATUS: skip — <one-line reason>`. Never emit the alternation itself.
+Emit exactly ONE status line, first line of the payload — `STATUS: reviewed`, `STATUS: skip — <reason>`,
+or `STATUS: escalate — <reason>` (spec-less change found spec-worthy; terminal, no findings applied).
+Never emit an alternation.
 
 ```text
 STATUS: reviewed
@@ -163,9 +169,12 @@ STATUS: reviewed
 - Evidence: <spec quote grounding the finding>
 - Proposed: `<target file>` · <layer> → <exact language to write>          (straightforward / mtc)
 - Options: | Option | Meaning | Upside | Downside | Proposed | + 1-sentence recommendation  (options type)
-  Every option's `Proposed` cell carries its OWN `<target file>` · <layer> → exact language — the
-  orchestrator writes the picked option's language verbatim and never drafts its own. An option
-  without it is unusable: the pick resolves to nothing to write.
+  Every option's `Proposed` cell carries its OWN `<target file>` · <layer> → exact language, **or** an
+  explicit no-write outcome: `no-write — leave as spec gap` (A6's mandatory UNCLEAR escape) ·
+  `no-write — explain, then re-ask` (RISK's "Explain more") · `no-write — <what happens instead>`.
+  The orchestrator writes the picked option's language verbatim and never drafts its own; a `no-write`
+  pick writes nothing and is recorded as such. An **empty** cell is unusable — the pick resolves to
+  neither an edit nor a stated outcome.
 - Downstream: <consequence>                                                (only when annotated)
 ---
 <repeat per finding>

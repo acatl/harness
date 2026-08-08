@@ -112,6 +112,11 @@ Adding a caller with its own intentional-absence rule → add it here **and** to
 On return:
 - `STATUS: skip` → print the one-line skip note + reason, end run (no gate artifact; breadcrumb
   `skipped: <reason>`).
+- `STATUS: escalate` → spec-less change found spec-worthy. **Terminal: apply nothing, write no spec
+  edits.** Print the reason + the observable behavior/contract it changes, and hand back the escalation
+  (caller authors `specs/`, flips the marker to `full`, re-runs this review — build's Step E). Breadcrumb
+  `stopped: spec-worthy → escalate to full`. Never downgrade it to a finding — an applied finding lets
+  the run continue to task generation and ships the contract change with no `specs/` delta.
 - `STATUS: reviewed` → print the payload's Setup Confirmation block verbatim, continue.
 - Malformed / missing payload → **never fabricate findings.** autonomous: respawn once silently;
   second malformed return → emit a one-line skip note (`skipped: auditor returned no usable payload`)
@@ -124,9 +129,11 @@ Payload's `## Fork cards` non-empty → surface each as a walk-me-through fork c
 (`references/walk-me-through.md`), severity order TRADEOFF → UNCLEAR → RISK, one at a time. Cards
 arrive **complete** (auditor drafts the full shape, counters included) — render verbatim, don't
 renumber. Fold each answer into the finding #s the card names — the finding's Proposed language becomes
-the **chosen option's own `Proposed` cell** (each option carries one; never draft your own); "leave as
-spec gap" → brief note in the finding, nothing written. **Mark every folded finding # locked — Step 5
-must not re-ask it.** Types: ⚠️ Tradeoff · ❓ Unclear · 🔺 Risk. None → straight to report.
+the **chosen option's own `Proposed` cell** (each option carries one; never draft your own). A
+`no-write` cell writes nothing: record the stated outcome as a brief note on the finding
+(`no-write — explain, then re-ask` → answer, then re-render the same card, no decision recorded yet).
+**Mark every folded finding # locked — Step 5 must not re-ask it.** Types: ⚠️ Tradeoff · ❓ Unclear ·
+🔺 Risk. None → straight to report.
 
 ## Step 4 — Report
 Render from the payload; **summary only** (full detail delivered in the triage loop).
@@ -176,6 +183,7 @@ Per finding: number + one-sentence problem + one-sentence technical consequence.
   card → never re-ask; carry it through as Straightforward on the chosen option's `Proposed` language.**
   Otherwise render the payload's options table + recommendation; ask choice or invite their own
   direction; record the picked option's `Proposed` (their own direction → draft from input, "Good?").
+  Picked a `no-write` option → record the outcome, write nothing; it counts as skipped, not applied.
 - **Missing Technical Concern**: autonomous → record the payload's drafted requirement/constraint as
   approved (capturing is the improvement-aligned default; only a genuine now-vs-later tradeoff →
   Options fork). gated → "Add to spec now or track as future work?".
