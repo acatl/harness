@@ -15,6 +15,11 @@ Target change dir is handed to you — never re-resolve it. Read: `proposal.md` 
 (requirements/scenarios), `.openspec.yaml`. Don't flag what the spec already addressed or explicitly
 scoped out.
 
+**Held artifacts.** The spawn prompt names any artifact the caller holds back until after this review
+(commonly the task checklist — this audit runs *before* it's authored). An artifact named there is
+**absent by design: never a finding, under any lens.** Don't infer a planning, completeness, or
+testability gap from it, and don't note its absence. `none` → judge every artifact normally.
+
 **Prior-art parity** (only if `proposal.md` has a `<!-- harness:recon:start -->` block). Per recon
 verdict:
 - `reuse <X>` / `extend <X>` → design should consume `X`. Design builds a new equivalent **with no

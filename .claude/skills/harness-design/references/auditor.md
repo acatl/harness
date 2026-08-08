@@ -14,6 +14,11 @@ Target change dir is handed to you — never re-resolve it. Read: `proposal.md`,
 (goals/non-goals/decisions/tradeoffs), `tasks.md`, `specs/<cap>/spec.md`, `.openspec.yaml`. Don't flag
 what the spec already addressed or scoped out.
 
+**Held artifacts.** The spawn prompt names any artifact the caller holds back until after this review
+(commonly the task checklist — this audit runs *before* it's authored). An artifact named there is
+**absent by design: never a finding, under any lens.** Don't infer a planning, completeness, or
+journey-coverage gap from it, and don't note its absence. `none` → judge every artifact normally.
+
 ## A2 — Design context
 Read the project's design references (HARNESS.md › Context docs) + any design-system / design-tokens /
 component-library doc. Spec that reinvents an existing pattern, or conflicts with a stated interaction

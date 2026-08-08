@@ -83,11 +83,19 @@ pulling them into main context defeats the topology. Spawn prompt, in substance:
 > `<skill-dir>/references/auditor.md` (procedure, lenses pointer, categories, return format).
 > Target change dir: **`<abs change dir>`**. Change-state dir: **`<abs path>`**.
 > Project bindings file: **`<abs path to docs/HARNESS.md>`** — resolve design references from it.
+> Held artifacts: **`<role of any artifact the caller declared intentionally not-yet-authored, or "none">`**
+> — absent by design at this stage; never a finding.
 > **Read-only: never write or edit any file.** Your final message is the structured payload —
 > return it exactly per the auditor's Return format, nothing else.
 
 `<skill-dir>` = the absolute **base directory announced when this skill loaded** — a fresh sub-agent
 has no cwd context, so hand it resolved, never skill-relative. Never guess it.
+
+**Held artifacts are load-bearing.** A caller may hold an artifact back until after this review —
+`harness:build`'s AUTHOR path holds the task checklist until its Step D, so `tasks.md` is legitimately
+absent here. The caller states this in one line; **forward it into the spawn prompt.** The auditor is a
+fresh context and cannot infer it — unforwarded, it reads the absent file as a planning gap and
+autonomous mode writes that bogus finding into the spec. Nothing held → `none`.
 
 On return:
 - `STATUS: skip` → print the one-line skip note + reason, end run (no gate artifact; breadcrumb
