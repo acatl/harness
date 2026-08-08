@@ -19,6 +19,13 @@ what the spec already addressed or scoped out.
 **absent by design: never a finding, under any lens.** Don't infer a planning, completeness, or
 journey-coverage gap from it, and don't note its absence. `none` → judge every artifact normally.
 
+**Spec mode** (spawn prompt). `spec-less` → the change authors **no `specs/` delta by design**;
+`proposal.md` + `design.md` are the contract. Never flag the missing capability spec, and never write
+`Proposed` targeting one — that would create the delta spec-less exists to avoid. Judge the plan on the
+two files that exist. If the change genuinely *is* spec-worthy, say so as a finding **recommending
+escalation to full spec mode** (the caller owns that route) — never by drafting spec language yourself.
+`full` → normal.
+
 ## A2 — Design context
 Read the project's design references (HARNESS.md › Context docs) + any design-system / design-tokens /
 component-library doc. Spec that reinvents an existing pattern, or conflicts with a stated interaction
@@ -105,7 +112,7 @@ section of the findings).
 - **Concrete > abstract.** "Add an unsaved-changes warning via `beforeunload` + a Dialog" beats "consider form state management."
 - **Minimal UI surface** (pure backend, migrations) with UX *still* affected → short note; limit findings to UX that *is* affected (usually error messages surfacing in the UI). No UX affected at all → A3's `STATUS: skip`.
 - **The design system is an ally.** "Use the existing X component with the Y variant" is always valid.
-- **Proposed language at the right layer:** `design.md` = decisions/rationale/alternatives (not interaction step-by-steps, exact copy, prop tables, state diagrams); capability spec = Requirements/Scenarios; `proposal.md` = what/why bullets. Over-prescription hardens implementation prematurely and forces downstream contributors to work around the spec. Don't pre-specify exact copy / prop tables / step-by-step flows / state diagrams at design/proposal layer.
+- **Proposed language at the right layer:** `design.md` = decisions/rationale/alternatives (not interaction step-by-steps, exact copy, prop tables, state diagrams); capability spec = Requirements/Scenarios; `proposal.md` = what/why bullets. Over-prescription hardens implementation prematurely and forces downstream contributors to work around the spec. Don't pre-specify exact copy / prop tables / step-by-step flows / state diagrams at design/proposal layer. **Spec mode `spec-less` → the capability-spec layer doesn't exist; `design.md` / `proposal.md` are the only targets.**
 - **Short beats padded** — 4 real findings > 15 marginal.
 
 ## Categories
@@ -137,6 +144,9 @@ STATUS: reviewed
 ## Findings
 **#<N> — <title>** · <🔴/🟠/🟡> · Lens: <lens> · Category: `<category>` · Spec: `<path>`
 - Type: straightforward | options | journey  (journeys numbered J1…; include Who needs it + Risk if absent)
+  **A `Downstream` annotation forces `Type: options`** — a downstream-annotated finding IS a fork by this
+  skill's invariant, and Step 5 dispatches on `Type` alone. `straightforward` + `Downstream` would be
+  auto-applied without ever stopping. Annotating downstream → emit `options` and supply the options table.
 - Problem: <what's wrong / missing>
 - Impact: <user-facing / second-order consequence>
 - Evidence: <spec quote or screen/flow grounding the finding>

@@ -20,6 +20,13 @@ scoped out.
 **absent by design: never a finding, under any lens.** Don't infer a planning, completeness, or
 testability gap from it, and don't note its absence. `none` → judge every artifact normally.
 
+**Spec mode** (spawn prompt). `spec-less` → the change authors **no `specs/` delta by design**;
+`proposal.md` + `design.md` are the contract. Never flag the missing capability spec, and never write
+`Proposed` targeting one — that would create the delta spec-less exists to avoid. Judge the plan on the
+two files that exist. If the change genuinely *is* spec-worthy, say so as a finding **recommending
+escalation to full spec mode** (the caller owns that route) — never by drafting spec language yourself.
+`full` → normal.
+
 **Prior-art parity** (only if `proposal.md` has a `<!-- harness:recon:start -->` block). Per recon
 verdict:
 - `reuse <X>` / `extend <X>` → design should consume `X`. Design builds a new equivalent **with no
@@ -114,7 +121,7 @@ Per card, note which finding #s the answer folds into.
 - Minimal technical surface (docs/copy) with *something* still affected → short note, findings limited
   to what's affected. Nothing affected at all → A3's `STATUS: skip`.
 - Established patterns are allies.
-- **Proposed language at the right layer:** `design.md` = decisions/rationale/alternatives (not request/response shapes, handler steps, signatures, types); capability spec = Requirements/Scenarios; `proposal.md` = what/why bullets. Over-prescription hardens implementation prematurely. Don't pre-specify method names / step orderings / full bodies at design/proposal layer.
+- **Proposed language at the right layer:** `design.md` = decisions/rationale/alternatives (not request/response shapes, handler steps, signatures, types); capability spec = Requirements/Scenarios; `proposal.md` = what/why bullets. Over-prescription hardens implementation prematurely. Don't pre-specify method names / step orderings / full bodies at design/proposal layer. **Spec mode `spec-less` → the capability-spec layer doesn't exist; `design.md` / `proposal.md` are the only targets.**
 - Short beats padded — 4 real findings > 15 marginal.
 
 ## Categories
@@ -148,6 +155,9 @@ STATUS: reviewed
 ## Findings
 **#<N> — <title>** · <🔴/🟠/🟡> · Lens: <lens> · Category: `<category>` · Spec: `<path>`
 - Type: straightforward | options | mtc  (mtc numbered T1…; include Where it matters + Risk if absent)
+  **A `Downstream` annotation forces `Type: options`** — a downstream-annotated finding IS a fork by this
+  skill's invariant, and Step 5 dispatches on `Type` alone. `straightforward` + `Downstream` would be
+  auto-applied without ever stopping. Annotating downstream → emit `options` and supply the options table.
 - Problem: <what's wrong / missing>
 - Impact: <downstream / second-order technical consequence>
 - Evidence: <spec quote grounding the finding>

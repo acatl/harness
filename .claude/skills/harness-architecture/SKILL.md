@@ -86,19 +86,28 @@ sub-agent; pulling them into main context defeats the topology. Spawn prompt, in
 > `<skill-dir>/references/auditor.md` (procedure, lenses pointer, categories, return format).
 > Target change dir: **`<abs change dir>`**. Change-state dir: **`<abs path>`**.
 > Project bindings file: **`<abs path to docs/HARNESS.md>`** — resolve context docs from it.
-> Held artifacts: **`<role of any artifact the caller declared intentionally not-yet-authored, or "none">`**
-> — absent by design at this stage; never a finding.
+> Caller context (each item changes what counts as a defect):
+> · Held artifacts: **`<roles intentionally not-yet-authored, or "none">`** — absent by design; never a finding.
+> · Spec mode: **`<full | spec-less>`** — spec-less has no `specs/` delta by design; never flag its
+>   absence and never propose capability-spec language.
 > **Read-only: never write or edit any file.** Your final message is the structured payload —
 > return it exactly per the auditor's Return format, nothing else.
 
 `<skill-dir>` = the absolute **base directory announced when this skill loaded** — a fresh sub-agent
 has no cwd context, so hand it resolved, never skill-relative. Never guess it.
 
-**Held artifacts are load-bearing.** A caller may hold an artifact back until after this review —
-`harness:build`'s AUTHOR path holds the task checklist until its Step D, so `tasks.md` is legitimately
-absent here. The caller states this in one line; **forward it into the spawn prompt.** The auditor is a
-fresh context and cannot infer it — unforwarded, it reads the absent file as a planning gap and
-autonomous mode writes that bogus finding into the spec. Nothing held → `none`.
+**Caller context is load-bearing — forward all of it.** The auditor is a fresh context: anything the
+caller knows that makes an absence *intentional* must be passed, or the auditor reads it as a defect and
+autonomous mode writes that bogus finding into the spec. Two known items, both from `harness:build`:
+- **Held artifacts** — the AUTHOR path holds the task checklist until its Step D, so `tasks.md` is
+  legitimately absent at Step C. Build states this in one line; forward it. Nothing held → `none`.
+- **Spec mode** — `spec-less` authors no `specs/` delta at all (build › Spec mode), yet build still
+  invokes this review for a large / load-bearing / invariant-bearing change. Unforwarded, the auditor
+  flags the missing capability spec and proposes spec language — **creating the very delta spec-less
+  forbids.** Read build's spec-mode marker, or default `full` when this skill is invoked standalone —
+  **never infer the mode from an absent `specs/`** (build › Spec mode: absent ⇒ full).
+
+Adding a caller with its own intentional-absence rule → add it here **and** to the spawn prompt.
 
 On return:
 - `STATUS: skip` → print the one-line skip note + reason, end run (no gate artifact; breadcrumb
@@ -159,7 +168,8 @@ together…"); autonomous auto-resolves non-forks silently, surfaces only Option
 Per finding: number + one-sentence problem + one-sentence technical consequence. Then by `Type`:
 
 - **Straightforward** (unambiguous, one correct fix — most 🔴, many 🟠): use the payload's Proposed
-  language (already layered right).
+  language (already layered right). **Carries a `Downstream` annotation → not straightforward. Override
+  to Options and fork** (the invariant wins over a mis-typed payload; never auto-apply it).
   - autonomous: record approved + move on (no prompt).
   - gated: **Apply / Edit first / Skip**. Edit → ask changes, show revised, "Good?", record on confirm.
 - **Options** (real choice or `→ Downstream` — **fork, stops both modes**): **locked by a Step 3 fork
