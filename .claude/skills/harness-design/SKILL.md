@@ -170,11 +170,14 @@ After the report, transition straight into the triage loop — don't wait.
 Order: 🔴 → 🟠 → 🟡 → Missing Journeys, one at a time, off the payload. Gated narrates ("Let's go
 through these…"); autonomous auto-resolves non-forks silently, surfaces only Options-mode forks.
 **Write nothing to files during the loop** — collect all decisions; write in the commit step.
-Per finding: number + one-sentence problem + one-sentence user impact. Then by `Type`:
+Per finding: number + one-sentence problem + one-sentence user impact.
+**Pre-dispatch override — check before reading `Type`:** a finding carrying a `Downstream` annotation
+is a fork, whatever its `Type` says. Treat it as Options; never auto-apply it. The invariant outranks
+the payload, and every non-`options` type (`straightforward`, `journey`) otherwise auto-applies in
+autonomous mode. Then by `Type`:
 
 - **Straightforward** (unambiguous, one correct fix — most 🔴/🟠): use the payload's Proposed language
-  (already layered right). **Carries a `Downstream` annotation → not straightforward. Override to
-  Options and fork** (the invariant wins over a mis-typed payload; never auto-apply it).
+  (already layered right).
   - autonomous: record approved + move on (no prompt).
   - gated: **Apply / Edit first / Skip**. Edit → ask changes, show revised, "Good?", record on confirm.
 - **Options** (real choice or `→ Downstream` — **fork, stops both modes**): **locked by a Step 3 fork
