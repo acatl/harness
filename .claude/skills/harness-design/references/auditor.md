@@ -135,11 +135,17 @@ Emit exactly ONE status line, first line of the payload — `STATUS: reviewed`, 
 or `STATUS: escalate — <reason>` (spec-less change found spec-worthy; terminal, no findings applied).
 Never emit an alternation.
 
+`N/A` in Setup Confirmation = **intentionally absent** per the spawn prompt's Caller context (a held
+artifact, or `specs/` under spec-less). It is the honest marker: `✓` would claim a read that never
+happened, `✗` reads as a defect. Recording `N/A` in this inventory is **not** the absence-noting A1
+forbids — that bars *findings* about it, not this checklist. Never deviate from the template to explain
+an absence; the marker is the whole answer.
+
 ```text
 STATUS: reviewed
 
 ## Setup Confirmation
-**Spec files read:** proposal.md ✓/✗ · design.md ✓/✗ · tasks.md ✓/✗ · specs/<cap>/spec.md ✓ (list)
+**Spec files read:** proposal.md ✓/✗ · design.md ✓/✗ · tasks.md ✓/✗/N/A · specs/<cap>/spec.md ✓/✗/N/A (list)
 **Design context found:** [files read] / (none — general UX best practices)
 **Lenses loaded:** [the 11 names]
 **Surface area calibration:** [1 sentence: which lenses are high-priority here and why]
