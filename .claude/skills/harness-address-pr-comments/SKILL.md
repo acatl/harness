@@ -395,9 +395,13 @@ defect (uncertified bytes). Both are 6b.2 findings.
   then `EXPECTED_HEAD=$COMMITTED_SHA`, **before** post-commit verification and any corrective work
   (advancing later strands every correction — its race check would still read `$START_SHA`).
   **Post-commit verification** — two checks on the *committed* object, both before 6d:
-  1. **Path set** — `git diff --name-only $START_SHA $COMMITTED_SHA` (never `$EXPECTED_HEAD`: it was
-     advanced to `$COMMITTED_SHA` above, so that diff is `X..X` and always empty) must contain **no path
-     outside** `FIX_SET` — a subset test, not equality: `FIX_SET` is append-only and a corrective commit
+  1. **Path set** — walk **every commit in the unpushed chain**, not the endpoint tree diff:
+     `for c in $(git rev-list $START_SHA..$COMMITTED_SHA); do git diff-tree --no-commit-id --name-only -r $c; done`.
+     The union must contain **no path outside** `FIX_SET`. A cumulative `git diff $START_SHA
+     $COMMITTED_SHA` is **not** sufficient — a hook can stage an unowned path in the first commit and a
+     corrective re-entry delete it in the second, erasing it from the final tree while pushing the chain
+     still uploads that commit and its unreviewed blob as an ancestor. (`$EXPECTED_HEAD` is likewise
+     useless here: it was advanced to `$COMMITTED_SHA` above, so any diff against it is `X..X`.) — a subset test, not equality: `FIX_SET` is append-only and a corrective commit
      carries only its own delta, so equality would fail on every re-entry. A hook that **creates and stages** a file puts it in the commit while
      leaving the tree clean, so 6b.2's reconciliation can never see it. Any extra path → gate it **at 6b.1** (a hook-generated
      lockfile / workflow / build config is exactly the load-bearing class that must not ride an
