@@ -176,8 +176,13 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   never patched, and including it fires the region check on ordinary nearby fixes);
   **exclude every thread carrying a verdict this run** — its own interval must not fire the region
   check against the fix it asked for. Store the **whole interval**, not one line:
-  `start_line..line`, or `original_start_line..original_line` for an outdated comment; single-line
-  comment → `start_line` is null, use `line..line`. Phase 5 forbids re-fetch, so without this the
+  `start_line..line`, or for an outdated comment `original_start_line..original_line` is in the **old commit's** coordinates —
+  **re-anchor before storing**: match the hunk's **space-prefixed context lines only** (exclude `-` and
+  `+` — the patched lines are by construction gone), whitespace-normalized, as one contiguous block;
+  stored interval = that block's first..last **current** line numbers; no unique match → **drop the interval** (a stale coordinate would fire the region
+  check on an unrelated current line and miss the real one). Single-line (`start_line`/`original_start_line` null) → use that branch's end field: `line..line`, or
+  for an outdated comment the **re-anchored** `original_line..original_line` — never a null bound (a
+  null-bounded interval can never overlap, silently unguarding the region). Phase 5 forbids re-fetch, so without this the
   6b.2b region check is blind in the normal (prior-`fixed:`-reply) case.
   + per-thread block (`#`, `ThreadID`, `RootCommentID`, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/`Option A`/`Option B`/`Blocker`, `Reply tag`, `Code context`).
 
@@ -241,8 +246,8 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 **Invariant: what gets committed is exactly what was certified.** A file this run edits but never adds
 to `FIX_SET` is a defect (silently dropped from the commit); a staged file the run didn't author is a
 defect (uncertified bytes). Both are 6b.2 findings.
-- **6a implement (sub-agent fan-out default):** build the batch graph (independent → parallel, dependent → sequential; same-file grouped; structural items single-threaded); dispatch one sub-agent per independent batch in a single message. Each sub-agent gets its items + fix plans, the scope statement, the Phase-3 standards summary, and `VERIFY_CMDS`; implements, verifies its batch, returns `{batch_id, files_touched, artifacts_observed, verify_status, errors, cascading_findings}` — the union of `files_touched` seeds `FIX_SET`; `artifacts_observed` (per 6b's snapshot rule) is what lets 6b.2 recognize a sensor artifact instead of aborting on it. **Keep on main agent (don't fan out)** when: ≤3 mechanical items; any item touches load-bearing shared config (serialize); operator chose Other with no concrete plan. **Fold in Phase-4.5 tier-1 swept siblings** — each rides its owning finding's batch; the implementer confirms every candidate genuinely matches the class before fixing (per 4.5), skipping any that don't. **Always update tests inline** with each behavioral change.
-- **6b verify:** **snapshot `git status --porcelain` immediately before and after every `VERIFY_CMDS` invocation** (here and inside each 6a sub-agent, which returns `artifacts_observed:[path]` alongside `files_touched`) — absent-before/present-after is the *only* evidence 6b.2 accepts that a path is a sensor artifact; without it every coverage dir routes to 6b.2's STOP and the run can never commit. Then run `VERIFY_CMDS` (typecheck → lint → test). Fail → diagnose root cause, fix, re-run; don't proceed until clean. **Failure because the runner binary is absent** (not because the code is wrong — e.g. `--no-install` fired) → re-derive per 3a from the next match and note it; **never install anything to make a sensor run.** **Every file touched while diagnosing (fixture, shared helper, new test) → `FIX_SET`** — verification passes against the whole worktree, so an unrecorded file passes 6b and then vanishes from the commit.
+- **6a implement (sub-agent fan-out default):** build the batch graph (independent → parallel, dependent → sequential; same-file grouped; structural items single-threaded); dispatch one sub-agent per independent batch in a single message. Each sub-agent gets its items + fix plans, the scope statement, the Phase-3 standards summary, and `VERIFY_CMDS`; implements, verifies its batch, returns `{batch_id, files_touched, artifacts_observed, verify_status, errors, cascading_findings}` — the union of `files_touched` seeds `FIX_SET`; `artifacts_observed` (per 6b's snapshot rule) establishes a path is **this run's** output — which decides *which ask* 6b.2 raises, not whether it may delete. **Keep on main agent (don't fan out)** when: ≤3 mechanical items; any item touches load-bearing shared config (serialize); operator chose Other with no concrete plan. **Fold in Phase-4.5 tier-1 swept siblings** — each rides its owning finding's batch; the implementer confirms every candidate genuinely matches the class before fixing (per 4.5), skipping any that don't. **Always update tests inline** with each behavioral change.
+- **6b verify:** **snapshot `git status --porcelain` immediately before and after every `VERIFY_CMDS` invocation** (here and inside each 6a sub-agent, which returns `artifacts_observed:[path]` alongside `files_touched`) — absent-before/present-after is the *only* evidence 6b.2 accepts that a path is this run's output; it never authorizes deletion — it distinguishes the artifact ask from the un-owned STOP. Then run `VERIFY_CMDS` (typecheck → lint → test). Fail → diagnose root cause, fix, re-run; don't proceed until clean. **Failure because the runner binary is absent** (not because the code is wrong — e.g. `--no-install` fired) → re-derive per 3a from the next match and note it; **never install anything to make a sensor run.** **Every file touched while diagnosing (fixture, shared helper, new test) → `FIX_SET`** — verification passes against the whole worktree, so an unrecorded file passes 6b and then vanishes from the commit.
 - **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same shape + letters as 5d — A/B + C `Decline finding` + D `Defer (blocked)` when a concrete blocker exists, then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class. Any file a cascading fix touches → `FIX_SET`.
 - **6b.2 stage + reconcile (inline, no sub-agent; certification is 6b.2b):** stage exactly
   `FIX_SET` — `git add -- <FIX_SET>` (never `-A`/`.` — a stray verify artifact must not enter the
@@ -252,8 +257,13 @@ defect (uncertified bytes). Both are 6b.2 findings.
   - **recorded** as this run's own output — a path a 6a/6b/6b.1 step reported writing, or one
     **observed** to appear across a `VERIFY_CMDS` invocation (snapshot `git status --porcelain` before
     and after each; absent-before/present-after qualifies — "looks like a test artifact" is a belief,
-    not a record) → an unrecorded fix goes to `FIX_SET` + re-stage; an observed artifact is **cleaned
-    now, and only if untracked → delete**. A **tracked-modified** path observed by the **main agent's own single-threaded 6b snapshot** (no 6a
+    not a record) → an unrecorded fix goes to `FIX_SET` + re-stage. **An observed untracked path is NOT
+    auto-deleted**: temporal appearance is not authorship — an operator or another process can create a
+    file during a 90s verify run, and a path the project considered disposable would be gitignored and
+    so absent from `porcelain` entirely. **Never delete it.** Instead stop with its own ask (not bullet 3's, whose "stash or commit" cannot
+    clear an untracked dir): `⚠️` the path, then one `👉` — *gitignore it, or remove it yourself, then
+    re-invoke*. A dirty tree is recoverable; a deleted file is not. Recurring artifact → gitignoring it
+    is the permanent fix, after which it never reaches `porcelain` again. A **tracked-modified** path observed by the **main agent's own single-threaded 6b snapshot** (no 6a
     sub-agents in flight) — lockfile refresh, snapshot update, generated doc — is **ours** — but route it, don't
     auto-certify: a path matching a **Decision-Gate criterion** (lockfile / CI workflow / root-build
     config / schema-migration) → **6b.1 fork card**, never silent certification (6b.2b's lenses don't
@@ -261,8 +271,9 @@ defect (uncertified bytes). Both are 6b.2 findings.
     `FIX_SET` and certify with the rest. Never `git restore` it. One observed only inside a
     **concurrent** sub-agent window is NOT proven ours (the operator can save a file during a 90s verify
     run) → `⚠️` + the single `👉` ask below, never silent certification. Name what was cleaned in the
-    report. The run must end with a clean tree or the next invocation's 1.5 hard gate aborts on debris
-    this run created.
+    report. A run that **completes** must end with a clean tree, or the next invocation's 1.5 hard gate aborts on
+    debris this run created; a run that stops at a `👉` ask instead names the paths the operator clears
+    before re-invoking.
   - **anything else → STOP. Never delete or restore an unrecognized path.** The tree being clean at 1.5
     does *not* prove a dirty path is ours: the operator or another process can write during a
     long-running session, and the HEAD race check cannot see working-tree edits. Treat un-owned
