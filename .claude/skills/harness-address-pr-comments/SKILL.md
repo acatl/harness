@@ -258,7 +258,7 @@ Main agent renders from returned data (no re-fetch).
   block). Explicit yes → continue (5d wizard, then Phase 6); else stop — don't walk 5d forks for a run
   that won't execute.
 - **Option-pick format:** render a walk-me-through fork card (`references/walk-me-through.md`) — `Q<N> of <total>` + `#<N>` title, framing (comment / why-it-needs-a-decision), options table (terse Pros/Cons), grounded Recommendation (pick + reasoning + `Cost if`), `Escape:` + `Pick:` lines; operator replies by letter. **Never `AskUserQuestion` or a native picker.** One fork per turn. Yes/no gates one line.
-- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table A/B + C `Decline finding` + D `Defer (blocked)` only when a concrete blocker exists, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter — `A — <name> (Recommended)`, `B — <name>`, `C — Decline finding`, `D — Defer (blocked)`; never `AskUserQuestion`. **Offer D only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). One-line confirm, continue. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
+- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table A/B + C `Decline finding` + D `Defer (blocked)` only when a concrete blocker exists, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter — `A — <name> (Recommended)`, `B — <name>`, `C — Decline finding`, `D — Defer (blocked)`; never `AskUserQuestion`. **Offer D only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). One-line confirm, continue — a pick on a Decision-Gate path adds it to `GATE_DECIDED` so 6b.2 b1 never re-asks it. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
 
 ## Phase 6 — execute end-to-end
 Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no per-step re-confirm. Stop only for a mid-flight cascading decision (6b.1), the 5c.1 convergence brake, an unrecognized dirty path (6b.2), corrective re-entries exhausted (6c), or a hard-gate failure.
@@ -268,6 +268,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 |---|---|---|---|
 | `START_SHA` | 1.5 | never | 6b.2b diff base · 6c post-commit path-set + bytes checks |
 | `EXPECTED_HEAD` | 1.5 (`=START_SHA`) | 6c, after each **verified** commit | 6c race check |
+| `GATE_DECIDED` | empty at 1.5 (before 5d, its earliest writer) | 5d picks · 6b.1 gate picks · 6b.2 b1 asks · b4 take-it | 6b.2 b1's gate — so a load-bearing path is adjudicated **once per run**, never re-asked on a re-entry |
 | `FIX_SET` | 6a (union of batch `files_touched`) | **6b** diagnosis fixes · **6b.1** cascading fixes · **6b.2** unrecorded fixes · **6b.2b** own findings — every file this run authors, always added on write | 6b.2 staging · 6c path-set check 1 |
 
 **Invariant: what gets committed is exactly what was certified.** A file this run edits but never adds
@@ -275,45 +276,46 @@ to `FIX_SET` is a defect (silently dropped from the commit); a staged file the r
 defect (uncertified bytes). Both are 6b.2 findings.
 - **6a implement (sub-agent fan-out default):** build the batch graph (independent → parallel, dependent → sequential; same-file grouped; structural items single-threaded); dispatch one sub-agent per independent batch in a single message. Each sub-agent gets its items + fix plans, the scope statement, the Phase-3 standards summary, and `VERIFY_CMDS`; implements, verifies its batch, returns `{batch_id, files_touched, artifacts_observed, verify_status, errors, cascading_findings}` — the union of `files_touched` seeds `FIX_SET`; `artifacts_observed` (per 6b's snapshot rule) is evidence about **untracked** paths only — it decides *which ask* 6b.2 raises, never that a path may be deleted, and never ownership of a **tracked** path. **Keep on main agent (don't fan out)** when: ≤3 mechanical items; any item touches load-bearing shared config (serialize); operator chose Other with no concrete plan. **Fold in Phase-4.5 tier-1 swept siblings** — each rides its owning finding's batch; the implementer confirms every candidate genuinely matches the class before fixing (per 4.5), skipping any that don't. **Always update tests inline** with each behavioral change.
 - **6b verify:** **snapshot `git status --porcelain` immediately before and after every `VERIFY_CMDS` invocation** (here and inside each 6a sub-agent, which returns `artifacts_observed:[path]` alongside `files_touched`) — absent-before/present-after is the *only* evidence 6b.2 accepts for an **untracked** path; it never authorizes deletion, and it never establishes ownership of a tracked path (6b.2 routes those to a fork). Then run `VERIFY_CMDS` (typecheck → lint → test). Fail → diagnose root cause, fix, re-run; don't proceed until clean. **Failure because the runner binary is absent** (not because the code is wrong — e.g. `--no-install` fired) → re-derive per 3a from the next match and note it; **never install anything to make a sensor run.** **Every file touched while diagnosing (fixture, shared helper, new test) → `FIX_SET`** — verification passes against the whole worktree, so an unrecorded file passes 6b and then vanishes from the commit.
-- **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same shape + letters as 5d — A/B + C `Decline finding` + D `Defer (blocked)` when a concrete blocker exists, then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class. Any file a cascading fix touches → `FIX_SET`.
+- **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same shape + letters as 5d — A/B + C `Decline finding` + D `Defer (blocked)` when a concrete blocker exists, then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class. Any file a cascading fix touches → `FIX_SET`; a Decision-Gate pick here also adds its path to `GATE_DECIDED`.
 - **6b.2 stage + reconcile (inline, no sub-agent; certification is 6b.2b):** stage exactly
   `FIX_SET` — `git add -- <FIX_SET>` (never `-A`/`.` — a stray verify artifact must not enter the
   certified payload; staging applies clean filters and makes new files visible). **Reconcile before
   certifying:** `git status --porcelain`, classified **by what this run recorded — never by inference**:
-  - in `FIX_SET` → staged, certified — **unless it matches a Decision-Gate criterion** (lockfile / CI
-    workflow / root-build config / schema-migration) **and no operator decision this run already covers
-    it** (a 5d pick, or an earlier ask here). 6b mandates adding diagnosis-written files to `FIX_SET` on
-    the spot, so a lockfile a failing test made you refresh arrives already a member; first-match would
-    certify it, and 6b.2b's lenses don't test the gate. **Ask once, two named outcomes** (not 5d's
-    A/B/C/D — there's no finding to decline): *take it* → certified, and **record it as decided so it
-    never re-asks**; *leave it out* → **the operator reverts the path themselves**, then re-invokes (the
-    skill never `git restore`s it) — dropping it from `FIX_SET` alone would leave it dirty and cycle
-    back through these buckets.
-  - **recorded** as this run's own output — a path a 6a/6b/6b.1 step reported writing, or an **untracked** path
-    **observed** to appear across a `VERIFY_CMDS` invocation (snapshot `git status --porcelain` before
-    and after each; absent-before/present-after qualifies **for untracked paths only** — "looks like a test artifact" is a belief,
-    not a record) → an unrecorded fix goes to `FIX_SET` + re-stage. **An observed untracked path is NOT
-    auto-deleted**: temporal appearance is not authorship — an operator or another process can create a
-    file during a 90s verify run, and a path the project considered disposable would be gitignored and
-    so absent from `porcelain` entirely. **Never delete it.** Instead stop with its own ask (not bullet 3's, whose "stash or commit" cannot
-    clear an untracked dir): `⚠️` the path, then one `👉` — *gitignore it, or remove it yourself, then
-    re-invoke*. A dirty tree is recoverable; a deleted file is not. Recurring artifact → gitignoring it
-    is the permanent fix, after which it never reaches `porcelain` again. A **tracked-modified** path is **never owned by observation** — the operator can edit a tracked file
-    during the verify window and before/after snapshots cannot say who wrote it (this is the same
-    inference that was wrong for untracked paths; it is wrong here too, and worse, because the content
-    is real work). Ownership for tracked paths comes only from a step **recording** that it wrote them
-    (`FIX_SET`). An observed-but-unrecorded tracked change (a verify step refreshing a tracked lockfile or snapshot is
-    the common case, and a terminal stop would make such a project unrunnable) → **6b.1 fork card**: the
-    operator adjudicates ownership once, **both outcomes defined**: *verify output, take it* → `FIX_SET`
-    + re-stage + re-enter 6b → 6b.2 → 6b.2b → 6c; *my work, stop* → `COMMITTED_SHA` set → push it (6d)
-    **subject to the same check-1 path-set guard as the exhaustion stop**, then abort; unset → abort clean.
-    A **recorded** tracked change → add to `FIX_SET` and re-stage; bucket 1's load-bearing gate then
-    applies to it like any other member (stated once, there — so the operator is asked at most once per
-    path, not again on re-entry). Never `git restore` it.  Name what was cleaned in the
-    report. A run that **completes** must end with a clean tree, or the next invocation's 1.5 hard gate aborts on
-    debris this run created; a run that stops at a `👉` ask instead names the paths the operator clears
-    before re-invoking.
-  - **anything else → STOP. Never delete or restore an unrecognized path.** The tree being clean at 1.5
+  **Buckets are first-match; the ORDER is load-bearing (b2's authorship record must beat b3's temporal
+  observation). Keep each disposition in its own bucket — a rule buried inside a broader bucket's prose
+  is unreachable, which has already produced two silent-disable defects here.**
+  - **b1 — in `FIX_SET`** → staged, certified. **Load-bearing gate first**: matches a Decision-Gate
+    criterion (lockfile / CI workflow / root-build config / schema-migration) **and not already in
+    `GATE_DECIDED`** → ask before certifying. 6b mandates adding diagnosis-written files to `FIX_SET` on
+    the spot, so a lockfile a failing test made you refresh arrives already a member, and 6b.2b's lenses
+    don't test the gate. **Ask once, two named outcomes** (not 5d's A/B/C/D — no finding to decline):
+    *take it* → certified; *leave it out* → **the operator reverts the path themselves**, then re-invokes
+    (the skill never `git restore`s it) — dropping it from `FIX_SET` alone leaves it dirty and cycles
+    back through these buckets. **Either outcome adds the path to `GATE_DECIDED`.** *(Post-commit
+    re-entry: 6c's rule wins over this bucket — a `FIX_SET` path in `porcelain` after a commit is
+    uncommitted output, not certified.)*
+  - **b2 — a step reported writing it** (6a/6b/6b.1) but it's not in `FIX_SET` → add to `FIX_SET` +
+    re-stage; b1's gate then applies like any other member. Never `git restore` it.
+  - **b3 — untracked and observed** across a `VERIFY_CMDS` invocation (porcelain snapshot before/after
+    each; absent-before/present-after qualifies **for untracked paths only** — "looks like a test
+    artifact" is a belief, not a record) → **never `FIX_SET`, never deleted.** Temporal appearance is not
+    authorship: an operator can create a file during a 90s verify run, and a path the project considered
+    disposable would be gitignored and so never reach `porcelain`. Its own ask (not b5's, whose "stash or
+    commit" can't clear an untracked dir): `⚠️` the path, one `👉` — *gitignore it, or remove it yourself,
+    then re-invoke*. A dirty tree is recoverable; a deleted file is not. Recurring → gitignoring it is the
+    permanent fix.
+  - **b4 — tracked-modified, observed, unrecorded** (a verify step refreshing a tracked lockfile or
+    snapshot is the common case; a terminal stop would make such a project unrunnable). **Observation
+    never establishes ownership of a tracked path** — the operator may be editing it in another pane, and
+    the content is real work → **6b.1 fork, both outcomes defined**: *verify output, take it* → `FIX_SET`
+    + re-stage + re-enter 6b → 6b.2 → 6b.2b → 6c, adding the path to `GATE_DECIDED` so b1 doesn't re-ask;
+    *my work, stop* → `COMMITTED_SHA` set → push it (6d) **subject to the same check-1 path-set guard as
+    the exhaustion stop**, then abort; unset → abort clean. **Cap the take-it re-entry at 2 per path** — a verify
+    step emitting a fresh generated file each run would otherwise loop forever; on the 3rd, stop with
+    **b5's ask shape** (b3's gitignore-or-remove is wrong for a tracked path) **and b5's commit-state
+    continuation**: `COMMITTED_SHA` set → push it (6d) first, then abort; unset → abort clean. Never `git restore` it.
+
+  - **b5 — anything else → STOP. Never delete or restore an unrecognized path.** The tree being clean at 1.5
     does *not* prove a dirty path is ours: the operator or another process can write during a
     long-running session, and the HEAD race check cannot see working-tree edits. Treat un-owned
     uncommitted work as unrecoverable, because it is. List them under `⚠️`, then **one** `👉` terminal
@@ -322,6 +324,10 @@ defect (uncertified bytes). Both are 6b.2 findings.
     *A commit already landed* (post-commit re-entry) → the commit stands, so **push it first (6d), then**
     abort — never claim idempotence once a commit exists; the next run's 1.5 gate hard-aborts on it,
     blocking the PR until the operator resolves it.
+
+  **Across all buckets:** name what was cleaned in the report. A run that **completes** must end with a
+  clean tree, or the next invocation's 1.5 hard gate aborts on debris this run created; a run that stops
+  at a `👉` ask instead names the paths the operator clears before re-invoking.
 - **6b.2b certify** — runs after reconciliation on every path that continues (the certification lives here, not inside 6b.2's STOP bullet; a run that took STOP has aborted and never reaches it): `git diff --cached $START_SHA --stat` + `git diff
   --cached $START_SHA`; judge the full diff — added lines **and** deletions/modification pairs —
   against: **new surface** (fresh null/bounds gap, type hole, dead code, over-claiming comment/doc
@@ -386,7 +392,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
      carries only its own delta, so equality would fail on every re-entry. A hook that **creates and stages** a file puts it in the commit while
      leaving the tree clean, so 6b.2's reconciliation can never see it. Any extra path → gate it **at 6b.1** (a hook-generated
      lockfile / workflow / build config is exactly the load-bearing class that must not ride an
-     unreviewed commit) → record in `FIX_SET` or resolve at the fork. **Not** 6b.2's bucket 3: that
+     unreviewed commit) → record in `FIX_SET` or resolve at the fork. **Not** 6b.2's b5: that
      branch's push-then-abort is written for *uncommitted* un-owned work, and the path here is already
      inside the commit — following it would push the very path this check forbids pushing. **Never push a committed path `FIX_SET` doesn't account for.**
   2. **Bytes** — `git diff $START_SHA $COMMITTED_SHA` must byte-match the certified diff (a *successful*
