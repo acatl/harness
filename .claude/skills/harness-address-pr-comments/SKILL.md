@@ -177,9 +177,11 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   **exclude every thread carrying a verdict this run** — its own interval must not fire the region
   check against the fix it asked for. Store the **whole interval**, not one line:
   `start_line..line`, or for an outdated comment `original_start_line..original_line` is in the **old commit's** coordinates —
-  **re-anchor before storing**: match the hunk's **space-prefixed context lines only** (exclude `-` and
-  `+` — the patched lines are by construction gone), whitespace-normalized, as one contiguous block;
-  stored interval = that block's first..last **current** line numbers; no unique match → **drop the interval** (a stale coordinate would fire the region
+  **re-anchor before storing**: anchor the hunk's **space-prefixed context runs** (exclude `-`/`+`),
+  whitespace-normalized — **each run separately, in order**, never concatenated into one block: a
+  replacement hunk has context before and after the change, and the new-side replacement line still
+  separates them in the current file, so a contiguous match finds nothing. Stored interval = first line
+  of the leading run's match .. last line of the trailing run's match (single run → that run's span). **Leading match must precede the trailing match and the span must not exceed the hunk's own line count** — an inverted interval can never overlap (silently unguarding the region) and an over-wide one fires on unrelated lines; only the leading and trailing runs need a unique match. no unique match → **drop the interval** (a stale coordinate would fire the region
   check on an unrelated current line and miss the real one). Single-line (`start_line`/`original_start_line` null) → use that branch's end field: `line..line`, or
   for an outdated comment the **re-anchored** `original_line..original_line` — never a null bound (a
   null-bounded interval can never overlap, silently unguarding the region). Phase 5 forbids re-fetch, so without this the
@@ -246,31 +248,35 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 **Invariant: what gets committed is exactly what was certified.** A file this run edits but never adds
 to `FIX_SET` is a defect (silently dropped from the commit); a staged file the run didn't author is a
 defect (uncertified bytes). Both are 6b.2 findings.
-- **6a implement (sub-agent fan-out default):** build the batch graph (independent → parallel, dependent → sequential; same-file grouped; structural items single-threaded); dispatch one sub-agent per independent batch in a single message. Each sub-agent gets its items + fix plans, the scope statement, the Phase-3 standards summary, and `VERIFY_CMDS`; implements, verifies its batch, returns `{batch_id, files_touched, artifacts_observed, verify_status, errors, cascading_findings}` — the union of `files_touched` seeds `FIX_SET`; `artifacts_observed` (per 6b's snapshot rule) establishes a path is **this run's** output — which decides *which ask* 6b.2 raises, not whether it may delete. **Keep on main agent (don't fan out)** when: ≤3 mechanical items; any item touches load-bearing shared config (serialize); operator chose Other with no concrete plan. **Fold in Phase-4.5 tier-1 swept siblings** — each rides its owning finding's batch; the implementer confirms every candidate genuinely matches the class before fixing (per 4.5), skipping any that don't. **Always update tests inline** with each behavioral change.
-- **6b verify:** **snapshot `git status --porcelain` immediately before and after every `VERIFY_CMDS` invocation** (here and inside each 6a sub-agent, which returns `artifacts_observed:[path]` alongside `files_touched`) — absent-before/present-after is the *only* evidence 6b.2 accepts that a path is this run's output; it never authorizes deletion — it distinguishes the artifact ask from the un-owned STOP. Then run `VERIFY_CMDS` (typecheck → lint → test). Fail → diagnose root cause, fix, re-run; don't proceed until clean. **Failure because the runner binary is absent** (not because the code is wrong — e.g. `--no-install` fired) → re-derive per 3a from the next match and note it; **never install anything to make a sensor run.** **Every file touched while diagnosing (fixture, shared helper, new test) → `FIX_SET`** — verification passes against the whole worktree, so an unrecorded file passes 6b and then vanishes from the commit.
+- **6a implement (sub-agent fan-out default):** build the batch graph (independent → parallel, dependent → sequential; same-file grouped; structural items single-threaded); dispatch one sub-agent per independent batch in a single message. Each sub-agent gets its items + fix plans, the scope statement, the Phase-3 standards summary, and `VERIFY_CMDS`; implements, verifies its batch, returns `{batch_id, files_touched, artifacts_observed, verify_status, errors, cascading_findings}` — the union of `files_touched` seeds `FIX_SET`; `artifacts_observed` (per 6b's snapshot rule) is evidence about **untracked** paths only — it decides *which ask* 6b.2 raises, never that a path may be deleted, and never ownership of a **tracked** path. **Keep on main agent (don't fan out)** when: ≤3 mechanical items; any item touches load-bearing shared config (serialize); operator chose Other with no concrete plan. **Fold in Phase-4.5 tier-1 swept siblings** — each rides its owning finding's batch; the implementer confirms every candidate genuinely matches the class before fixing (per 4.5), skipping any that don't. **Always update tests inline** with each behavioral change.
+- **6b verify:** **snapshot `git status --porcelain` immediately before and after every `VERIFY_CMDS` invocation** (here and inside each 6a sub-agent, which returns `artifacts_observed:[path]` alongside `files_touched`) — absent-before/present-after is the *only* evidence 6b.2 accepts for an **untracked** path; it never authorizes deletion, and it never establishes ownership of a tracked path (6b.2 routes those to a fork). Then run `VERIFY_CMDS` (typecheck → lint → test). Fail → diagnose root cause, fix, re-run; don't proceed until clean. **Failure because the runner binary is absent** (not because the code is wrong — e.g. `--no-install` fired) → re-derive per 3a from the next match and note it; **never install anything to make a sensor run.** **Every file touched while diagnosing (fixture, shared helper, new test) → `FIX_SET`** — verification passes against the whole worktree, so an unrecorded file passes 6b and then vanishes from the commit.
 - **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same shape + letters as 5d — A/B + C `Decline finding` + D `Defer (blocked)` when a concrete blocker exists, then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class. Any file a cascading fix touches → `FIX_SET`.
 - **6b.2 stage + reconcile (inline, no sub-agent; certification is 6b.2b):** stage exactly
   `FIX_SET` — `git add -- <FIX_SET>` (never `-A`/`.` — a stray verify artifact must not enter the
   certified payload; staging applies clean filters and makes new files visible). **Reconcile before
   certifying:** `git status --porcelain`, classified **by what this run recorded — never by inference**:
   - in `FIX_SET` → staged, certified.
-  - **recorded** as this run's own output — a path a 6a/6b/6b.1 step reported writing, or one
+  - **recorded** as this run's own output — a path a 6a/6b/6b.1 step reported writing, or an **untracked** path
     **observed** to appear across a `VERIFY_CMDS` invocation (snapshot `git status --porcelain` before
-    and after each; absent-before/present-after qualifies — "looks like a test artifact" is a belief,
+    and after each; absent-before/present-after qualifies **for untracked paths only** — "looks like a test artifact" is a belief,
     not a record) → an unrecorded fix goes to `FIX_SET` + re-stage. **An observed untracked path is NOT
     auto-deleted**: temporal appearance is not authorship — an operator or another process can create a
     file during a 90s verify run, and a path the project considered disposable would be gitignored and
     so absent from `porcelain` entirely. **Never delete it.** Instead stop with its own ask (not bullet 3's, whose "stash or commit" cannot
     clear an untracked dir): `⚠️` the path, then one `👉` — *gitignore it, or remove it yourself, then
     re-invoke*. A dirty tree is recoverable; a deleted file is not. Recurring artifact → gitignoring it
-    is the permanent fix, after which it never reaches `porcelain` again. A **tracked-modified** path observed by the **main agent's own single-threaded 6b snapshot** (no 6a
-    sub-agents in flight) — lockfile refresh, snapshot update, generated doc — is **ours** — but route it, don't
-    auto-certify: a path matching a **Decision-Gate criterion** (lockfile / CI workflow / root-build
+    is the permanent fix, after which it never reaches `porcelain` again. A **tracked-modified** path is **never owned by observation** — the operator can edit a tracked file
+    during the verify window and before/after snapshots cannot say who wrote it (this is the same
+    inference that was wrong for untracked paths; it is wrong here too, and worse, because the content
+    is real work). Ownership for tracked paths comes only from a step **recording** that it wrote them
+    (`FIX_SET`). An observed-but-unrecorded tracked change (a verify step refreshing a tracked lockfile or snapshot is
+    the common case, and a terminal stop would make such a project unrunnable) → **6b.1 fork card**: the
+    operator adjudicates ownership once — *it's verify output, take it* / *it's my work, stop* — rather
+    than the run guessing or dead-ending.
+    A **recorded** tracked change still doesn't auto-certify: a path matching a **Decision-Gate criterion** (lockfile / CI workflow / root-build
     config / schema-migration) → **6b.1 fork card**, never silent certification (6b.2b's lenses don't
     test the gate, so a lockfile would otherwise ride the commit unreviewed); anything else → add to
-    `FIX_SET` and certify with the rest. Never `git restore` it. One observed only inside a
-    **concurrent** sub-agent window is NOT proven ours (the operator can save a file during a 90s verify
-    run) → `⚠️` + the single `👉` ask below, never silent certification. Name what was cleaned in the
+    `FIX_SET` and certify with the rest. Never `git restore` it.  Name what was cleaned in the
     report. A run that **completes** must end with a clean tree, or the next invocation's 1.5 hard gate aborts on
     debris this run created; a run that stops at a `👉` ask instead names the paths the operator clears
     before re-invoking.
@@ -314,7 +320,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
   forever, each pass free and the empty-diff check never firing). An operator picking "fix now" at the
   6b.1 pass-2 fork **resets the cap** (they explicitly authorized another round). Empty staged diff → **6b.2b** skipped (6b.2's reconciliation still runs — it's what removes verify
   debris), the empty-diff check below short-circuits.
-  **race check** — `test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"` else abort (foreign commit landed). **Empty-diff** — `git diff --cached --quiet $EXPECTED_HEAD` (`$EXPECTED_HEAD`, not `$START_SHA` — on a corrective re-entry the index already carries the first commit's content, so a `$START_SHA` base reads non-empty and drives `git commit` on an empty index; `$START_SHA` stays the *certification* base only). Empty **and `COMMITTED_SHA` unset** → `SKIP_COMMIT=true` (6c.1). Empty **with `COMMITTED_SHA` set** → the correction is already contained: skip only the *commit* and **fall through to 6d** with the existing `COMMITTED_SHA` — never to 6c.1, which skips the push and would resolve threads against an unpushed commit (the staged payload is the candidate — a stray unstaged/untracked verify artifact is not work and must not enter the commit path). Else semantic commit of the staged payload (staged in 6b.2 — no re-add here), body lists `Addresses PR #N review:` with `<reviewer> L<line>: <one-line> (<comment-url>)`, prerequisite inline fixes named with causal reason. **Validate the message against HARNESS.md › Conventions before committing** — subject matches the project's declared commit contract, plus every trailer it requires; a non-conforming subject is a defect, not a style nit (on projects whose release derives from it, it silently breaks the release). **Never `--no-verify`**; pre-commit hook fail → diagnose, fix, **new commit (never amend)**.
+  **race check** — `test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"` else abort (foreign commit landed). **Empty-diff** — `git diff --cached --quiet $EXPECTED_HEAD` (`$EXPECTED_HEAD`, not `$START_SHA` — on a corrective re-entry the index already carries the first commit's content, so a `$START_SHA` base reads non-empty and drives `git commit` on an empty index; `$START_SHA` stays the *certification* base only). Empty **and `COMMITTED_SHA` unset** → `SKIP_COMMIT=true` (6c.1). Empty **with `COMMITTED_SHA` set** → the correction is already contained: skip only the *commit* and **fall through to 6d** with the existing `COMMITTED_SHA` — never to 6c.1, which skips the push and would resolve threads against an unpushed commit (the staged payload is the candidate — a stray unstaged/untracked verify artifact is not work and must not enter the commit path). Else semantic commit of the staged payload (staged in 6b.2 — no re-add here). **The body quotes review text, which any commenter controls — write it to `"$(git rev-parse --git-dir)/HARNESS_COMMIT_MSG"` and `git commit -F` that path — inside `.git`, so it never appears in `porcelain` and can't trip the run's own reconciliation; never build the message inline in shell source.** Body lists `Addresses PR #N review:` with `<reviewer> L<line>: <one-line> (<comment-url>)`, prerequisite inline fixes named with causal reason. **Validate the message against HARNESS.md › Conventions before committing** — subject matches the project's declared commit contract, plus every trailer it requires; a non-conforming subject is a defect, not a style nit (on projects whose release derives from it, it silently breaks the release). **Never `--no-verify`**; pre-commit hook fail → diagnose, fix, **new commit (never amend)**.
   **Pin the commit, then advance** — the post-commit checks must not read a moving `HEAD`:
   `COMMITTED_SHA=$(git rev-parse HEAD)`; assert it's ours — `test "$(git rev-parse "$COMMITTED_SHA^")" = "$EXPECTED_HEAD"` else abort (a concurrent commit would otherwise be adopted as this run's baseline);
   then `EXPECTED_HEAD=$COMMITTED_SHA`, **before** post-commit verification and any corrective work
@@ -339,13 +345,14 @@ defect (uncertified bytes). Both are 6b.2 findings.
   path-set — counts against the corrective-re-entry limit above. **Re-run the 6b.2 dirty-path reconciliation after every successful commit, byte-match or
   not** — a passing pre-commit hook can rewrite the *working tree* without staging, which leaves the
   committed diff matching the certified one (so the mismatch branch never fires) while the formatter's
-  output sits uncommitted. **Post-commit, a `FIX_SET` path showing as unstaged-modified is uncommitted
-  output, NOT "staged, certified"** (that bullet assumes staging just ran) → stage it and **re-enter
+  output sits uncommitted. **Post-commit, ANY `FIX_SET` path still showing in `git status --porcelain` — staged (`M `), unstaged
+  (` M`), or both — is uncommitted output, NOT "staged, certified"** (a post-commit hook can modify
+  *and stage* a path, leaving the committed diff byte-matching while the index holds newer bytes) (that bullet assumes staging just ran) → stage it and **re-enter
   6b → 6b.2 → 6b.2b → 6c** for a corrective commit. Never fall through to 6d with post-commit dirt: the remote
   would get the pre-rewrite bytes while the threads are resolved as fixed. Reconciliation alone doesn't
   discharge it — verification, self-check, and a commit do.
 - **6c.1 empty-diff short-circuit:** SKIP_COMMIT=true (nothing to commit **and no commit made this run** — typically all DECLINE/ALREADY/UNCLEAR) → skip commit + push, **assert nothing is unpushed first** — `git merge-base --is-ancestor HEAD origin/<branch>` else push (an earlier run may have committed without pushing) — then **set `PUSH_OK=n/a`** (nothing cites a commit, so 6e/6f run normally while **6e.1 and 6h are skipped** — their messages would cite a commit that doesn't exist); go to reply/resolve; report `Commits: none — no fixes required.`
-- **6d push:** `git push` (`-u origin <branch>` if no upstream; never force-push without explicit request).
+- **6d push:** push **the exact certified object**, never the moving branch tip (a bare `git push` would carry a concurrent local commit along with it): `git push origin "${COMMITTED_SHA}:refs/heads/<branch>"` — **quote the refspec**; unquoted `$VAR:` is a zsh history modifier and silently mangles the ref. `HEAD != $COMMITTED_SHA` (a commit landed after the last race check) → **still push `$COMMITTED_SHA`** — that is what the exact refspec is for — and report the foreign commit as unpushed; never abort holding a certified commit. No upstream yet → set it after a successful push (`git branch --set-upstream-to=origin/<branch>`); `-u` is inert with a SHA source. Never force-push without explicit request.
   **Confirm the commit is actually on the remote** — `git rev-parse origin/<branch>` contains
   `$COMMITTED_SHA` (`git merge-base --is-ancestor $COMMITTED_SHA origin/<branch>`) → **`PUSH_OK=true`**
   (assign it explicitly; downstream steps read it positively and must never read it unset). **Push failed or
@@ -372,7 +379,12 @@ defect (uncertified bytes). Both are 6b.2 findings.
   rationale reply actually posted** — resolving a thread whose explanation was withheld closes it
   silently): for
   AUTO-FIX(implemented)/DECISION-NEEDED(implemented)/DECLINE/ALREADY — `gh api graphql -f query='mutation($threadId:ID!){resolveReviewThread(input:{threadId:$threadId}){thread{id isResolved}}}' -F threadId=<id>`. Don't resolve UNCLEAR. Skip `ThreadID: none` (top-level — dismissed via 6e.1) and already-resolved. >20 → aliased mutation. Failures per 6e.3.
-- **6g deferred follow-ups (option D):** `gh issue create --title '<t>' --body '<links PR #N comment>' --label deferred`; post `deferred: <url>` reply; resolve the source thread.
+- **6g deferred follow-ups (option D):** **review-derived text is attacker-controlled** (any commenter
+  picks the title/body text) — never interpolate it into shell source. Write the body to a file and pass
+  values as separately-quoted arguments: write **both** title and body to files with the file tool (never assign review text in shell source — a `'` in a comment breaks out of the assignment), then `gh issue create --title "$(cat <title-file>)" --body-file <body-file> --label "${DEFERRED_LABEL:-deferred}"` (host per HARNESS.md; label from HARNESS.md when declared, else `deferred`). **Search for an existing follow-up citing this comment URL first** — reuse it rather than filing a duplicate when a prior run created the issue but its reply failed. Then post the
+  `deferred: <url>` reply. **Resolve the source thread only after BOTH the issue creation and the reply
+  succeed** — either failing leaves the thread open and takes 6e.3 failure handling, so a lost follow-up
+  never looks handled.
 - **6h re-request review** (`PUSH_OK` required): if `CHANGES_REQUESTED` and ≥1 fix — bots auto `gh pr edit <n> --add-reviewer <user>`; humans → suggest in report.
 
 ## Final report (rendered markdown, never a code fence; omit zero-count rows)
