@@ -12,7 +12,7 @@ description: >-
 argument-hint: "[pr-title]"
 metadata:
   author: acatl
-  version: "1.3.1" # x-release-please-version
+  version: "1.3.2" # x-release-please-version
 ---
 
 # harness:ship — push + open PR
@@ -62,9 +62,12 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    seams + any commit no `build-run` review covered — through the 13 lenses / 4 stances, and **applies
    clear fixes to the working tree**. Runs **here, before Step 4 stages**, so those fixes ride the one
    atomic ship commit (never a second commit or an amend). **A clean review does not stop** — announce
-   "review clean" and continue. Only **decision-needing** findings open the review's fork-card wizard;
-   resolve them, apply the chosen fixes, then continue — this is the Contract's genuine-fork carve-out,
-   not a new push gate. Skip only when the change has genuinely **no reviewable behavior/contract
+   "review clean" and continue. **The review is autonomous**: it applies its clear fixes and reports them;
+   it never asks whether to fix them, whether to walk its findings, or whether to proceed. Only a
+   **decision-needing** finding stops, and it stops as a **fork card carrying a real pick** — one per
+   finding, or one bulk card per ≥3-finding severity group (no "ready to walk the queue?" preamble, no
+   post-plan re-confirm) — resolve, apply the chosen fixes, continue. That's the
+   Contract's genuine-fork carve-out, not a new push gate. Skip only when the change has genuinely **no reviewable behavior/contract
    surface** — pure prose (README/CHANGELOG/comments), formatting, or CI-config. A file being markdown
    doesn't make it inert: a skill or a rules-file edit is behavior, not docs.
 4. **Refresh the PR-body artifact, then stage & review (announce, don't gate).** If the change has a build
