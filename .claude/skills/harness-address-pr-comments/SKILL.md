@@ -241,9 +241,9 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 **Certification contract (governs 6a→6c; each state below names who advances it):**
 | Name | Set at | Advanced by | Read by |
 |---|---|---|---|
-| `START_SHA` | 1.5 | never | 6b.2b diff base |
+| `START_SHA` | 1.5 | never | 6b.2b diff base · 6c post-commit path-set + bytes checks |
 | `EXPECTED_HEAD` | 1.5 (`=START_SHA`) | 6c, after each **verified** commit | 6c race check |
-| `FIX_SET` | 6a (union of batch `files_touched`) | **6b** diagnosis fixes · **6b.1** cascading fixes · **6b.2b** own findings — every file this run authors, always added on write | 6b.2 staging |
+| `FIX_SET` | 6a (union of batch `files_touched`) | **6b** diagnosis fixes · **6b.1** cascading fixes · **6b.2** unrecorded fixes · **6b.2b** own findings — every file this run authors, always added on write | 6b.2 staging · 6c path-set check 1 |
 
 **Invariant: what gets committed is exactly what was certified.** A file this run edits but never adds
 to `FIX_SET` is a defect (silently dropped from the commit); a staged file the run didn't author is a
@@ -302,7 +302,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
   own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
   `code-review` here. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
   tokens), then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
-  Findings → fix, re-stage, re-run 6b → 6b.2 → 6b.2b, commit once; **cap 2 passes** — a pass-2 survivor is a
+  Findings → fix, re-stage, re-run 6b → 6b.2 → 6b.2b, commit once; **cap 2 passes — the initial certify is pass 1, so at most one fix-fold re-run** — a pass-2 survivor is a
   **known defect: never commit it silently** — stop, walk it as a 6b.1 fork (fix now / commit
   disclosed + follow-up issue / decline); never resolve its owning thread `fixed:` while the defect
   survives. Decision-Gate hit → 6b.1. Skip only on empty staged diff (6c.1) — never for "only prose/config".
@@ -365,7 +365,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
   depended on the push; suppressing them would close threads with no rationale. Report the `PUSH FAILED`
   lead + retry block alongside them. **No commit this run (6c.1)** → nothing cites a commit, so
   `PUSH_OK` is moot for replies + resolves — run them normally — but **6e.1 and 6h are skipped**: their
-  messages cite a commit that doesn't exist, and there's no truthful dismissal to post. Capture CI URL: `CI_RUN_URL=$(gh run list --branch "$BRANCH" --limit 1 --json url --jq '.[0].url // ""')` (empty ok).
+  messages cite a commit that doesn't exist, and there's no truthful dismissal to post. Capture CI URL: `CI_RUN_URL=$(gh run list --branch "<branch>" --limit 1 --json url --jq '.[0].url // ""')` (empty ok; 6c.1 skipped 6d → no CI link, render `➖`).
 - **6e reply in-thread (machine-readable)** — **`PUSH_OK` gates only tags citing this run's commit**
   (`fixed:` / `already: … commit:<**this run's** sha>` — an `already:` citing a previously-pushed commit
   is already true on the remote and posts freely): `PUSH_OK=false` → withhold those, leave their threads open.
