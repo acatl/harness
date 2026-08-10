@@ -218,6 +218,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 | `START_SHA` | 1.5 | never | 6b.2 diff base |
 | `EXPECTED_HEAD` | 1.5 (`=START_SHA`) | 6c, after each **verified** commit | 6c race check |
 | `FIX_SET` | 6a (union of batch `files_touched`) | **6b** diagnosis fixes · **6b.1** cascading fixes · **6b.2** own findings — every file this run authors, always added on write | 6b.2 staging |
+
 **Invariant: what gets committed is exactly what was certified.** A file this run edits but never adds
 to `FIX_SET` is a defect (silently dropped from the commit); a staged file the run didn't author is a
 defect (uncertified bytes). Both are 6b.2 findings.
