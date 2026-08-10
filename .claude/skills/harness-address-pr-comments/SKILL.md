@@ -254,11 +254,15 @@ defect (uncertified bytes). Both are 6b.2 findings.
   check (re-stage, hook-fail fix, any later edit) → stale, re-run 6b + 6b.2 (staleness re-runs don't
   consume the 2-pass cap); empty staged diff → 6b.2 skipped, the empty-diff check below short-circuits.
   **race check** — `test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"` else abort (foreign commit landed). **Empty-diff** — `git diff --cached --quiet $START_SHA && SKIP_COMMIT=true` (the staged payload is the candidate — a stray unstaged/untracked verify artifact is not work and must not enter the commit path). Else semantic commit of the staged payload (staged in 6b.2 — no re-add here), body lists `Addresses PR #N review:` with `<reviewer> L<line>: <one-line> (<comment-url>)`, prerequisite inline fixes named with causal reason (HARNESS.md conventions). **Never `--no-verify`**; pre-commit hook fail → diagnose, fix, **new commit (never amend)**.
-  **Post-commit verification** — `git diff $START_SHA HEAD` must byte-match the certified diff (a
-  *successful* pre-commit hook can rewrite staged bytes silently); mismatch → re-run 6b.2 against
-  `$START_SHA..HEAD`; findings → fix → new commit (doesn't consume the cap). **Then
-  `EXPECTED_HEAD=$(git rev-parse HEAD)`** — advance only here, once the commit is verified, so a
-  corrective commit passes its own race check while a foreign commit still aborts.
+  **`EXPECTED_HEAD=$(git rev-parse HEAD)` the moment a commit lands** — before post-commit
+  verification, before any corrective work. The baseline is *the last commit this run created*, so a
+  corrective commit passes its own race check while a foreign commit still aborts; advancing it later
+  strands every correction (its race check would still read `$START_SHA`).
+  **Post-commit verification** (after the advance) — `git diff $START_SHA HEAD` must byte-match the
+  certified diff (a *successful* pre-commit hook can rewrite staged bytes silently); mismatch → re-run
+  6b.2 against `$START_SHA..HEAD`; findings → fix → stage into `FIX_SET` → **re-enter 6c** (race check
+  now reads the advanced baseline), new commit, which advances `EXPECTED_HEAD` again. Doesn't consume
+  the cap.
 - **6c.1 empty-diff short-circuit:** SKIP_COMMIT=true (nothing to commit — typically all DECLINE/ALREADY/UNCLEAR) → skip commit + push, go to reply/resolve; report `Commits: none — no fixes required.`
 - **6d push:** `git push` (`-u origin <branch>` if no upstream; never force-push without explicit request). Capture CI URL: `CI_RUN_URL=$(gh run list --branch "$BRANCH" --limit 1 --json url --jq '.[0].url // ""')` (empty ok).
 - **6e reply in-thread (machine-readable):** tags — `fixed: <what>. commit:<sha7>` (when Phase-4.5 tier-1 siblings were fixed under this thread, append ` swept:<N> same class` before `commit:` — tells the reviewer/bot the class was cleared; add up to 2 file **basenames** only if the fully-serialized body incl. trailer stays ≤200, else emit the count alone — the report's Class-sweep section carries the full file list) · DECISION-NEEDED `fixed: <what>. choice:<A|B|custom>. commit:<sha7>` · `wontfix: <reason>. ref:<path/rule>` · `already: <where>. commit:<sha7|pre-existing>` · `unclear: <question>` · `deferred: <issue-url>`. No greetings/thanks/backticks; ASCII; ≤200 chars (hard cap 500 excl. trailer); tag is first token (parsers split on `:`). **Validate the serialized body length (incl. trailer) before the API call** — over 200 → drop the `swept` file list first, then truncate `<what>`; never exceed the 500 hard cap. **Mandatory signature trailer** — blank line then `[harness:address-pr-comments]` on its own final line (idempotency). Post: inline reply `gh api repos/$OWNER/$NAME/pulls/$PR/comments/$ROOT_COMMENT_ID/replies -f body="$(printf '%s\n\n[harness:address-pr-comments]\n' "$BODY")"` (use `-f body=`, not `--input -`); top-level review/issue → issue comment with a parseable `Re-review-<review-id>:` header line + the tagged reply. Throttle `sleep 2`; on 422 abuse / 403 Retry-After honor header or wait 60s, retry. >20 replies → single aliased GraphQL mutation.
