@@ -260,7 +260,7 @@ Main agent renders from returned data (no re-fetch).
   block). Explicit yes → continue (5d wizard, then Phase 6); else stop — don't walk 5d forks for a run
   that won't execute.
 - **Option-pick format:** render a walk-me-through fork card (`references/walk-me-through.md`) — `Q<N> of <total>` + `#<N>` title, framing (comment / why-it-needs-a-decision), options table (terse Pros/Cons), grounded Recommendation (pick + reasoning + `Cost if`), `Escape:` + `Pick:` lines; operator replies by letter. **Never `AskUserQuestion` or a native picker.** One fork per turn. Yes/no gates one line.
-- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table A/B + C `Decline finding` + D `Defer (blocked)` only when a concrete blocker exists, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter — `A — <name> (Recommended)`, `B — <name>`, `C — Decline finding`, `D — Defer (blocked)`; never `AskUserQuestion`. **Offer D only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). One-line confirm, continue — a pick on a Decision-Gate path adds it to `GATE_DECIDED` so 6b.2 b1 never re-asks it. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
+- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table A/B + C `Decline finding` + D `Defer (blocked)` only when a concrete blocker exists, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter — `A — <name> (Recommended)`, `B — <name>`, `C — Decline finding`, `D — Defer (blocked)`; never `AskUserQuestion`. **Offer D only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). One-line confirm, continue — a pick on a Decision-Gate path records `{path, pending}` in `GATE_DECIDED` (no bytes exist yet — 6a hasn't run), which 6b.2 b1 redeems into a real blob on first encounter. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
 
 ## Phase 6 — execute end-to-end
 Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no per-step re-confirm. Stop only for a mid-flight cascading decision (6b.1), the 5c.1 convergence brake, an unrecognized dirty path (6b.2), corrective re-entries exhausted (6c), or a hard-gate failure.
@@ -270,7 +270,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 |---|---|---|---|
 | `START_SHA` | 1.5 | never | 6b.2b diff base · 6c post-commit path-set + bytes checks |
 | `EXPECTED_HEAD` | 1.5 (`=START_SHA`) | 6c, after each **verified** commit | 6c race check |
-| `GATE_DECIDED` | empty at 1.5 (before 5d, its earliest writer) | 5d picks · 6b.1 gate picks · 6b.2 b1 asks · b4 take-it | 6b.2 b1's gate — so a load-bearing path is adjudicated **once per run**, never re-asked on a re-entry |
+| `GATE_DECIDED` | empty at 1.5 (before 5d, its earliest writer) | 5d picks · 6b.1 gate picks · 6b.2 b1 asks · b4 take-it — each records **`{path, blob}`**, `blob` = **`git rev-parse :<path>`** (the INDEX blob — `git hash-object` reads the worktree, and a hook that rewrites only the index would then slip past the gate). 5d runs before 6a, so it records `{path, pending}` — no bytes exist yet | 6b.2 b1's gate — a load-bearing path is adjudicated **per content**: approved bytes never re-ask, a rewrite of an approved path always does |
 | `FIX_SET` | 6a (union of batch `files_touched`) | **6b** diagnosis fixes · **6b.1** cascading fixes · **6b.2** unrecorded fixes · **6b.2b** own findings — every file this run authors, always added on write | 6b.2 staging · 6c path-set check 1 |
 
 **Invariant: what gets committed is exactly what was certified.** A file this run edits but never adds
@@ -278,7 +278,7 @@ to `FIX_SET` is a defect (silently dropped from the commit); a staged file the r
 defect (uncertified bytes). Both are 6b.2 findings.
 - **6a implement (sub-agent fan-out default):** build the batch graph (independent → parallel, dependent → sequential; same-file grouped; structural items single-threaded); dispatch one sub-agent per independent batch in a single message. Each sub-agent gets its items + fix plans, the scope statement, the Phase-3 standards summary, and `VERIFY_CMDS`; implements, verifies its batch, returns `{batch_id, files_touched, artifacts_observed, verify_status, errors, cascading_findings}` — the union of `files_touched` seeds `FIX_SET`; `artifacts_observed` (per 6b's snapshot rule) is evidence about **untracked** paths only — it decides *which ask* 6b.2 raises, never that a path may be deleted, and never ownership of a **tracked** path. **Keep on main agent (don't fan out)** when: ≤3 mechanical items; any item touches load-bearing shared config (serialize); operator chose Other with no concrete plan. **Fold in Phase-4.5 tier-1 swept siblings** — each rides its owning finding's batch; the implementer confirms every candidate genuinely matches the class before fixing (per 4.5), skipping any that don't. **Always update tests inline** with each behavioral change.
 - **6b verify:** **snapshot `git status --porcelain` immediately before and after every `VERIFY_CMDS` invocation** (here and inside each 6a sub-agent, which returns `artifacts_observed:[path]` alongside `files_touched`) — absent-before/present-after is the *only* evidence 6b.2 accepts for an **untracked** path; it never authorizes deletion, and it never establishes ownership of a tracked path (6b.2 routes those to a fork). Then run `VERIFY_CMDS` (typecheck → lint → test). Fail → diagnose root cause, fix, re-run; don't proceed until clean. **Failure because the runner binary is absent** (not because the code is wrong — e.g. no `node_modules/.bin/<tool>`) → re-derive per 3a from the next match and note it; **never install anything to make a sensor run.** **Every file touched while diagnosing (fixture, shared helper, new test) → `FIX_SET`** — verification passes against the whole worktree, so an unrecorded file passes 6b and then vanishes from the commit.
-- **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same shape + letters as 5d — A/B + C `Decline finding` + D `Defer (blocked)` when a concrete blocker exists, then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class. Any file a cascading fix touches → `FIX_SET`; a Decision-Gate pick here also adds its path to `GATE_DECIDED`.
+- **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same shape + letters as 5d — A/B + C `Decline finding` + D `Defer (blocked)` when a concrete blocker exists, then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class. Any file a cascading fix touches → `FIX_SET`; a Decision-Gate pick here also records `{path, blob}` in `GATE_DECIDED`.
 - **6b.2 stage + reconcile (inline, no sub-agent; certification is 6b.2b):** stage exactly
   `FIX_SET` — `git add -- <FIX_SET>` (never `-A`/`.` — a stray verify artifact must not enter the
   certified payload; staging applies clean filters and makes new files visible). **Reconcile before
@@ -287,13 +287,18 @@ defect (uncertified bytes). Both are 6b.2 findings.
   observation). Keep each disposition in its own bucket — a rule buried inside a broader bucket's prose
   is unreachable, which has already produced two silent-disable defects here.**
   - **b1 — in `FIX_SET`** → staged, certified. **Load-bearing gate first**: matches a Decision-Gate
-    criterion (lockfile / CI workflow / root-build config / schema-migration) **and not already in
-    `GATE_DECIDED`** → ask before certifying. 6b mandates adding diagnosis-written files to `FIX_SET` on
+    criterion (lockfile / CI workflow / root-build config / schema-migration) **and `GATE_DECIDED` holds no entry matching it** → ask before certifying. Match = `{path,
+    git rev-parse :<path>}` present, **or** `{path, pending}` from a 5d pick (the operator approved this
+    change before 6a materialized it — the first b1 encounter is that materialization; replace the
+    `pending` entry with the real blob on pass, so any later rewrite re-asks). **Approval is keyed to the bytes the operator saw, never to
+    the path alone**: a pre- or post-commit hook can rewrite an approved lockfile/workflow, and a
+    path-keyed exemption would wave the new content through unapproved. Path listed but blob differs → **re-ask**, showing it's a
+    rewrite of an approved path. 6b mandates adding diagnosis-written files to `FIX_SET` on
     the spot, so a lockfile a failing test made you refresh arrives already a member, and 6b.2b's lenses
     don't test the gate. **Ask once, two named outcomes** (not 5d's A/B/C/D — no finding to decline):
     *take it* → certified; *leave it out* → **the operator reverts the path themselves**, then re-invokes
     (the skill never `git restore`s it) — dropping it from `FIX_SET` alone leaves it dirty and cycles
-    back through these buckets. **Either outcome adds the path to `GATE_DECIDED`.** *(Post-commit
+    back through these buckets. **Either outcome records `{path, blob}` in `GATE_DECIDED`.** *(Post-commit
     re-entry: 6c's rule wins over this bucket — a `FIX_SET` path in `porcelain` after a commit is
     uncommitted output, not certified.)*
   - **b2 — a step reported writing it** (6a/6b/6b.1) but it's not in `FIX_SET` → add to `FIX_SET` +
@@ -310,7 +315,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
     snapshot is the common case; a terminal stop would make such a project unrunnable). **Observation
     never establishes ownership of a tracked path** — the operator may be editing it in another pane, and
     the content is real work → **6b.1 fork, both outcomes defined**: *verify output, take it* → `FIX_SET`
-    + re-stage + re-enter 6b → 6b.2 → 6b.2b → 6c, adding the path to `GATE_DECIDED` so b1 doesn't re-ask;
+    + re-stage + re-enter 6b → 6b.2 → 6b.2b → 6c, then recording `{path, git rev-parse :<path>}` in `GATE_DECIDED` — **read the blob after re-staging**, since a b4 path is unstaged by definition and a pre-stage read would record the wrong bytes — so b1 doesn't re-ask them;
     *my work, stop* → `COMMITTED_SHA` set → push it (6d) **subject to the same check-1 path-set guard as
     the exhaustion stop**, then abort; unset → abort clean. **Cap the take-it re-entry at 2 per path** — a verify
     step emitting a fresh generated file each run would otherwise loop forever; on the 3rd, stop with
