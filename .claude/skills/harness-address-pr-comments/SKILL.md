@@ -191,7 +191,16 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   coordinates, so seed the run from the header's **`+c`, advancing on `+` and context lines** — *not* `-a`
   (6b.2b's cursor walks `-a`; these are different frames and confusing them shifts every interval by the
   file's earlier-hunk delta). `delta = matched_current_start − run_start_in_reviewed_commit`; store
-  `original_start_line + delta .. original_line + delta`. (`side: LEFT` → seed from `-a` and advance on `-`
+  `original_start_line + delta .. original_line + delta`. **Never anchor on the reviewed range's own
+  text** — membership requires a prior `fixed:` reply, so that text is exactly what an earlier run
+  rewrote; matching it would fail by construction and drop every entry. Anchor on **context**, which is
+  unchanged by definition. **When a trailing run exists and matches uniquely, cross-check it**
+  (unmatched → skip the cross-check, keep the leading delta): compute its delta too; disagreement means a
+  later commit inserted or removed lines *between* the two anchors. Under tail-truncation the trailing run
+  is the **nearer** anchor to the reviewed line, so on disagreement **use `delta_trail`** rather than
+  dropping — same reasoning as the single-run case, an approximate interval beats none. A single run (the tail-truncated norm) cannot detect that
+  drift — accept the offset as approximate and note it; a region guard is a heuristic, and an approximate
+  interval still catches the repeat-patch case an absent one cannot. (`side: LEFT` → seed from `-a` and advance on `-`
   and context instead; `side` defaults to RIGHT.) **`diff_hunk` is tail-truncated — its body ends at the
   commented line — so ONE context run (the leading one) is the normal case**: only that run needs a unique
   match, and it supplies the anchor by itself. A trailing run, when present, is an optional drift
