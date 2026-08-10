@@ -115,7 +115,7 @@ Main agent
 
 ## Phase 2 — fetch comments + thread IDs
 Use `$OWNER/$NAME` from Phase 1. **jq safety:** use `select(.body | length > 0)` — never `select(.body != "")` (the `!=` form can corrupt to the Unicode not-equal char and fail jq parse).
-- **2a inline:** `gh api repos/$OWNER/$NAME/pulls/<n>/comments --paginate | jq '[.[] | {id,path,line,original_line,body,user:.user.login,in_reply_to_id,diff_hunk}] | map(select(.body|length>0))'` (`original_line` is load-bearing — an outdated comment has `line:null`, and the 4d `region_map` has no location without it)
+- **2a inline:** `gh api repos/$OWNER/$NAME/pulls/<n>/comments --paginate | jq '[.[] | {id,path,line,start_line,original_line,original_start_line,body,user:.user.login,in_reply_to_id,diff_hunk}] | map(select(.body|length>0))'` (all four line fields are load-bearing: an outdated comment has `line:null` → use `original_line`; a multi-line comment's `line` is the **end** of the range → without `start_line` the 4d `region_map` misses edits at the start or middle of it)
 - **2b review bodies:** `gh api repos/$OWNER/$NAME/pulls/<n>/reviews --paginate | jq '[.[] | {id,body,state,user:.user.login}] | map(select(.body|length>0))'`
 - **2c issue comments:** `gh api repos/$OWNER/$NAME/issues/<n>/comments --paginate`
 - **2d review threads (GraphQL)** — map root comment `databaseId` → `threadId` for later resolve.
@@ -146,8 +146,11 @@ root + touched-workspace package manifests. These are authority — a reviewer c
 (cite), unless the comment finds a genuine bug in the standard → DECISION-NEEDED.
 **3a verify commands (`VERIFY_CMDS` for Phase 6b):** **prefer HARNESS.md › Sensors** (the project's
 declared format/lint/test/typecheck). If absent, derive (first match wins): explicit "how to test" in
-context docs → its commands; Nx (`nx.json`) → `npx nx affected -t typecheck lint test`; Turborepo
-(`turbo.json`) → `npx turbo run typecheck lint test`; package scripts → an **aggregate gate script if
+context docs → its commands; Nx (`nx.json`) → `npx --no-install nx affected -t typecheck lint test`;
+Turborepo (`turbo.json`) → `npx --no-install turbo run typecheck lint test` (**`--no-install` on every
+`npx`** — bare `npx` silently fetches from the registry when the tool isn't installed locally, running
+unvetted code in the consuming project; absent binary must fail closed, then fall through to the next
+match); package scripts → an **aggregate gate script if
 one exists** (`check` / `validate` / `verify` / `ci` — it's what CI runs, and it catches the linters a
 name-by-name scan misses, e.g. `lint:md`), else `npm run <script>` per typecheck/lint/test; fallback →
 test only. Note in the report if only the fallback was found. **Cross-check against CI**: a gate the
@@ -160,9 +163,11 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
 - **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion) → AUTO-FIX.
 - **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → two options (recommended + alternative) + `Blocker: <one-line | none>` (reachable this session? default none).
 - **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts)
-  + **`region_map`** — every `file:line` any prior-round thread flagged, taken from the **raw 2a fetch**
-  (resolved + skipped threads included; for an outdated comment use `original_line`). Phase 5 forbids
-  re-fetch, so without this the 6b.2 region check is blind in the normal (resolved-thread) case.
+  + **`region_map`** — every `file:<range>` any prior-round thread flagged, taken from the **raw 2a
+  fetch** (resolved + skipped threads included). Store the **whole interval**, not one line:
+  `start_line..line`, or `original_start_line..original_line` for an outdated comment; single-line
+  comment → `start_line` is null, use `line..line`. Phase 5 forbids re-fetch, so without this the
+  6b.2 region check is blind in the normal (resolved-thread) case.
   + per-thread block (`#`, `ThreadID`, `RootCommentID`, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/`Option A`/`Option B`/`Blocker`, `Reply tag`, `Code context`).
 
 ## Phase 4.5 — class-of-issue sweep (kill repeat bot rounds)
@@ -239,9 +244,10 @@ defect (uncertified bytes). Both are 6b.2 findings.
   phrase, lint/complexity ceiling just crossed) · **lost surface** (a deletion that removes a
   guard/validation/behavior with no replacement on the added side) · **class sibling** (re-run the
   Phase-4.5 signature on this diff — a fix can create a fresh sibling of the class it fixed) ·
-  **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a `file:line`
-  *any* prior round's thread flagged — resolved threads included, via the 4d `region_map` → fix the
-  region's root cause, NOT the line; a re-patched line draws a fresh comment next round). The skill's
+  **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a line **inside any
+  interval** the 4d `region_map` carries — resolved threads included; test range *overlap*, not equality
+  with the end line → fix the region's root cause, NOT the line; a re-patched line draws a fresh comment
+  next round). The skill's
   own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
   `code-review` here. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
   tokens), then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
@@ -253,23 +259,32 @@ defect (uncertified bytes). Both are 6b.2 findings.
   emitted against these exact staged bytes: none yet → run 6b.2 first; staged diff changed since the
   check (re-stage, hook-fail fix, any later edit) → stale, re-run 6b + 6b.2 (staleness re-runs don't
   consume the 2-pass cap); empty staged diff → 6b.2 skipped, the empty-diff check below short-circuits.
-  **race check** — `test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"` else abort (foreign commit landed). **Empty-diff** — `git diff --cached --quiet $START_SHA && SKIP_COMMIT=true` (the staged payload is the candidate — a stray unstaged/untracked verify artifact is not work and must not enter the commit path). Else semantic commit of the staged payload (staged in 6b.2 — no re-add here), body lists `Addresses PR #N review:` with `<reviewer> L<line>: <one-line> (<comment-url>)`, prerequisite inline fixes named with causal reason (HARNESS.md conventions). **Never `--no-verify`**; pre-commit hook fail → diagnose, fix, **new commit (never amend)**.
-  **`EXPECTED_HEAD=$(git rev-parse HEAD)` the moment a commit lands** — before post-commit
-  verification, before any corrective work. The baseline is *the last commit this run created*, so a
-  corrective commit passes its own race check while a foreign commit still aborts; advancing it later
-  strands every correction (its race check would still read `$START_SHA`).
-  **Post-commit verification** (after the advance) — `git diff $START_SHA HEAD` must byte-match the
-  certified diff (a *successful* pre-commit hook can rewrite staged bytes silently); mismatch → re-run
-  6b.2 against `$START_SHA..HEAD`; findings → fix → stage into `FIX_SET` → **re-enter 6c** (race check
-  now reads the advanced baseline), new commit, which advances `EXPECTED_HEAD` again. Doesn't consume
+  **race check** — `test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"` else abort (foreign commit landed). **Empty-diff** — `git diff --cached --quiet $START_SHA && SKIP_COMMIT=true` (the staged payload is the candidate — a stray unstaged/untracked verify artifact is not work and must not enter the commit path). Else semantic commit of the staged payload (staged in 6b.2 — no re-add here), body lists `Addresses PR #N review:` with `<reviewer> L<line>: <one-line> (<comment-url>)`, prerequisite inline fixes named with causal reason. **Validate the message against HARNESS.md › Conventions before committing** — subject matches the project's declared commit contract, plus every trailer it requires; a non-conforming subject is a defect, not a style nit (on projects whose release derives from it, it silently breaks the release). **Never `--no-verify`**; pre-commit hook fail → diagnose, fix, **new commit (never amend)**.
+  **Pin the commit, then advance** — the post-commit checks must not read a moving `HEAD`:
+  `COMMITTED_SHA=$(git rev-parse HEAD)`; assert it's ours — `test "$(git rev-parse "$COMMITTED_SHA^")" = "$EXPECTED_HEAD"` else abort (a concurrent commit would otherwise be adopted as this run's baseline);
+  then `EXPECTED_HEAD=$COMMITTED_SHA`, **before** post-commit verification and any corrective work
+  (advancing later strands every correction — its race check would still read `$START_SHA`).
+  **Post-commit verification** — `git diff $START_SHA $COMMITTED_SHA` must byte-match the certified
+  diff (a *successful* pre-commit hook can rewrite staged bytes silently); mismatch → re-run 6b.2
+  against `$START_SHA..$COMMITTED_SHA`; findings → fix → stage into `FIX_SET` → **re-enter 6c** (race
+  check now reads the advanced baseline), new commit, which pins and advances again. Doesn't consume
   the cap.
 - **6c.1 empty-diff short-circuit:** SKIP_COMMIT=true (nothing to commit — typically all DECLINE/ALREADY/UNCLEAR) → skip commit + push, go to reply/resolve; report `Commits: none — no fixes required.`
-- **6d push:** `git push` (`-u origin <branch>` if no upstream; never force-push without explicit request). Capture CI URL: `CI_RUN_URL=$(gh run list --branch "$BRANCH" --limit 1 --json url --jq '.[0].url // ""')` (empty ok).
-- **6e reply in-thread (machine-readable):** tags — `fixed: <what>. commit:<sha7>` (when Phase-4.5 tier-1 siblings were fixed under this thread, append ` swept:<N> same class` before `commit:` — tells the reviewer/bot the class was cleared; add up to 2 file **basenames** only if the fully-serialized body incl. trailer stays ≤200, else emit the count alone — the report's Class-sweep section carries the full file list) · DECISION-NEEDED `fixed: <what>. choice:<A|B|custom>. commit:<sha7>` · `wontfix: <reason>. ref:<path/rule>` · `already: <where>. commit:<sha7|pre-existing>` · `unclear: <question>` · `deferred: <issue-url>`. No greetings/thanks/backticks; ASCII; ≤200 chars (hard cap 500 excl. trailer); tag is first token (parsers split on `:`). **Validate the serialized body length (incl. trailer) before the API call** — over 200 → drop the `swept` file list first, then truncate `<what>`; never exceed the 500 hard cap. **Mandatory signature trailer** — blank line then `[harness:address-pr-comments]` on its own final line (idempotency). Post: inline reply `gh api repos/$OWNER/$NAME/pulls/$PR/comments/$ROOT_COMMENT_ID/replies -f body="$(printf '%s\n\n[harness:address-pr-comments]\n' "$BODY")"` (use `-f body=`, not `--input -`); top-level review/issue → issue comment with a parseable `Re-review-<review-id>:` header line + the tagged reply. Throttle `sleep 2`; on 422 abuse / 403 Retry-After honor header or wait 60s, retry. >20 replies → single aliased GraphQL mutation.
+- **6d push:** `git push` (`-u origin <branch>` if no upstream; never force-push without explicit request).
+  **Confirm the commit is actually on the remote** — `git rev-parse origin/<branch>` contains
+  `$COMMITTED_SHA` (`git merge-base --is-ancestor $COMMITTED_SHA origin/<branch>`). **Push failed or
+  unconfirmed → `PUSH_OK=false`: skip 6e `fixed:` replies and skip 6f resolves entirely** (a `fixed:`
+  reply citing a commit that exists only locally makes the next run skip real work — the threads must
+  stay open), post nothing but the report's `PUSH FAILED` lead + the retry block. Capture CI URL: `CI_RUN_URL=$(gh run list --branch "$BRANCH" --limit 1 --json url --jq '.[0].url // ""')` (empty ok).
+- **6e reply in-thread (machine-readable)** — **requires `PUSH_OK` for any tag citing a commit**
+  (`fixed:` / `already: … commit:<sha7>`); `PUSH_OK=false` → post none of them and leave the threads
+  open. Tags — `fixed: <what>. commit:<sha7>` (when Phase-4.5 tier-1 siblings were fixed under this thread, append ` swept:<N> same class` before `commit:` — tells the reviewer/bot the class was cleared; add up to 2 file **basenames** only if the fully-serialized body incl. trailer stays ≤200, else emit the count alone — the report's Class-sweep section carries the full file list) · DECISION-NEEDED `fixed: <what>. choice:<A|B|custom>. commit:<sha7>` · `wontfix: <reason>. ref:<path/rule>` · `already: <where>. commit:<sha7|pre-existing>` · `unclear: <question>` · `deferred: <issue-url>`. No greetings/thanks/backticks; ASCII; ≤200 chars (hard cap 500 excl. trailer); tag is first token (parsers split on `:`). **Validate the serialized body length (incl. trailer) before the API call** — over 200 → drop the `swept` file list first, then truncate `<what>`; never exceed the 500 hard cap. **Mandatory signature trailer** — blank line then `[harness:address-pr-comments]` on its own final line (idempotency). Post: inline reply `gh api repos/$OWNER/$NAME/pulls/$PR/comments/$ROOT_COMMENT_ID/replies -f body="$(printf '%s\n\n[harness:address-pr-comments]\n' "$BODY")"` (use `-f body=`, not `--input -`); top-level review/issue → issue comment with a parseable `Re-review-<review-id>:` header line + the tagged reply. Throttle `sleep 2`; on 422 abuse / 403 Retry-After honor header or wait 60s, retry. >20 replies → single aliased GraphQL mutation.
 - **6e.1 dismiss stale top-level reviews:** for each `CHANGES_REQUESTED` review whose inline findings were all handled — **bot reviewers** (login ends `[bot]`) auto-dismiss (`gh api -X PUT repos/$OWNER/$NAME/pulls/$PR/reviews/$REVIEW_ID/dismissals --field message='superseded by commit:<sha7>'`); **human reviewers** → surface command in report, don't auto-dismiss. Failures non-fatal.
 - **6e.2 bulk reply (N>20):** one aliased GraphQL mutation (`r1: addPullRequestReviewThreadReply(...)`, `r2: ...`), two requests total. REST fallback ≤20 with throttle.
 - **6e.3 failure handling:** continue on failure; per call capture stderr+status, retry once on 422 abuse / 403 Retry-After, then record `{ids, command, error}` in `FAILURES`; surface a copy-paste retry block in the report.
-- **6f resolve threads:** for AUTO-FIX(implemented)/DECISION-NEEDED(implemented)/DECLINE/ALREADY — `gh api graphql -f query='mutation($threadId:ID!){resolveReviewThread(input:{threadId:$threadId}){thread{id isResolved}}}' -F threadId=<id>`. Don't resolve UNCLEAR. Skip `ThreadID: none` (top-level — dismissed via 6e.1) and already-resolved. >20 → aliased mutation. Failures per 6e.3.
+- **6f resolve threads** (**skip every implemented-fix thread when `PUSH_OK=false`** — only
+  DECLINE/ALREADY, whose verdicts don't depend on a commit, may resolve): for
+  AUTO-FIX(implemented)/DECISION-NEEDED(implemented)/DECLINE/ALREADY — `gh api graphql -f query='mutation($threadId:ID!){resolveReviewThread(input:{threadId:$threadId}){thread{id isResolved}}}' -F threadId=<id>`. Don't resolve UNCLEAR. Skip `ThreadID: none` (top-level — dismissed via 6e.1) and already-resolved. >20 → aliased mutation. Failures per 6e.3.
 - **6g deferred follow-ups (option D):** `gh issue create --title '<t>' --body '<links PR #N comment>' --label deferred`; post `deferred: <url>` reply; resolve the source thread.
 - **6h re-request review:** if `CHANGES_REQUESTED` and ≥1 fix — bots auto `gh pr edit <n> --add-reviewer <user>`; humans → suggest in report.
 
