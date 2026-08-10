@@ -271,6 +271,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 |---|---|---|---|
 | `START_SHA` | 1.5 | never | 6b.2b diff base · 6c post-commit path-set + bytes checks |
 | `EXPECTED_HEAD` | 1.5 (`=START_SHA`) | 6c, after each **verified** commit | 6c race check |
+| `CERTIFIED_TREE` | 6b.2b, `git write-tree` after certifying | re-certified on every 6b.2b pass | 6c's post-commit byte check — the only surviving record of what was certified once `git commit` resets the index |
 | `GATE_DECIDED` | empty at 1.5 (before 5d, its earliest writer) | 5d picks · 6b.1 gate picks · 6b.2 b1 asks · b4 take-it — each records **`{path, blob}`**, `blob` = **`git rev-parse :<path>`** (the INDEX blob — `git hash-object` reads the worktree, and a hook that rewrites only the index would then slip past the gate); a **staged deletion** has no index entry and `rev-parse` fails, so record the sentinel **`deleted`** (deletion of a load-bearing path is itself a Decision-Gate case, so it must be recordable). 5d runs before 6a, so it records `{path, pending}` — no bytes exist yet | 6b.2 b1's gate — a load-bearing path is adjudicated **per content**: approved bytes never re-ask, a rewrite of an approved path always does |
 | `FIX_SET` | 6a (union of batch `files_touched`) | **6b** diagnosis fixes · **6b.1** cascading fixes · **6b.2** unrecorded fixes · **6b.2b** own findings — every file this run authors, always added on write | 6b.2 staging · 6c path-set check 1 |
 
@@ -364,7 +365,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
   next round). The skill's
   own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
   `code-review` here. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
-  tokens), then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
+  tokens), then **persist the certified reference — `CERTIFIED_TREE=$(git write-tree)`** (writes the index to a real tree object, so it survives the commit; `git commit` resets the index to the committed tree and the pre-hook bytes are otherwise unrecoverable, leaving 6c's byte check with nothing to compare against). Then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
   Findings → fix, re-stage, re-run 6b → 6b.2 → 6b.2b, commit once; **cap 2 passes — the initial certify is pass 1, so at most one fix-fold re-run** — a pass-2 survivor is a
   **known defect: never commit it silently** — stop, walk it as a 6b.1 fork (fix now / commit
   disclosed + follow-up issue / decline); never resolve its owning thread `fixed:` while the defect
@@ -403,7 +404,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
      unreviewed commit) → record in `FIX_SET` or resolve at the fork. **Not** 6b.2's b5: that
      branch's push-then-abort is written for *uncommitted* un-owned work, and the path here is already
      inside the commit — following it would push the very path this check forbids pushing. **Never push a committed path `FIX_SET` doesn't account for.**
-  2. **Bytes** — `git diff $START_SHA $COMMITTED_SHA` must byte-match the certified diff (a *successful*
+  2. **Bytes** — `git rev-parse "$COMMITTED_SHA^{tree}"` must equal **`$CERTIFIED_TREE`** (compare tree objects, not a "certified diff" no longer in existence; `git diff $CERTIFIED_TREE $COMMITTED_SHA` then shows exactly what a hook rewrote) (a *successful*
      pre-commit hook can rewrite staged bytes silently). Mismatch → **the committed tree has never been
      verified**: re-run **`VERIFY_CMDS` (6b) first**, then 6b.2b against `$START_SHA..$COMMITTED_SHA` —
      a self-check judges text, not behavior, so a zero-finding self-check on formatter/generator output
