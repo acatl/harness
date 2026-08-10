@@ -406,9 +406,13 @@ defect (uncertified bytes). Both are 6b.2 findings.
      still uploads that commit and its unreviewed blob as an ancestor. (`$EXPECTED_HEAD` is likewise
      useless here: it was advanced to `$COMMITTED_SHA` above, so any diff against it is `X..X`.) — a subset test, not equality: `FIX_SET` is append-only and a corrective commit
      carries only its own delta, so equality would fail on every re-entry. A hook that **creates and stages** a file puts it in the commit while
-     leaving the tree clean, so 6b.2's reconciliation can never see it. Any extra path → gate it **at 6b.1** (a hook-generated
-     lockfile / workflow / build config is exactly the load-bearing class that must not ride an
-     unreviewed commit) → record in `FIX_SET` or resolve at the fork. **Not** 6b.2's b5: that
+     leaving the tree clean, so 6b.2's reconciliation can never see it. Any extra path → **an explicit
+     two-outcome ask, for EVERY such path regardless of load-bearingness** — *accept* → record in
+     `FIX_SET`; *reject* → a corrective commit removing it (counts against the re-entry limit).
+     **Not 6b.1's silent AUTO-FIX branch**: that fixes without asking unless a Decision-Gate criterion
+     applies, so a hook-added generated file or snapshot would be adopted into `FIX_SET` and pushed with
+     nobody establishing ownership — "accounted for" means *decided*, not *absorbed*. (A load-bearing
+     path — lockfile / workflow / build config — is the severe case, not the only one.) **Not** 6b.2's b5: that
      branch's push-then-abort is written for *uncommitted* un-owned work, and the path here is already
      inside the commit — following it would push the very path this check forbids pushing. **Never push a committed path `FIX_SET` doesn't account for.**
   2. **Bytes** — `git rev-parse "$COMMITTED_SHA^{tree}"` must equal **`$CERTIFIED_TREE`** (compare tree objects, not a "certified diff" no longer in existence; `git diff $CERTIFIED_TREE $COMMITTED_SHA` then shows exactly what a hook rewrote) (a *successful*
