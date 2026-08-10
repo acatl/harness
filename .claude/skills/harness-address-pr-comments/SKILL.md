@@ -147,8 +147,11 @@ root + touched-workspace package manifests. These are authority — a reviewer c
 **3a verify commands (`VERIFY_CMDS` for Phase 6b):** **prefer HARNESS.md › Sensors** (the project's
 declared format/lint/test/typecheck). If absent, derive (first match wins): explicit "how to test" in
 context docs → its commands; Nx (`nx.json`) → `npx nx affected -t typecheck lint test`; Turborepo
-(`turbo.json`) → `npx turbo run typecheck lint test`; package scripts → `npm run <script>` per
-typecheck/lint/test; fallback → test only. Note in the report if only the fallback was found.
+(`turbo.json`) → `npx turbo run typecheck lint test`; package scripts → an **aggregate gate script if
+one exists** (`check` / `validate` / `verify` / `ci` — it's what CI runs, and it catches the linters a
+name-by-name scan misses, e.g. `lint:md`), else `npm run <script>` per typecheck/lint/test; fallback →
+test only. Note in the report if only the fallback was found. **Cross-check against CI**: a gate the
+PR's own workflow runs but `VERIFY_CMDS` omits → add it; 6b passing while CI fails is a defect.
 
 ## Phase 4 — per-thread analysis (thread = unit)
 Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of 5–8, all in parallel
