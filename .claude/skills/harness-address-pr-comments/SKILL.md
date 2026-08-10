@@ -45,7 +45,7 @@ direction-affecting ambiguity surfaces to the operator. **Default bias: correctn
 4. **Stop only at genuine forks — no plan-approval gate.** After analysis, walk DECISION-NEEDED forks
    (5d), then run end-to-end with no per-step gates. Zero forks → straight to execution. Only stops: a
    DECISION-NEEDED finding (5d), a mid-flight cascading Decision-Gate hit (6b.1), or the convergence
-   brake (run #≥3 on this PR — 5.0). Invocation is consent
+   brake (run #≥3 on this PR — 5c.1). Invocation is consent
    for the full pipeline (commit/push/reply/resolve); a hard-gate failure (1.5) still aborts.
 5. **Replies are machine-readable** — terse tagged format, no prose/gratitude.
 
@@ -134,10 +134,11 @@ noise (LGTMs, bot status, empty bodies); dedup (keep inline over review-body rep
 (one finding, multiple locations); carry `threadId` to every finding.
 **Idempotency contract:** rerun on the same PR with no new comments = no-op (zero new replies/resolves/commits).
 **Run counter:** `RUN_N` = 1 + count of **distinct** `commit:<sha7>` values across prior trailered
-`fixed:` replies by `$GH_USER` (only `fixed:` — an `already:` sha or the literal `pre-existing` isn't a
-patch by this skill), computed over the **raw 2a–2c fetch, before the skip/filter steps above** —
+`fixed:` replies by **any author** (the trailer identifies the skill — team PRs run it from different
+accounts; only `fixed:` — an `already:` sha or the literal `pre-existing` isn't a patch by this
+skill), computed over the **raw 2a–2c fetch, before the skip/filter steps above** —
 prior-run replies live in threads that are already resolved/skipped, so a post-filter count always
-reads 1. This run's patch-round ordinal on the PR (feeds the 5.0 convergence brake).
+reads 1. This run's patch-round ordinal on the PR (feeds the 5c.1 convergence brake).
 
 ## Phase 3 — project standards + verify commands
 Read in parallel: context docs + the rules dir entries matching the diff (HARNESS.md), architecture docs,
@@ -194,12 +195,13 @@ missing return type"). Goal: the bot flags 1 of N identical spots → all N die 
 ## Phase 5 — overview + decision-only wizard
 Main agent renders from returned data (no re-fetch).
 - **5.0 announce (one line):** `PR #N · K threads → A auto-fix · D decisions · X decline · Y already · U unclear · S skipped. Walking D decisions now.` (D==0 → "No decisions needed — proceeding to implementation."; RUN_N>1 → append ` · run #<RUN_N>`.)
-  **Convergence brake:** `RUN_N ≥ 3` **and** (A>0 or D>0) → do NOT auto-proceed to Phase 6 (a no-op
-  rerun — zero auto-fix, zero decisions — never brakes; 6c.1 short-circuits it anyway). Emit `⚠️ run
-  #<RUN_N> on this PR — patch rounds not converging; recommend root-causing the change instead of another round`, then a
-  one-line 👉 proceed-anyway gate (terminal block, after the 5a–5c tables). Explicit yes → continue
-  (5d wizard, then Phase 6); else stop — don't walk 5d forks for a run that won't execute.
 - **5a/5b/5c:** PR overview table · verdict counts · full thread table (orientation only; emoji markers 🔧 AUTO-FIX · 🤔 DECISION · 🚫 DECLINE · ✅ ALREADY · ❓ UNCLEAR · ⏭️ SKIPPED).
+- **5c.1 convergence brake (after the 5a–5c tables, before 5d/Phase 6):** `RUN_N ≥ 3` **and** (A>0 or
+  D>0) → do NOT auto-proceed (a no-op rerun — zero auto-fix, zero decisions — never brakes; 6c.1
+  short-circuits it anyway). Emit `⚠️ run #<RUN_N> on this PR — patch rounds not converging; recommend
+  root-causing the change instead of another round`, then a one-line 👉 proceed-anyway gate (terminal
+  block). Explicit yes → continue (5d wizard, then Phase 6); else stop — don't walk 5d forks for a run
+  that won't execute.
 - **Option-pick format:** render a walk-me-through fork card (`references/walk-me-through.md`) — `Q<N> of <total>` + `#<N>` title, framing (comment / why-it-needs-a-decision), options table (terse Pros/Cons), grounded Recommendation (pick + reasoning + `Cost if`), `Escape:` + `Pick:` lines; operator replies by letter. **Never `AskUserQuestion` or a native picker.** One fork per turn. Yes/no gates one line.
 - **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table A/B + C `Decline finding` + D `Defer (blocked)` only when a concrete blocker exists, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter — `A — <name> (Recommended)`, `B — <name>`, `C — Decline finding`, `D — Defer (blocked)`; never `AskUserQuestion`. **Offer D only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). One-line confirm, continue. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
 
@@ -211,15 +213,16 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 - **6b.2 fix-diff self-check (inline, no sub-agent) — 6c won't commit without it:** run
   `git add -N .` (intent-to-add so fix-created new files appear in the diff — tree was clean at 1.5,
   so this marks only this run's files), then `git diff $START_SHA --stat` + `git diff $START_SHA`;
-  judge the ADDED lines against: **new surface**
+  judge the full diff — added lines **and** deletions/modification pairs — against: **new surface**
   (fresh null/bounds gap, type hole, dead code, over-claiming comment/doc phrase, lint/complexity
-  ceiling just crossed) · **class sibling** (re-run the Phase-4.5 signature on this diff — a fix can
-  create a fresh sibling of the class it fixed) · **cross-batch** (two 6a sub-agents on one surface) ·
-  **region** (this run touched a `file:line` a *prior* round's thread already flagged → fix the
-  region's root cause, NOT the line; a re-patched line draws a fresh comment next round). The skill's
+  ceiling just crossed) · **lost surface** (a deletion that removes a guard/validation/behavior with
+  no replacement on the added side) · **class sibling** (re-run the Phase-4.5 signature on this diff —
+  a fix can create a fresh sibling of the class it fixed) · **cross-batch** (two 6a sub-agents on one
+  surface) · **region** (this run touched a `file:line` a *prior* round's thread already flagged → fix
+  the region's root cause, NOT the line; a re-patched line draws a fresh comment next round). The skill's
   own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
   `code-review` here. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
-  tokens), then one mandatory closing line: `self-check: <N> added lines / <M> files · <F> findings`.
+  tokens), then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
   Findings → fix, re-run 6b + 6b.2, commit once; **cap 2 passes** — survivors go to the report, not
   another loop. Decision-Gate hit → 6b.1. Skip only on empty diff (6c.1) — never for "only prose/config".
 - **6c commit:** **precondition** — a non-empty candidate diff commits only with a `self-check:` line
@@ -238,7 +241,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 - **6h re-request review:** if `CHANGES_REQUESTED` and ≥1 fix — bots auto `gh pr edit <n> --add-reviewer <user>`; humans → suggest in report.
 
 ## Final report (rendered markdown, never a code fence; omit zero-count rows)
-Lead (bold, one line): `✅ PR #N — <title> · X fixed · Y resolved · pushed <sha7>` (⚠️ + failure count if anything failed). Then: **Outcome table** (status/count/detail — 🔧 Fixed · 🤔 Decided · 🚫 Declined · ✅ Already · ❓ Unclear · ⏭️ Deferred · ⏭️ Skipped); **Decisions table** (only if ≥1 operator decision); **Verification + GitHub** (Typecheck/Lint/Tests ✅/❌/➖ · Self-check `<N> added lines / <M> files · <F> findings folded` (2-pass-cap survivors, if any: `> ⚠️` callout under this section, one `file:line — <finding>` each) · Threads resolved · Replies posted · Stale reviews dismissed · Re-request review · CI run link); **Files touched** (clickable bullets); **Tail** (cascading auto-fixes if any); **Class sweep** (only if
+Lead (bold, one line): `✅ PR #N — <title> · X fixed · Y resolved · pushed <sha7>` (⚠️ + failure count if anything failed). Then: **Outcome table** (status/count/detail — 🔧 Fixed · 🤔 Decided · 🚫 Declined · ✅ Already · ❓ Unclear · ⏭️ Deferred · ⏭️ Skipped); **Decisions table** (only if ≥1 operator decision); **Verification + GitHub** (Typecheck/Lint/Tests ✅/❌/➖ · Self-check `<N> added / <R> removed lines / <M> files · <F> findings folded` (2-pass-cap survivors, if any: `> ⚠️` callout under this section, one `file:line — <finding>` each; empty-diff run (6c.1) → `Self-check ➖ skipped — empty diff`, never fabricated counts) · Threads resolved · Replies posted · Stale reviews dismissed · Re-request review · CI run link); **Files touched** (clickable bullets); **Tail** (cascading auto-fixes if any); **Class sweep** (only if
 Phase 4.5 found siblings) — per class: `<class> — <T1> tier-1 fixed · <T2> tier-2 surfaced · <G> gate-deferred`
 (omit a zero term), then the **tier-1 `file:line` list** (the full swept-file list a 6e reply may abbreviate); for
 tier-2 a `> ⚠️` callout listing `file:line` instances + a copy-paste `gh issue create` command (never
@@ -248,7 +251,7 @@ gate criterion (also walked in 5d / shown in the Decisions table when interactiv
 ## Principles
 Correctness over scope · standards are authority · auto-fix is default (Decision Gate is the filter) ·
 sweep the class not just the instance (rg → tier-1 added-line auto-fixed, tier-2 surfaced; per-candidate gate) ·
-self-check own fix diff before commit (6b.2) · convergence brake at run #3 (5.0) ·
+self-check own fix diff before commit (6b.2) · convergence brake at run #3 (5c.1) ·
 parallelize aggressively · idempotent by trailer (`[harness:address-pr-comments]`) · YAGNI before
 accepting abstractions · machine-readable replies (trailer mandatory) · resolve what you fixed (dismiss
 stale bot reviews) · stop only at genuine forks (no plan-approval gate) · report is rendered markdown ·
