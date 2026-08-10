@@ -186,8 +186,9 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   **re-anchor before storing**: anchor the hunk's **space-prefixed context runs** (exclude `-`/`+`),
   whitespace-normalized — **each run separately, in order**, never concatenated into one block: a
   replacement hunk has context before and after the change, and the new-side replacement line still
-  separates them in the current file, so a contiguous match finds nothing. Stored entry = `{thread_id, start..end}` — the owning thread travels with the interval, or 6b.2b
-  cannot evaluate the exclusion below. Interval = the comment's **own** range, shifted —
+  separates them in the current file, so a contiguous match finds nothing. Stored entry = `{thread_id, path, start..end}` — `path` from the same 2a comment, because line numbers
+  alone are meaningless across files (lines 20–30 of file A would match a change at lines 20–30 of file
+  B); the owning thread travels with the interval, or 6b.2b cannot evaluate the exclusion below. Interval = the comment's **own** range, shifted —
   **not the context span** (that would swallow the hunk's context and false-fire when a later fix touches
   an unrelated context line in the same old hunk). `original_*` are in the **reviewed commit's RIGHT-side**
   coordinates, so seed the run from the header's **`+c`, advancing on `+` and context lines** — *not* `-a`
@@ -341,8 +342,8 @@ defect (uncertified bytes). Both are 6b.2 findings.
   phrase, lint/complexity ceiling just crossed) · **lost surface** (a deletion that removes a
   guard/validation/behavior with no replacement on the added side) · **class sibling** (re-run the
   Phase-4.5 signature on this diff — a fix can create a fresh sibling of the class it fixed) ·
-  **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a line **inside any
-  interval** the 4d `region_map` carries — resolved threads included, **except the entry whose
+  **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a line **inside an
+  interval of the SAME `path`** the 4d `region_map` carries — match `path` first, then line overlap — resolved threads included, **except the entry whose
   `thread_id` is the thread this edit's verdict implements** (per 4d: a reopened thread's own re-fix must
   not trip a finding no fold can discharge). Attribution comes from the 4c fix plan + the owning batch's
   `items`/`files_touched` — the same batch→surface mapping the cross-batch lens above already relies on.
