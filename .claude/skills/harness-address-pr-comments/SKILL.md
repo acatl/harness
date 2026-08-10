@@ -408,7 +408,12 @@ defect (uncertified bytes). Both are 6b.2 findings.
      carries only its own delta, so equality would fail on every re-entry. A hook that **creates and stages** a file puts it in the commit while
      leaving the tree clean, so 6b.2's reconciliation can never see it. Any extra path → **an explicit
      two-outcome ask, for EVERY such path regardless of load-bearingness** — *accept* → record in
-     `FIX_SET`; *reject* → a corrective commit removing it (counts against the re-entry limit).
+     `FIX_SET`; *reject* → **rebuild, don't append**: `git reset --soft $START_SHA`, re-stage `FIX_SET` only, then
+     re-enter 6b.2 → 6b.2b → 6c (counts against the re-entry limit). A deletion commit cannot satisfy
+     this check — the offending path still lives in the earlier commit, which check 1 walks, so the run
+     would ask again or exhaust its limit without ever pushing. The reset is safe *here specifically*:
+     1.5 proved `$START_SHA == origin/<branch>`, and 6d hasn't run, so only **this run's own unpushed
+     commits** are rewritten — never published history, and never anything before `$START_SHA`.
      **Not 6b.1's silent AUTO-FIX branch**: that fixes without asking unless a Decision-Gate criterion
      applies, so a hook-added generated file or snapshot would be adopted into `FIX_SET` and pushed with
      nobody establishing ownership — "accounted for" means *decided*, not *absorbed*. (A load-bearing
