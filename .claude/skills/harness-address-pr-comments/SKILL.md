@@ -147,11 +147,13 @@ root + touched-workspace package manifests. These are authority — a reviewer c
 (cite), unless the comment finds a genuine bug in the standard → DECISION-NEEDED.
 **3a verify commands (`VERIFY_CMDS` for Phase 6b):** **prefer HARNESS.md › Sensors** (the project's
 declared format/lint/test/typecheck). If absent, derive (first match wins): explicit "how to test" in
-context docs → its commands; Nx (`nx.json`) → `npx --no-install nx affected -t typecheck lint test`;
-Turborepo (`turbo.json`) → `npx --no-install turbo run typecheck lint test` (**`--no-install` on every
-`npx`** — bare `npx` silently fetches from the registry when the tool isn't installed locally, running
-unvetted code in the consuming project; absent binary must fail closed, then fall through to the next
-match); package scripts → an **aggregate gate script if
+context docs → its commands; Nx (`nx.json`) → `./node_modules/.bin/nx affected -t typecheck lint test`;
+Turborepo (`turbo.json`) → `./node_modules/.bin/turbo run typecheck lint test` (**invoke the project's
+local binary directly — never `npx`.** Bare `npx` fetches and runs registry code when the tool isn't
+installed locally, and **`--no-install` does not prevent it**: verified on npm/npx 11.8.0, the flag isn't
+in `npx --help` and `npx --no-install <missing>` still performs a registry request. A missing
+`node_modules/.bin/<tool>` fails closed with no network at all → fall through to the next match);
+package scripts → an **aggregate gate script if
 one exists** (`check` / `validate` / `verify` / `ci` — it's what CI runs, and it catches the linters a
 name-by-name scan misses), else per typecheck/lint/test individually; fallback → test only. The names
 are the ecosystem's, not npm's — `make check`, `tox`, `swift test`, `npm run check` are the same rule;
