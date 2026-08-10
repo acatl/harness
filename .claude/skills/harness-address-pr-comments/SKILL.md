@@ -306,7 +306,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
   collide): a pass is consumed **only** by a re-run following a fix folded from a 6b.2b finding **on the
   pre-commit path**. Every re-run triggered by bytes changing with no finding folded (re-stage of
   equivalent content, hook-fail fix) is free, and **every post-commit re-entry — byte-mismatch branch
-  and dirty-tree branch alike — is free but separately bounded: at most 2 corrective re-entries, then
+  and dirty-tree branch alike — is free but separately bounded: at most 2 corrective re-entries (byte-mismatch, dirty-tree, and path-set branches all count), then
   **push what already landed (6d), then stop with the threads left open**; leave the hook's uncommitted
   output in place and name it in the report as the reason the next run's 1.5 gate will need a stash.
   Never stop holding unpushed commits (the next run's 1.5 gate only checks
@@ -319,11 +319,24 @@ defect (uncertified bytes). Both are 6b.2 findings.
   `COMMITTED_SHA=$(git rev-parse HEAD)`; assert it's ours — `test "$(git rev-parse "$COMMITTED_SHA^")" = "$EXPECTED_HEAD"` else abort (a concurrent commit would otherwise be adopted as this run's baseline);
   then `EXPECTED_HEAD=$COMMITTED_SHA`, **before** post-commit verification and any corrective work
   (advancing later strands every correction — its race check would still read `$START_SHA`).
-  **Post-commit verification** — `git diff $START_SHA $COMMITTED_SHA` must byte-match the certified
-  diff (a *successful* pre-commit hook can rewrite staged bytes silently); mismatch → re-run 6b.2b
-  against `$START_SHA..$COMMITTED_SHA`; findings → fix → stage into `FIX_SET` → **re-enter 6c** (race
-  check now reads the advanced baseline), new commit, which pins and advances again. Doesn't consume
-  the cap. **Re-run the 6b.2 dirty-path reconciliation after every successful commit, byte-match or
+  **Post-commit verification** — two checks on the *committed* object, both before 6d:
+  1. **Path set** — `git diff --name-only $START_SHA $COMMITTED_SHA` (never `$EXPECTED_HEAD`: it was
+     advanced to `$COMMITTED_SHA` above, so that diff is `X..X` and always empty) must contain **no path
+     outside** `FIX_SET` — a subset test, not equality: `FIX_SET` is append-only and a corrective commit
+     carries only its own delta, so equality would fail on every re-entry. A hook that **creates and stages** a file puts it in the commit while
+     leaving the tree clean, so 6b.2's reconciliation can never see it. Any extra path → gate it **at 6b.1** (a hook-generated
+     lockfile / workflow / build config is exactly the load-bearing class that must not ride an
+     unreviewed commit) → record in `FIX_SET` or resolve at the fork. **Not** 6b.2's bucket 3: that
+     branch's push-then-abort is written for *uncommitted* un-owned work, and the path here is already
+     inside the commit — following it would push the very path this check forbids pushing. **Never push a committed path `FIX_SET` doesn't account for.**
+  2. **Bytes** — `git diff $START_SHA $COMMITTED_SHA` must byte-match the certified diff (a *successful*
+     pre-commit hook can rewrite staged bytes silently). Mismatch → **the committed tree has never been
+     verified**: re-run **`VERIFY_CMDS` (6b) first**, then 6b.2b against `$START_SHA..$COMMITTED_SHA` —
+     a self-check judges text, not behavior, so a zero-finding self-check on formatter/generator output
+     is not evidence the commit works. Either producing work → fix → stage into `FIX_SET` → **re-enter
+     6c** (race check reads the advanced baseline), new commit, which pins and advances again.
+  Both are free of the 2-pass cap; any corrective commit they produce — byte-mismatch, dirty-tree, or
+  path-set — counts against the corrective-re-entry limit above. **Re-run the 6b.2 dirty-path reconciliation after every successful commit, byte-match or
   not** — a passing pre-commit hook can rewrite the *working tree* without staging, which leaves the
   committed diff matching the certified one (so the mismatch branch never fires) while the formatter's
   output sits uncommitted. **Post-commit, a `FIX_SET` path showing as unstaged-modified is uncommitted
