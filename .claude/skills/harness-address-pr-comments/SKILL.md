@@ -435,9 +435,12 @@ defect (uncertified bytes). Both are 6b.2 findings.
      inside the commit — following it would push the very path this check forbids pushing. **Never push a committed path `FIX_SET` doesn't account for.**
   2. **Bytes** — `git rev-parse "$COMMITTED_SHA^{tree}"` must equal **`$CERTIFIED_TREE`** (compare tree objects, not a "certified diff" no longer in existence; `git diff $CERTIFIED_TREE $COMMITTED_SHA` then shows exactly what a hook rewrote) (a *successful*
      pre-commit hook can rewrite staged bytes silently). Mismatch → **the committed tree has never been
-     verified**: re-run **`VERIFY_CMDS` (6b) first**, then 6b.2b against `$START_SHA..$COMMITTED_SHA` —
-     a self-check judges text, not behavior, so a zero-finding self-check on formatter/generator output
-     is not evidence the commit works. Either producing work → fix → stage into `FIX_SET` → **re-enter
+     verified**: re-enter the **full chain — `6b` → `6b.2` → `6b.2b`** against
+     `$START_SHA..$COMMITTED_SHA`. Not `6b` → `6b.2b`: **b1's blob-keyed gate lives in 6b.2**, so skipping
+     it lets a hook that rewrote an already-approved lockfile / workflow / schema commit a blob that no
+     longer matches its `GATE_DECIDED` entry, with nothing re-asking. Verification first because a
+     self-check judges text, not behavior — a zero-finding self-check on formatter output is not evidence
+     the commit works. Either producing work → fix → stage into `FIX_SET` → **re-enter
      6c** (race check reads the advanced baseline), new commit, which pins and advances again.
   Both are free of the 2-pass cap; any corrective commit they produce — byte-mismatch, dirty-tree, or
   path-set — counts against the corrective-re-entry limit above. **Re-run the 6b.2 dirty-path reconciliation after every successful commit, byte-match or
