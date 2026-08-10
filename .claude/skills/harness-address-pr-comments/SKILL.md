@@ -236,9 +236,11 @@ defect (uncertified bytes). Both are 6b.2 findings.
 - **6b.2 fix-diff self-check (inline, no sub-agent) — 6c won't commit without it:** stage exactly
   `FIX_SET` — `git add -- <FIX_SET>` (never `-A`/`.` — a stray verify artifact must not enter the
   certified payload; staging applies clean filters and makes new files visible). **Reconcile before
-  certifying:** `git status --porcelain` — a modified/untracked path outside `FIX_SET` is either an
-  unrecorded fix (→ add to `FIX_SET`, re-stage) or a verify artifact (→ leave unstaged, name it in the
-  report); never leave the choice implicit. Then certify the **staged** payload: `git diff --cached $START_SHA --stat` + `git diff
+  certifying:** `git status --porcelain` — the tree was clean at 1.5, so **every dirty path is this
+  run's own product**; each is either an unrecorded fix (→ add to `FIX_SET`, re-stage) or a verify
+  artifact (→ **clean it now**: untracked → delete, tracked-modified → `git restore`; then name it in
+  the report). Never leave the choice implicit, and **never leave an artifact on disk** — the run must
+  end with a clean tree or the next invocation's 1.5 hard gate aborts on debris this run created. Then certify the **staged** payload: `git diff --cached $START_SHA --stat` + `git diff
   --cached $START_SHA`; judge the full diff — added lines **and** deletions/modification pairs —
   against: **new surface** (fresh null/bounds gap, type hole, dead code, over-claiming comment/doc
   phrase, lint/complexity ceiling just crossed) · **lost surface** (a deletion that removes a
