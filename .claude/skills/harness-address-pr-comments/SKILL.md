@@ -116,7 +116,7 @@ Main agent
 
 ## Phase 2 — fetch comments + thread IDs
 Use `$OWNER/$NAME` from Phase 1. **jq safety:** use `select(.body | length > 0)` — never `select(.body != "")` (the `!=` form can corrupt to the Unicode not-equal char and fail jq parse).
-- **2a inline:** `gh api repos/$OWNER/$NAME/pulls/<n>/comments --paginate | jq '[.[] | {id,path,line,start_line,original_line,original_start_line,body,user:.user.login,in_reply_to_id,diff_hunk}] | map(select(.body|length>0))'` (all four line fields are load-bearing: an outdated comment has `line:null` → use `original_line`; a multi-line comment's `line` is the **end** of the range → without `start_line` the 4d `region_map` misses edits at the start or middle of it)
+- **2a inline:** `gh api repos/$OWNER/$NAME/pulls/<n>/comments --paginate | jq '[.[] | {id,path,line,start_line,original_line,original_start_line,side,start_side,body,user:.user.login,in_reply_to_id,diff_hunk}] | map(select(.body|length>0))'` (all four line fields are load-bearing: an outdated comment has `line:null` → use `original_line`; a multi-line comment's `line` is the **end** of the range → without `start_line` the 4d `region_map` misses edits at the start or middle of it)
 - **2b review bodies:** `gh api repos/$OWNER/$NAME/pulls/<n>/reviews --paginate | jq '[.[] | {id,body,state,user:.user.login}] | map(select(.body|length>0))'`
 - **2c issue comments:** `gh api repos/$OWNER/$NAME/issues/<n>/comments --paginate`
 - **2d review threads (GraphQL)** — map root comment `databaseId` → `threadId` for later resolve.
@@ -185,8 +185,19 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   whitespace-normalized — **each run separately, in order**, never concatenated into one block: a
   replacement hunk has context before and after the change, and the new-side replacement line still
   separates them in the current file, so a contiguous match finds nothing. Stored entry = `{thread_id, start..end}` — the owning thread travels with the interval, or 6b.2b
-  cannot evaluate the exclusion below. Interval = first line
-  of the leading run's match .. last line of the trailing run's match (single run → that run's span). **Leading match must precede the trailing match and the span must not exceed the hunk's own line count** — an inverted interval can never overlap (silently unguarding the region) and an over-wide one fires on unrelated lines; only the leading and trailing runs need a unique match. no unique match → **drop the interval** (a stale coordinate would fire the region
+  cannot evaluate the exclusion below. Interval = the comment's **own** range, shifted —
+  **not the context span** (that would swallow the hunk's context and false-fire when a later fix touches
+  an unrelated context line in the same old hunk). `original_*` are in the **reviewed commit's RIGHT-side**
+  coordinates, so seed the run from the header's **`+c`, advancing on `+` and context lines** — *not* `-a`
+  (6b.2b's cursor walks `-a`; these are different frames and confusing them shifts every interval by the
+  file's earlier-hunk delta). `delta = matched_current_start − run_start_in_reviewed_commit`; store
+  `original_start_line + delta .. original_line + delta`. (`side: LEFT` → seed from `-a` and advance on `-`
+  and context instead; `side` defaults to RIGHT.) **`diff_hunk` is tail-truncated — its body ends at the
+  commented line — so ONE context run (the leading one) is the normal case**: only that run needs a unique
+  match, and it supplies the anchor by itself. A trailing run, when present, is an optional drift
+  cross-check, never a requirement — demanding two runs would drop nearly every interval and blind the
+  lens. **Sanity-check** in mapped hunk coordinates: result within `c + delta .. c + d − 1 + delta` (use
+  the header's declared counts, not the truncated body's length). Fails → **drop the interval**. no unique match → **drop the interval** (a stale coordinate would fire the region
   check on an unrelated current line and miss the real one). Single-line (`start_line`/`original_start_line` null) → use that branch's end field: `line..line`, or
   for an outdated comment the **re-anchored** `original_line..original_line` — never a null bound (a
   null-bounded interval can never overlap, silently unguarding the region). Phase 5 forbids re-fetch, so without this the
