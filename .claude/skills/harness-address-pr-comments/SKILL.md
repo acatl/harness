@@ -211,7 +211,7 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   commented line — so ONE context run (the leading one) is the normal case**: only that run needs a unique
   match, and it supplies the anchor by itself. A trailing run, when present, is an optional drift
   cross-check, never a requirement — demanding two runs would drop nearly every interval and blind the
-  lens. **Sanity-check** in mapped hunk coordinates: result within `c + delta .. c + d − 1 + delta` (use
+  lens. **Sanity-check** in mapped hunk coordinates: result within `c + delta .. c + d − 1 + delta` for RIGHT-side comments — **`a + delta .. a + b − 1 + delta` for `side: LEFT`**, whose coordinates are old-side; bounding a LEFT interval by the new-side counts discards correctly anchored deleted-line regions whenever the hunk's two sides differ (use
   the header's declared counts, not the truncated body's length). Fails → **drop the interval**. no unique match → **drop the interval** (a stale coordinate would fire the region
   check on an unrelated current line and miss the real one). Single-line (`start_line`/`original_start_line` null) → use that branch's end field: `line..line`, or
   for an outdated comment the **re-anchored** `original_line..original_line` — never a null bound (a
@@ -410,7 +410,18 @@ defect (uncertified bytes). Both are 6b.2 findings.
      carries only its own delta, so equality would fail on every re-entry. A hook that **creates and stages** a file puts it in the commit while
      leaving the tree clean, so 6b.2's reconciliation can never see it. Any extra path → **an explicit
      two-outcome ask, for EVERY such path regardless of load-bearingness** — *accept* → record in
-     `FIX_SET`; *reject* → **rebuild, don't append**: `git reset --mixed $START_SHA` (**`--mixed`, not `--soft`** — `--soft` resets only HEAD and leaves the rejected path **still staged**, so it would be re-committed; verified) **and set `EXPECTED_HEAD=$START_SHA`** (it still points at the rejected commit, and the next 6c race check would abort), re-stage `FIX_SET` only, then
+     `FIX_SET`; *reject* → **rebuild, don't append**, in this order: (a) **consult the re-entry limit FIRST** — at the
+     limit, nothing may land: **abort clean and never enter 6d** (after the reset there is no commit, and
+     an unset `COMMITTED_SHA` would make 6d's refspec expand to `":refs/heads/<branch>"`, which **deletes
+     the remote branch**); (b) `git reset --mixed $START_SHA` — **not `--soft`**, which resets only HEAD
+     and leaves the rejected path **still staged** (verified); (c) **`EXPECTED_HEAD=$START_SHA` and unset
+     `COMMITTED_SHA`** — the commit no longer exists, and leaving it set lets b5's post-commit
+     continuation push a discarded sha carrying the rejected content; (d) `--mixed` does **not** touch the
+     worktree, so the rejected bytes are still there (untracked if new, modified if a change, still
+     deleted if the hook removed a tracked path) — **the skill never clears them**: `⚠️` the path, one
+     `👉` — *remove/restore it yourself, then re-invoke*. "Don't commit this" is not "delete this from my
+     disk", and the path may be the operator's own concurrent edit that a `git add -A` hook swept in;
+     same discipline as b1's leave-it-out. Then, once clear, re-stage `FIX_SET` only and
      re-enter 6b.2 → 6b.2b → 6c (counts against the re-entry limit). A deletion commit cannot satisfy
      this check — the offending path still lives in the earlier commit, which check 1 walks, so the run
      would ask again or exhaust its limit without ever pushing. The reset is safe *here specifically*:
@@ -439,7 +450,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
   would get the pre-rewrite bytes while the threads are resolved as fixed. Reconciliation alone doesn't
   discharge it — verification, self-check, and a commit do.
 - **6c.1 empty-diff short-circuit:** SKIP_COMMIT=true (nothing to commit **and no commit made this run** — typically all DECLINE/ALREADY/UNCLEAR) → skip commit + push, **set `PUSH_OK=n/a`** (nothing cites a commit, so 6e/6f run normally while **6h is skipped**; **6e.1 runs with a commit-independent rationale** per 6d — resolving threads does not clear a review's `CHANGES_REQUESTED`, so blanket-skipping it leaves a protected PR blocked forever); go to reply/resolve; report `Commits: none — no fixes required.`
-- **6d push:** push **the exact certified object**, never the moving branch tip (a bare `git push` would carry a concurrent local commit along with it): `git push origin "${COMMITTED_SHA}:refs/heads/<branch>"` — **quote the refspec**; unquoted `$VAR:` is a zsh history modifier and silently mangles the ref. `HEAD != $COMMITTED_SHA` (a commit landed after the last race check) → **still push `$COMMITTED_SHA`** — that is what the exact refspec is for — and report the foreign commit as unpushed; never abort holding a certified commit. No upstream yet → set it after a successful push (`git branch --set-upstream-to=origin/<branch>`); `-u` is inert with a SHA source. Never force-push without explicit request.
+- **6d push:** **`COMMITTED_SHA` must be set — abort if not.** An unset value makes the refspec expand to `":refs/heads/<branch>"`, which **deletes the remote branch**; every caller already guards this, and this assertion is the backstop so a future one can't. Push **the exact certified object**, never the moving branch tip (a bare `git push` would carry a concurrent local commit along with it): `git push origin "${COMMITTED_SHA}:refs/heads/<branch>"` — **quote the refspec**; unquoted `$VAR:` is a zsh history modifier and silently mangles the ref. `HEAD != $COMMITTED_SHA` (a commit landed after the last race check) → **still push `$COMMITTED_SHA`** — that is what the exact refspec is for — and report the foreign commit as unpushed; never abort holding a certified commit. No upstream yet → set it after a successful push (`git branch --set-upstream-to=origin/<branch>`); `-u` is inert with a SHA source. Never force-push without explicit request.
   **Confirm the commit is actually on the remote** — `git rev-parse origin/<branch>` contains
   `$COMMITTED_SHA` (`git merge-base --is-ancestor $COMMITTED_SHA origin/<branch>`) → **`PUSH_OK=true`**
   (assign it explicitly; downstream steps read it positively and must never read it unset). **Push failed or
