@@ -110,7 +110,7 @@ Main agent
 ## Phase 1.5 — pre-flight git state (HARD GATE; abort on any failure)
 1. Current branch = `headRefName` (`git branch --show-current`), else abort `error: on branch <X>, PR is on <Y>. checkout <Y> first.`
 2. Working tree clean (`git status --porcelain` empty), else abort `error: uncommitted changes in <files>. commit/stash first.`
-3. Synced with origin (`git fetch origin <branch>; git rev-list --count HEAD..origin/<branch>` == 0), else abort `error: behind origin/<branch> by N. pull first.`
+3. **Synced with origin both ways** (`git fetch origin <branch>; git rev-list --left-right --count HEAD...origin/<branch>` → `0\t0`; **left = ahead, right = behind**): **first match wins**: both non-zero → abort `error: <branch> has diverged from origin (N ahead, M behind). reconcile before re-invoking.`; else right non-zero → abort `error: behind origin/<branch> by N. pull first.`; else **left non-zero → abort** (see below) — the ahead message must carry **both** exits — `error: N unpushed commit(s) on <branch>. push them — or, if a prior run stopped rather than push (6c path-set guard), rework or drop that commit first; never push it as-is.` — because the wrong exit re-introduces the very unreviewed path that guard refused. A prior run that committed without pushing otherwise poisons two invariants: `region_map` line numbers come from the PR host in `origin/<branch>` coordinates and would be compared against a `START_SHA` that differs from them, and this run would resolve threads citing commits the remote lacks.
 4. `START_SHA=$(git rev-parse HEAD)` — this run's diff base (never advances). `EXPECTED_HEAD=$START_SHA` — the race-check baseline; **advances to each commit this run verifies** (6c), so a corrective second commit isn't blocked by its own predecessor.
 5. `GH_USER=$(gh api user --jq '.login')` — for the Phase 2 idempotency filter.
 
@@ -174,13 +174,18 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   from different accounts — the `$GH_USER` scope used by the skip predicate would empty the map) — the only evidence *this skill patched
   that interval*. Not bare `isResolved` (a human-resolved discussion or a DECLINE/ALREADY close was
   never patched, and including it fires the region check on ordinary nearby fixes);
-  **exclude every thread carrying a verdict this run** — its own interval must not fire the region
-  check against the fix it asked for. Store the **whole interval**, not one line:
+  **Exclude only the interval of the thread whose own verdict this edit implements** — otherwise a
+  reopened thread's re-fix trips a finding no fold can discharge (the reviewer's verdict *is* that line),
+  looping to a fork with no terminating exit. Every **other** interval stays, including other reopened
+  threads': a different thread's fix landing in a previously patched region is exactly the repeat-patch
+  case the map exists to catch. (A first-time finding has no prior `fixed:` reply and fails membership
+  anyway, so the exclusion is narrow by construction.) Store the **whole interval**, not one line:
   `start_line..line`, or for an outdated comment `original_start_line..original_line` is in the **old commit's** coordinates —
   **re-anchor before storing**: anchor the hunk's **space-prefixed context runs** (exclude `-`/`+`),
   whitespace-normalized — **each run separately, in order**, never concatenated into one block: a
   replacement hunk has context before and after the change, and the new-side replacement line still
-  separates them in the current file, so a contiguous match finds nothing. Stored interval = first line
+  separates them in the current file, so a contiguous match finds nothing. Stored entry = `{thread_id, start..end}` — the owning thread travels with the interval, or 6b.2b
+  cannot evaluate the exclusion below. Interval = first line
   of the leading run's match .. last line of the trailing run's match (single run → that run's span). **Leading match must precede the trailing match and the span must not exceed the hunk's own line count** — an inverted interval can never overlap (silently unguarding the region) and an over-wide one fires on unrelated lines; only the leading and trailing runs need a unique match. no unique match → **drop the interval** (a stale coordinate would fire the region
   check on an unrelated current line and miss the real one). Single-line (`start_line`/`original_start_line` null) → use that branch's end field: `line..line`, or
   for an outdated comment the **re-anchored** `original_line..original_line` — never a null bound (a
@@ -271,8 +276,9 @@ defect (uncertified bytes). Both are 6b.2 findings.
     is real work). Ownership for tracked paths comes only from a step **recording** that it wrote them
     (`FIX_SET`). An observed-but-unrecorded tracked change (a verify step refreshing a tracked lockfile or snapshot is
     the common case, and a terminal stop would make such a project unrunnable) → **6b.1 fork card**: the
-    operator adjudicates ownership once — *it's verify output, take it* / *it's my work, stop* — rather
-    than the run guessing or dead-ending.
+    operator adjudicates ownership once, **both outcomes defined**: *verify output, take it* → `FIX_SET`
+    + re-stage + re-enter 6b → 6b.2 → 6b.2b → 6c; *my work, stop* → `COMMITTED_SHA` set → push it (6d)
+    **subject to the same check-1 path-set guard as the exhaustion stop**, then abort; unset → abort clean.
     A **recorded** tracked change still doesn't auto-certify: a path matching a **Decision-Gate criterion** (lockfile / CI workflow / root-build
     config / schema-migration) → **6b.1 fork card**, never silent certification (6b.2b's lenses don't
     test the gate, so a lockfile would otherwise ride the commit unreviewed); anything else → add to
@@ -287,8 +293,8 @@ defect (uncertified bytes). Both are 6b.2 findings.
     ask (stash or commit them, re-invoke). Never offer to discard them, and **never commit `FIX_SET` around an unrecognized path** — that ends the run dirty. **Continuation depends on commit
     state:** *no commit yet* → abort clean, commit unmade (nothing was pushed; the run is idempotent).
     *A commit already landed* (post-commit re-entry) → the commit stands, so **push it first (6d), then**
-    abort — never claim idempotence once a commit exists, or the next run's 1.5 gate (which only checks
-    *behind* origin) waves the unpushed commit through and resolves threads against it.
+    abort — never claim idempotence once a commit exists; the next run's 1.5 gate hard-aborts on it,
+    blocking the PR until the operator resolves it.
 - **6b.2b certify** — runs after reconciliation on every path that continues (the certification lives here, not inside 6b.2's STOP bullet; a run that took STOP has aborted and never reaches it): `git diff --cached $START_SHA --stat` + `git diff
   --cached $START_SHA`; judge the full diff — added lines **and** deletions/modification pairs —
   against: **new surface** (fresh null/bounds gap, type hole, dead code, over-claiming comment/doc
@@ -296,8 +302,24 @@ defect (uncertified bytes). Both are 6b.2 findings.
   guard/validation/behavior with no replacement on the added side) · **class sibling** (re-run the
   Phase-4.5 signature on this diff — a fix can create a fresh sibling of the class it fixed) ·
   **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a line **inside any
-  interval** the 4d `region_map` carries — resolved threads included; test range *overlap*, not equality
-  with the end line → fix the region's root cause, NOT the line; a re-patched line draws a fresh comment
+  interval** the 4d `region_map` carries — resolved threads included, **except the entry whose
+  `thread_id` is the thread this edit's verdict implements** (per 4d: a reopened thread's own re-fix must
+  not trip a finding no fold can discharge). Attribution comes from the 4c fix plan + the owning batch's
+  `items`/`files_touched` — the same batch→surface mapping the cross-batch lens above already relies on.
+  **Ambiguous** (two threads' items in one file, can't tell which produced the line) → **do not exclude,
+  emit the finding**: a spurious fork is recoverable, a silently unguarded repeat patch is not. **Compare in old-side coordinates** — the frame `region_map` uses,
+  which 1.5 step 3 guarantees equals `$START_SHA` by refusing to run ahead of origin. Per hunk
+  `@@ -a,b +c,d @@` of the diff under certification (staged, or `$START_SHA..$COMMITTED_SHA` on the
+  byte-mismatch path), walk the body with an old-side cursor starting at `a`, advancing
+  on every `-` and context line; **test only `-` and `+` lines** — a `-` line at its cursor value, a `+`
+  line at **cursor − 1** (the last old-side line consumed); **every** `+` is a zero-width insertion sitting in a gap, so test it **both ways** — `cursor − 1` and
+  `cursor` (a leading `+`: `a-1` and `a`) — one-sided attribution silently unguards an interval starting
+  at the line below. Exception: a `+` immediately following a `-` in the same hunk is that `-`'s
+  replacement — `cursor − 1` only, else every replacement pair double-fires. **Context lines advance the cursor
+  and are never tested**, else the hunk's ±3 context fires the check on lines this run never touched.
+  Never test new-side numbers: this run's own inserts above a saved region shift them, so a repeat patch
+  slips out of its interval and an unrelated edit slips in. Test range *overlap*, not
+  equality with the end line → fix the region's root cause, NOT the line; a re-patched line draws a fresh comment
   next round). The skill's
   own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
   `code-review` here. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
@@ -313,10 +335,15 @@ defect (uncertified bytes). Both are 6b.2 findings.
   pre-commit path**. Every re-run triggered by bytes changing with no finding folded (re-stage of
   equivalent content, hook-fail fix) is free, and **every post-commit re-entry — byte-mismatch branch
   and dirty-tree branch alike — is free but separately bounded: at most 2 corrective re-entries (byte-mismatch, dirty-tree, and path-set branches all count), then
-  **push what already landed (6d), then stop with the threads left open**; leave the hook's uncommitted
-  output in place and name it in the report as the reason the next run's 1.5 gate will need a stash.
-  Never stop holding unpushed commits (the next run's 1.5 gate only checks
-  *behind* origin, so it would wave them through and resolve the threads against a remote that lacks them)** (a hook that stamps a timestamp on every commit would otherwise re-enter
+  **push what already landed (6d) — but only if that commit's path set satisfies check 1; a commit
+  carrying a path outside `FIX_SET` is never pushed, exhausted or not** (check 1's invariant outranks
+  the never-hold-unpushed rule below: pushing an unreviewed lockfile/workflow is the worse failure). Path
+  set clean → push, then stop with the threads left open. Not clean → **don't push**: `⚠️` naming `$COMMITTED_SHA` and the extra path, one `👉` — the operator
+  accounts for it or reworks the commit; the next run's 1.5 gate hard-aborts on the unpushed commit until
+  they do. **Either branch:** **any hook output still uncommitted** stays in place — name it in the report as the
+  reason the next run's 1.5 gate will need a stash (a path-set-only exhaustion leaves the tree clean and
+  needs no such note).
+  Never stop holding unpushed commits (the next run's 1.5 gate hard-aborts on them, blocking the PR until the operator resolves the commit)** (a hook that stamps a timestamp on every commit would otherwise re-enter
   forever, each pass free and the empty-diff check never firing). An operator picking "fix now" at the
   6b.1 pass-2 fork **resets the cap** (they explicitly authorized another round). Empty staged diff → **6b.2b** skipped (6b.2's reconciliation still runs — it's what removes verify
   debris), the empty-diff check below short-circuits.
@@ -351,7 +378,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
   6b → 6b.2 → 6b.2b → 6c** for a corrective commit. Never fall through to 6d with post-commit dirt: the remote
   would get the pre-rewrite bytes while the threads are resolved as fixed. Reconciliation alone doesn't
   discharge it — verification, self-check, and a commit do.
-- **6c.1 empty-diff short-circuit:** SKIP_COMMIT=true (nothing to commit **and no commit made this run** — typically all DECLINE/ALREADY/UNCLEAR) → skip commit + push, **assert nothing is unpushed first** — `git merge-base --is-ancestor HEAD origin/<branch>` else push (an earlier run may have committed without pushing) — then **set `PUSH_OK=n/a`** (nothing cites a commit, so 6e/6f run normally while **6e.1 and 6h are skipped** — their messages would cite a commit that doesn't exist); go to reply/resolve; report `Commits: none — no fixes required.`
+- **6c.1 empty-diff short-circuit:** SKIP_COMMIT=true (nothing to commit **and no commit made this run** — typically all DECLINE/ALREADY/UNCLEAR) → skip commit + push, **set `PUSH_OK=n/a`** (nothing cites a commit, so 6e/6f run normally while **6e.1 and 6h are skipped** — their messages would cite a commit that doesn't exist); go to reply/resolve; report `Commits: none — no fixes required.`
 - **6d push:** push **the exact certified object**, never the moving branch tip (a bare `git push` would carry a concurrent local commit along with it): `git push origin "${COMMITTED_SHA}:refs/heads/<branch>"` — **quote the refspec**; unquoted `$VAR:` is a zsh history modifier and silently mangles the ref. `HEAD != $COMMITTED_SHA` (a commit landed after the last race check) → **still push `$COMMITTED_SHA`** — that is what the exact refspec is for — and report the foreign commit as unpushed; never abort holding a certified commit. No upstream yet → set it after a successful push (`git branch --set-upstream-to=origin/<branch>`); `-u` is inert with a SHA source. Never force-push without explicit request.
   **Confirm the commit is actually on the remote** — `git rev-parse origin/<branch>` contains
   `$COMMITTED_SHA` (`git merge-base --is-ancestor $COMMITTED_SHA origin/<branch>`) → **`PUSH_OK=true`**
