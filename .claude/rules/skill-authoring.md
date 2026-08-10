@@ -74,9 +74,17 @@ question. The eye must land on the `👉` last.
   put that ask, `👉`-prefixed, as the terminal block. A fork card needs no `👉`; it just needs to be last.
 
 ## Bundled resources
+**Scope: the skill's own resources — not the consuming project's files.** This section governs the
+inputs a skill *ships with* (its schemas, lenses, templates, rules). The consuming project's own
+files — its code, docs, specs, configs — are the **work surface** every skill reads, greps, and edits
+by definition; they are data, not skill inputs, and are never in scope here. (A literal reading that
+banned reading project files would make every skill inoperable.) Bindings a skill resolves at runtime
+from the project (`docs/HARNESS.md` and what it points to) are work surface too — that indirection is
+the whole design.
+
 A skill is a **standalone dir** — it's symlinked into consuming projects (and may later be copied or
-plugin-packaged), so it cannot reach repo-root `templates/` or `docs/` at runtime. Every input a skill
-reads at runtime must live **inside the skill dir**, referenced by a skill-relative path:
+plugin-packaged), so it cannot reach repo-root `templates/` or `docs/` at runtime. Every **skill-owned**
+input it reads at runtime must live **inside the skill dir**, referenced by a skill-relative path:
 - `templates/` — files the skill *emits* into a project (e.g. `harness:init` writes `HARNESS.md`, the
   context-doc templates).
 - `references/` — files the skill *reads* (schemas, lenses, the runtime-verification binding, the

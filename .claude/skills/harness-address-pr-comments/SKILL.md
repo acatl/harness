@@ -156,7 +156,11 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
 - **4a context:** read the file ±20 lines around the flagged line; follow cross-file refs; grep actual usage for proposed abstractions (YAGNI).
 - **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion) → AUTO-FIX.
 - **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → two options (recommended + alternative) + `Blocker: <one-line | none>` (reachable this session? default none).
-- **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts) + per-thread block (`#`, `ThreadID`, `RootCommentID`, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/`Option A`/`Option B`/`Blocker`, `Reply tag`, `Code context`).
+- **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts)
+  + **`region_map`** — every `file:line` any prior-round thread flagged, taken from the **raw 2a fetch**
+  (resolved + skipped threads included; for an outdated comment use `original_line`). Phase 5 forbids
+  re-fetch, so without this the 6b.2 region check is blind in the normal (resolved-thread) case.
+  + per-thread block (`#`, `ThreadID`, `RootCommentID`, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/`Option A`/`Option B`/`Blocker`, `Reply tag`, `Code context`).
 
 ## Phase 4.5 — class-of-issue sweep (kill repeat bot rounds)
 Sweep only classes whose fix is **AUTO-FIX-taxonomy mechanical** (Decision Gate); a DECISION-NEEDED class
@@ -210,26 +214,33 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 - **6a implement (sub-agent fan-out default):** build the batch graph (independent → parallel, dependent → sequential; same-file grouped; structural items single-threaded); dispatch one sub-agent per independent batch in a single message. Each sub-agent gets its items + fix plans, the scope statement, the Phase-3 standards summary, and `VERIFY_CMDS`; implements, verifies its batch, returns `{batch_id, files_touched, verify_status, errors, cascading_findings}`. **Keep on main agent (don't fan out)** when: ≤3 mechanical items; any item touches load-bearing shared config (serialize); operator chose Other with no concrete plan. **Fold in Phase-4.5 tier-1 swept siblings** — each rides its owning finding's batch; the implementer confirms every candidate genuinely matches the class before fixing (per 4.5), skipping any that don't. **Always update tests inline** with each behavioral change.
 - **6b verify:** run `VERIFY_CMDS` (typecheck → lint → test). Fail → diagnose root cause, fix, re-run; don't proceed until clean.
 - **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same shape + letters as 5d — A/B + C `Decline finding` + D `Defer (blocked)` when a concrete blocker exists, then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class.
-- **6b.2 fix-diff self-check (inline, no sub-agent) — 6c won't commit without it:** run
-  `git add -N .` (intent-to-add so fix-created new files appear in the diff — tree was clean at 1.5,
-  so this marks only this run's files), then `git diff $START_SHA --stat` + `git diff $START_SHA`;
-  judge the full diff — added lines **and** deletions/modification pairs — against: **new surface**
-  (fresh null/bounds gap, type hole, dead code, over-claiming comment/doc phrase, lint/complexity
-  ceiling just crossed) · **lost surface** (a deletion that removes a guard/validation/behavior with
-  no replacement on the added side) · **class sibling** (re-run the Phase-4.5 signature on this diff —
-  a fix can create a fresh sibling of the class it fixed) · **cross-batch** (two 6a sub-agents on one
-  surface) · **region** (this run touched a `file:line` a *prior* round's thread already flagged → fix
-  the region's root cause, NOT the line; a re-patched line draws a fresh comment next round). The skill's
+- **6b.2 fix-diff self-check (inline, no sub-agent) — 6c won't commit without it:** stage the exact
+  fix set first — `git add -- <files_touched from the 6a batches>` (never `-A`/`.` — a stray verify
+  artifact must not enter the certified payload; staging applies clean filters and makes new files
+  visible) — then certify the **staged** payload: `git diff --cached $START_SHA --stat` + `git diff
+  --cached $START_SHA`; judge the full diff — added lines **and** deletions/modification pairs —
+  against: **new surface** (fresh null/bounds gap, type hole, dead code, over-claiming comment/doc
+  phrase, lint/complexity ceiling just crossed) · **lost surface** (a deletion that removes a
+  guard/validation/behavior with no replacement on the added side) · **class sibling** (re-run the
+  Phase-4.5 signature on this diff — a fix can create a fresh sibling of the class it fixed) ·
+  **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a `file:line`
+  *any* prior round's thread flagged — resolved threads included, via the 4d `region_map` → fix the
+  region's root cause, NOT the line; a re-patched line draws a fresh comment next round). The skill's
   own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
   `code-review` here. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
   tokens), then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
-  Findings → fix, re-run 6b + 6b.2, commit once; **cap 2 passes** — survivors go to the report, not
-  another loop. Decision-Gate hit → 6b.1. Skip only on empty diff (6c.1) — never for "only prose/config".
-- **6c commit:** **precondition** — a non-empty candidate diff commits only with a `self-check:` line
-  emitted against these exact bytes: none yet → run 6b.2 first; diff changed since the check (hook
-  rewrite, hook-fail fix, any later edit) → stale, re-run 6b + 6b.2 (staleness re-runs don't consume
-  the 2-pass cap); empty diff → 6b.2 skipped, the empty-diff check below short-circuits.
-  **race check** — `test "$(git rev-parse HEAD)" = "$START_SHA"` else abort. **Empty-diff** — `test -z "$(git status --porcelain)" && SKIP_COMMIT=true` (porcelain, not `diff --quiet` — a plain diff misses untracked new files). Else semantic commit, `git add <specific files — never -A>`, body lists `Addresses PR #N review:` with `<reviewer> L<line>: <one-line> (<comment-url>)`, prerequisite inline fixes named with causal reason (HARNESS.md conventions). **Never `--no-verify`**; pre-commit hook fail → diagnose, fix, **new commit (never amend)**.
+  Findings → fix, re-stage, re-run 6b + 6b.2, commit once; **cap 2 passes** — a pass-2 survivor is a
+  **known defect: never commit it silently** — stop, walk it as a 6b.1 fork (fix now / commit
+  disclosed + follow-up issue / decline); never resolve its owning thread `fixed:` while the defect
+  survives. Decision-Gate hit → 6b.1. Skip only on empty staged diff (6c.1) — never for "only prose/config".
+- **6c commit:** **precondition** — a non-empty staged diff commits only with a `self-check:` line
+  emitted against these exact staged bytes: none yet → run 6b.2 first; staged diff changed since the
+  check (re-stage, hook-fail fix, any later edit) → stale, re-run 6b + 6b.2 (staleness re-runs don't
+  consume the 2-pass cap); empty staged diff → 6b.2 skipped, the empty-diff check below short-circuits.
+  **race check** — `test "$(git rev-parse HEAD)" = "$START_SHA"` else abort. **Empty-diff** — `git diff --cached --quiet $START_SHA && SKIP_COMMIT=true` (the staged payload is the candidate — a stray unstaged/untracked verify artifact is not work and must not enter the commit path). Else semantic commit of the staged payload (staged in 6b.2 — no re-add here), body lists `Addresses PR #N review:` with `<reviewer> L<line>: <one-line> (<comment-url>)`, prerequisite inline fixes named with causal reason (HARNESS.md conventions). **Never `--no-verify`**; pre-commit hook fail → diagnose, fix, **new commit (never amend)**.
+  **Post-commit verification** — `git diff $START_SHA HEAD` must byte-match the certified diff (a
+  *successful* pre-commit hook can rewrite staged bytes silently); mismatch → re-run 6b.2 against
+  `$START_SHA..HEAD`; findings → fix → new commit (doesn't consume the cap).
 - **6c.1 empty-diff short-circuit:** SKIP_COMMIT=true (nothing to commit — typically all DECLINE/ALREADY/UNCLEAR) → skip commit + push, go to reply/resolve; report `Commits: none — no fixes required.`
 - **6d push:** `git push` (`-u origin <branch>` if no upstream; never force-push without explicit request). Capture CI URL: `CI_RUN_URL=$(gh run list --branch "$BRANCH" --limit 1 --json url --jq '.[0].url // ""')` (empty ok).
 - **6e reply in-thread (machine-readable):** tags — `fixed: <what>. commit:<sha7>` (when Phase-4.5 tier-1 siblings were fixed under this thread, append ` swept:<N> same class` before `commit:` — tells the reviewer/bot the class was cleared; add up to 2 file **basenames** only if the fully-serialized body incl. trailer stays ≤200, else emit the count alone — the report's Class-sweep section carries the full file list) · DECISION-NEEDED `fixed: <what>. choice:<A|B|custom>. commit:<sha7>` · `wontfix: <reason>. ref:<path/rule>` · `already: <where>. commit:<sha7|pre-existing>` · `unclear: <question>` · `deferred: <issue-url>`. No greetings/thanks/backticks; ASCII; ≤200 chars (hard cap 500 excl. trailer); tag is first token (parsers split on `:`). **Validate the serialized body length (incl. trailer) before the API call** — over 200 → drop the `swept` file list first, then truncate `<what>`; never exceed the 500 hard cap. **Mandatory signature trailer** — blank line then `[harness:address-pr-comments]` on its own final line (idempotency). Post: inline reply `gh api repos/$OWNER/$NAME/pulls/$PR/comments/$ROOT_COMMENT_ID/replies -f body="$(printf '%s\n\n[harness:address-pr-comments]\n' "$BODY")"` (use `-f body=`, not `--input -`); top-level review/issue → issue comment with a parseable `Re-review-<review-id>:` header line + the tagged reply. Throttle `sleep 2`; on 422 abuse / 403 Retry-After honor header or wait 60s, retry. >20 replies → single aliased GraphQL mutation.
@@ -241,7 +252,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 - **6h re-request review:** if `CHANGES_REQUESTED` and ≥1 fix — bots auto `gh pr edit <n> --add-reviewer <user>`; humans → suggest in report.
 
 ## Final report (rendered markdown, never a code fence; omit zero-count rows)
-Lead (bold, one line): `✅ PR #N — <title> · X fixed · Y resolved · pushed <sha7>` (⚠️ + failure count if anything failed). Then: **Outcome table** (status/count/detail — 🔧 Fixed · 🤔 Decided · 🚫 Declined · ✅ Already · ❓ Unclear · ⏭️ Deferred · ⏭️ Skipped); **Decisions table** (only if ≥1 operator decision); **Verification + GitHub** (Typecheck/Lint/Tests ✅/❌/➖ · Self-check `<N> added / <R> removed lines / <M> files · <F> findings folded` (2-pass-cap survivors, if any: `> ⚠️` callout under this section, one `file:line — <finding>` each; empty-diff run (6c.1) → `Self-check ➖ skipped — empty diff`, never fabricated counts) · Threads resolved · Replies posted · Stale reviews dismissed · Re-request review · CI run link); **Files touched** (clickable bullets); **Tail** (cascading auto-fixes if any); **Class sweep** (only if
+Lead (bold, one line) — **form follows the push outcome**: commit pushed → `✅ PR #N — <title> · X fixed · Y resolved · pushed <sha7>`; no commit (6c.1) → `✅ PR #N — <title> · Y resolved · no commit — no fixes required`; push failed → `⚠️ PR #N — <title> · X fixed · committed <sha7>, PUSH FAILED — <reason>` (never claim a push that didn't land). (⚠️ + failure count if anything else failed.) Then: **Outcome table** (status/count/detail — 🔧 Fixed · 🤔 Decided · 🚫 Declined · ✅ Already · ❓ Unclear · ⏭️ Deferred · ⏭️ Skipped); **Decisions table** (only if ≥1 operator decision); **Verification + GitHub** (Typecheck/Lint/Tests ✅/❌/➖ · Self-check `<N> added / <R> removed lines / <M> files · <F> findings folded` (2-pass-cap survivors, if any: `> ⚠️` callout under this section, one `file:line — <finding>` each; empty-diff run (6c.1) → `Self-check ➖ skipped — empty diff`, never fabricated counts) · Threads resolved · Replies posted · Stale reviews dismissed · Re-request review · CI run link); **Files touched** (clickable bullets); **Tail** (cascading auto-fixes if any); **Class sweep** (only if
 Phase 4.5 found siblings) — per class: `<class> — <T1> tier-1 fixed · <T2> tier-2 surfaced · <G> gate-deferred`
 (omit a zero term), then the **tier-1 `file:line` list** (the full swept-file list a 6e reply may abbreviate); for
 tier-2 a `> ⚠️` callout listing `file:line` instances + a copy-paste `gh issue create` command (never

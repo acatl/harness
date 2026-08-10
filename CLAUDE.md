@@ -49,6 +49,13 @@ When a decision is made, update these files in the same change — they are the 
   `build-run` (build's verify core — Step F.4), `pre-ship` (ship's pre-push gate), `operator`
   (standalone). Don't re-inline a review pass anywhere else — call `review-change` with the right mode so
   the lenses stay defined once. The reviewer runs as an isolated sub-agent (real doer ≠ judge).
+  **What this governs — the lens mechanism:** a pass that grades a change against the 13 lenses / 4
+  stances, or any open-ended defect hunt over a diff; it must run isolated and be defined once.
+  **Not** a skill's bounded **self-check on its own output** — a fixed, enumerated check list, run
+  inline, gating that skill's own commit (e.g. `address-pr-comments` 6b.2). Those are commit-gates:
+  they define no lenses, must not spawn `review-change`, and stay inside the skill they guard. A
+  self-check that grows lenses, stances, or open-ended defect hunting has become a review pass →
+  route it through `review-change`.
 
 ## Handling PR review comments (this repo's own PRs)
 
