@@ -280,7 +280,15 @@ defect (uncertified bytes). Both are 6b.2 findings.
   `FIX_SET` — `git add -- <FIX_SET>` (never `-A`/`.` — a stray verify artifact must not enter the
   certified payload; staging applies clean filters and makes new files visible). **Reconcile before
   certifying:** `git status --porcelain`, classified **by what this run recorded — never by inference**:
-  - in `FIX_SET` → staged, certified.
+  - in `FIX_SET` → staged, certified — **unless it matches a Decision-Gate criterion** (lockfile / CI
+    workflow / root-build config / schema-migration) **and no operator decision this run already covers
+    it** (a 5d pick, or an earlier ask here). 6b mandates adding diagnosis-written files to `FIX_SET` on
+    the spot, so a lockfile a failing test made you refresh arrives already a member; first-match would
+    certify it, and 6b.2b's lenses don't test the gate. **Ask once, two named outcomes** (not 5d's
+    A/B/C/D — there's no finding to decline): *take it* → certified, and **record it as decided so it
+    never re-asks**; *leave it out* → **the operator reverts the path themselves**, then re-invokes (the
+    skill never `git restore`s it) — dropping it from `FIX_SET` alone would leave it dirty and cycle
+    back through these buckets.
   - **recorded** as this run's own output — a path a 6a/6b/6b.1 step reported writing, or an **untracked** path
     **observed** to appear across a `VERIFY_CMDS` invocation (snapshot `git status --porcelain` before
     and after each; absent-before/present-after qualifies **for untracked paths only** — "looks like a test artifact" is a belief,
@@ -299,10 +307,9 @@ defect (uncertified bytes). Both are 6b.2 findings.
     operator adjudicates ownership once, **both outcomes defined**: *verify output, take it* → `FIX_SET`
     + re-stage + re-enter 6b → 6b.2 → 6b.2b → 6c; *my work, stop* → `COMMITTED_SHA` set → push it (6d)
     **subject to the same check-1 path-set guard as the exhaustion stop**, then abort; unset → abort clean.
-    A **recorded** tracked change still doesn't auto-certify: a path matching a **Decision-Gate criterion** (lockfile / CI workflow / root-build
-    config / schema-migration) → **6b.1 fork card**, never silent certification (6b.2b's lenses don't
-    test the gate, so a lockfile would otherwise ride the commit unreviewed); anything else → add to
-    `FIX_SET` and certify with the rest. Never `git restore` it.  Name what was cleaned in the
+    A **recorded** tracked change → add to `FIX_SET` and re-stage; bucket 1's load-bearing gate then
+    applies to it like any other member (stated once, there — so the operator is asked at most once per
+    path, not again on re-entry). Never `git restore` it.  Name what was cleaned in the
     report. A run that **completes** must end with a clean tree, or the next invocation's 1.5 hard gate aborts on
     debris this run created; a run that stops at a `👉` ask instead names the paths the operator clears
     before re-invoking.
