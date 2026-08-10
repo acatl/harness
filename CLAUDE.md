@@ -39,9 +39,12 @@ When a decision is made, update these files in the same change — they are the 
   when you edit skill files — `paths:`-scoped.)
 - **State files:** agent-read state (resume/progress) → Markdown; machine-aggregated telemetry
   (the run-log) → JSONL. See [templates/harness-runs.SCHEMA.md](templates/harness-runs.SCHEMA.md).
-- **Skills are self-contained.** A skill reads only inputs bundled in its own dir (`templates/` for
-  files it emits, `references/` for files it reads) — never repo-root `templates/`/`docs/` at runtime
-  (skills are symlinked/copied into other projects). Repo root is canonical; bundles are kept in sync by
+- **Skills are self-contained** — about their **own** resources. A skill reads only *skill-owned* inputs
+  bundled in its own dir (`templates/` for files it emits, `references/` for files it reads) — never
+  repo-root `templates/`/`docs/` at runtime (skills are symlinked/copied into other projects). **The
+  consuming project's files are work surface, not skill inputs**: every skill reads, greps, and edits the
+  project's code, docs, and specs by definition, and resolves its bindings from that project's
+  `docs/HARNESS.md` — none of that is in scope here. Repo root is canonical; bundles are kept in sync by
   `scripts/sync-skill-resources.sh`. After editing a canonical template/doc, run it. See
   [.claude/rules/skill-authoring.md](.claude/rules/skill-authoring.md) › Bundled resources.
 - **One review mechanism.** Code review lives in a single skill, `harness:review-change` (13 lenses / 4
