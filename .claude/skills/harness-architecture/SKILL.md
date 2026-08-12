@@ -209,9 +209,11 @@ autonomous mode. Then by `Type`:
   - gated: **Apply / Edit first / Skip**. Edit → ask changes, show revised, "Good?", record on confirm.
 - **Options** (real choice or `→ Downstream` — **fork, stops both modes**): **locked by a Step 3 fork
   card → never re-ask; carry it through as Straightforward on the chosen option's `Proposed` language.**
-  Otherwise render the payload's options table (IDs included) + recommendation; ask choice or invite
-  their own direction; record the `Proposed` of the row whose **`ID`** matches their letter (their own
-  direction → draft from input, "Good?").
+  Otherwise render the payload's options table (IDs included) + recommendation, then resolve the reply by
+  the **same three letter classes as Step 3**: an option **`ID`** → record that row's `Proposed`; the
+  **escape letter** → escape flow (discuss / propose another direction), draft from their input, "Good?";
+  **anything else** → **don't guess and don't record** — say so and re-ask. A guessed row is exactly the
+  wrong-spec-write this ID scheme exists to prevent.
   Picked a `no-write` option → record the outcome, write nothing; it counts as skipped, not applied.
 - **Missing Technical Concern**: autonomous → record the payload's drafted requirement/constraint as
   approved (capturing is the improvement-aligned default; only a genuine now-vs-later tradeoff →
