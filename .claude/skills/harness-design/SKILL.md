@@ -146,7 +146,10 @@ Payload's `## Fork cards` non-empty → surface each as a walk-me-through fork c
 **complete** (auditor drafts the full shape, counters included) — render verbatim, don't renumber.
 Fold each answer into the finding #s the card names — **map the operator's letter to each finding's
 option row by `ID`, never by position or wording** (card letters and option IDs are one shared space per
-A6); a letter with no matching `ID` in a folded finding → **don't guess**: say so and re-ask that card.
+A6). **Check the escape letter FIRST — before any ID lookup:** the card's escape (the letter after the
+last option) has no option row *by design*, so run walk-me-through's escape flow (discuss / propose
+another direction), then fold the direction they land on, drafting its language from their input. Only a
+letter that is **neither an option `ID` nor the escape** → **don't guess**: say so and re-ask that card.
 The finding's Proposed language becomes **that row's own
 `Proposed` cell** (each option carries one; never draft your own). A `no-write`
 cell writes nothing: record the stated outcome as a brief note on the finding. **Mark every folded
