@@ -128,10 +128,13 @@ On return:
   - **Retry**, by whether an operator is present: **autonomous** (build-invoked, no reader mid-stream)
     → respawn once silently. **gated / standalone** (operator present) → offer the one respawn as a
     `👉` terminal-block ask; declining is a terminal answer.
-  - **Terminate** identically in every mode once the retry is spent (declined, or a second malformed
-    return): **write the gate artifact** recording that the review did not run —
-    `Outcome: not-run — auditor returned no usable payload after 2 attempts`, no findings, no spec
-    edits — then end. Breadcrumb `skipped: auditor returned no usable payload`. Never a third attempt.
+  - **Terminate** identically in every mode once the retry is spent: **write the gate artifact**
+    recording that the review did not run — no findings, no spec edits — then end. The `Outcome:` reason
+    states **what actually happened**, never a fixed count (the decline path spends only one attempt, so
+    a hardcoded "2 attempts" would put a false provenance in a durable record):
+    second malformed return → `Outcome: not-run — auditor payload unusable after 2 attempts`;
+    operator declined the retry → `Outcome: not-run — auditor payload unusable; operator declined the retry`.
+    Breadcrumb `skipped: auditor payload unusable`. Never a third attempt.
   - **Why an artifact and not a bare note:** the caller's completion contract recognizes a gate artifact,
     or a *self-calibrated* out-of-scope skip — a failure is neither, so a bare note can stall the chain.
     The artifact also leaves a durable record that this gate never actually judged the change, which a
