@@ -112,7 +112,7 @@ options table with terse Pros/Cons · Recommendation naming a concrete signal ·
 TRADEOFF → UNCLEAR → RISK — so counters read true; don't leave `<total>` for someone else to fill.
 
 **Card letters ARE the option IDs.** A card resolving finding #s must use, for every row, the same
-`A`/`B`/`C` IDs those findings' `Options` rows carry — same letter, same meaning, in every finding the
+IDs those findings' `Options` rows carry — same letter, same meaning, in every finding the
 card folds into. One card folding into several findings means those findings share one ID space: `B` must
 mean the same choice in each. Can't align them → they aren't one fork; draft separate cards.
 
@@ -183,7 +183,9 @@ STATUS: reviewed
 - Evidence: <spec quote grounding the finding>
 - Proposed: `<target file>` · <layer> → <exact language to write>          (straightforward / mtc)
 - Options: | ID | Option | Meaning | Upside | Downside | Proposed | + 1-sentence recommendation  (options type)
-  **`ID` is the option's identity — `A`/`B`/`C`, unique within the finding.** When a fork card resolves
+  **`ID` is the option's identity — sequential letters from `A`, one per row, as many as the finding
+  has (an UNCLEAR's 4 likely options + the "leave as spec gap" escape = `A`–`E`); unique within the
+  finding, and the card's escape letter is the next one after the last option.** When a fork card resolves
   this finding, the card's rows carry these SAME IDs (A6) and the operator answers by letter, so the
   orchestrator maps the answer to a row by ID, never by position or wording. Without it a card folding
   into several findings has no reliable mapping and the wrong option's language gets written.
