@@ -101,6 +101,11 @@ options table with terse Pros/Cons · Recommendation naming a concrete signal ·
 `Escape:` · `Pick:`. Number cards in the order the orchestrator renders them — severity order
 TRADEOFF → UNCLEAR — so counters read true; don't leave `<total>` for someone else to fill.
 
+**Card letters ARE the option IDs.** A card resolving finding #s must use, for every row, the same
+`A`/`B`/`C` IDs those findings' `Options` rows carry — same letter, same meaning, in every finding the
+card folds into. One card folding into several findings means those findings share one ID space: `B` must
+mean the same choice in each. Can't align them → they aren't one fork; draft separate cards.
+
 Check for TRADEOFF / UNCLEAR — you draft the card content, the orchestrator asks the operator:
 - **TRADEOFF** — genuine design choice, no objectively correct option; depends on product direction
   (paginate vs infinite scroll, required-at-draft vs at-submit, modal vs page, single vs multi-step).
@@ -163,7 +168,11 @@ STATUS: reviewed
 - Impact: <user-facing / second-order consequence>
 - Evidence: <spec quote or screen/flow grounding the finding>
 - Proposed: `<target file>` · <layer> → <exact language to write>          (straightforward / journey)
-- Options: | Option | Meaning | Upside | Downside | Proposed | + 1-sentence recommendation  (options type)
+- Options: | ID | Option | Meaning | Upside | Downside | Proposed | + 1-sentence recommendation  (options type)
+  **`ID` is the option's identity — `A`/`B`/`C`, unique within the finding.** When a fork card resolves
+  this finding, the card's rows carry these SAME IDs (A6) and the operator answers by letter, so the
+  orchestrator maps the answer to a row by ID, never by position or wording. Without it a card folding
+  into several findings has no reliable mapping and the wrong option's language gets written.
   Every option's `Proposed` cell carries its OWN `<target file>` · <layer> → exact language, **or** an
   explicit no-write outcome: `no-write — leave as spec gap` (A6's mandatory UNCLEAR escape) ·
   `no-write — <what happens instead>`.
