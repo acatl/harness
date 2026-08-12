@@ -109,6 +109,13 @@ flowchart TB
   verified-not-shipped gate (self-review out-of-pipeline changes; never commits — auto-fixes land
   uncommitted so `git status --short` separates them from operator WIP). The reviewed-range footer stamped
   by `build-run` is how `pre-ship` avoids re-reviewing what build-run already covered.
+- **`harness:architecture` / `harness:design` (the spec-review gates) run split-topology** — an
+  isolated read-only auditor sub-agent loads the lens references + spec and returns a structured
+  findings payload (drafted spec language, pre-drafted fork cards); the skill in main context
+  resolves the target, runs the fork-card + triage loop, and owns all writes (spec edits, gate
+  artifact, decision log). Lens files never enter main context — the same doer ≠ judge isolation as
+  `review-change`, adopted for context economy (the lens references are the largest files in the
+  harness).
 - **`harness:finish` merge-gate is confirmable, not a wall.** Default = two-merge (feature PR, then a
   chore PR for sync+archive). If it can't confirm the feature merged, it ASKS ("already merged /
   tested in prod / single-merge flow?") rather than hard-stopping. **Single-merge mode** is
