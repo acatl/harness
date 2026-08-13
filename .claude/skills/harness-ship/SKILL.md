@@ -31,6 +31,7 @@ broken.
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
 - **start:** `▶ harness:ship` + any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
 - **end:** `■ harness:ship v<hash8> → <outcome>` — one-line result; add `stopped: <fork>` / `skipped: <reason>` when applicable. `<hash8>` = first 8 chars of `git hash-object` on this SKILL.md — compute it (run the command) in the end-of-run commands; never a placeholder.
+- **Nested run** (invoked by another harness skill, not the operator): the end line is a **progress marker, not a turn end**. Emit it, then continue the caller's next step **in the same message** — its next tool call or next start breadcrumb follows immediately. Never end a message on this banner; a written "Continuing to X" without X happening in that message is the defect this prevents. **Carve-out — no-yield ≠ never-stop:** a genuine operator fork, a `👉` ask, or a `stopped: <fork>` outcome still ends the turn; the fork card / ask is the terminal block below the banner. The ban is on a **silent** stop, not on a stop the operator is asked for.
 
 ## Operator input
 `👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
@@ -62,7 +63,10 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    seams + any commit no `build-run` review covered — through the 13 lenses / 4 stances, and **applies
    clear fixes to the working tree**. Runs **here, before Step 4 stages**, so those fixes ride the one
    atomic ship commit (never a second commit or an amend). **A clean review does not stop** — announce
-   "review clean" and continue. **The review is autonomous**: it applies its clear fixes and reports them;
+   "review clean" and continue. **Its `■` end banner is not a yield point:** Step 4 begins in the same
+   message that carries it. Ending the turn on that banner is the defect, and writing "continuing to
+   stage" without staging in that message is a violation, not a mitigation. **The review is
+   autonomous**: it applies its clear fixes and reports them;
    it never asks whether to fix them, whether to walk its findings, or whether to proceed. Only a
    **decision-needing** finding stops, and it stops as a **fork card carrying a real pick** — one per
    finding, or one bulk card per ≥3-finding severity group (no "ready to walk the queue?" preamble, no
@@ -102,8 +106,12 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    `ship` is consent to drive *its own* ticket through the pipeline; fire the `link` verb + `PR open` hook
    without asking. (Only mutations to a *different* ticket, or creating/closing tickets outside this one,
    need a confirm.)
-9. **Pipeline trail + Next pointer.** Emit the "you are here" trail for the `ship` end stop per
-   `references/pipeline-map.md` (one line), so the loop isn't silent. Then a `Next:` line — **branch on the
+9. **Pipeline trail + Next pointer.** **Nested (invoked by `harness:finish` for the two-merge chore PR):
+   emit neither** — report the chore-PR URL and hand straight back to finish in the same message. The
+   caller owns the trail and the next pointer; a `ship` end-stop trail here would tell the operator to
+   run `/harness:finish` while finish is mid-run. **Standalone (operator-invoked):** emit the "you
+   are here" trail for the `ship` end stop per `references/pipeline-map.md` (one line), so the loop
+   isn't silent. Then a `Next:` line — **branch on the
    resolved Finish merge mode** (one runnable command rule, `references/pipeline-map.md`):
    - **two-merge:** finish is genuinely **post-merge** (its own chore PR). Next = **only the
      immediately-runnable action: review + merge the PR** (a human action — no command yet). **Do NOT

@@ -142,7 +142,9 @@ after reviews so it derives from the reviewed spec.
      blocks into the file.
    - **Wire recon:** invoke `harness:recon` with `<name>` (writes prior-art verdicts into `proposal.md`
      + evidence to `<change-state-dir>/recon.md`). This is the gap-fix — author proposal → recon →
-     design.
+     design. **Recon's end banner is not a yield point** — proposal → recon → design runs without
+     yielding to the operator; authoring `design.md` starts in the same message that carries recon's
+     banner. Recon prints no `Next:` when nested (build owns what's next).
    - **Author remaining prerequisites loop:** run `status`; needed = `missingDeps` of not-yet-ready
      `applyRequires` gates (transitive). **Spec-less guard:** if `spec_mode = spec-less`, remove `specs`
      from `needed` — never author a `specs/` delta (keep proposal · a lean `design` · tasks). **Consequence
@@ -205,6 +207,12 @@ Run only selected reviews, order **architecture → design**. Skip excluded. Seq
   On completion, **proceed to the next review without yielding to the user** (even after a fork answer,
   even on self-skip). Don't wait for a gate artifact a self-skip never writes. Chain isn't complete
   until every selected review completed + Step D ran. Pause once per genuine fork.
+- **No-yield is structural, not declarative.** A nested sub-skill's end banner **must be immediately
+  followed, in the same message, by build's next action** — the next tool call, or the next review's
+  `▶` start breadcrumb. A message that *ends* on a nested `■` banner mid-pipeline is the exact defect
+  this rule prevents. Writing "Continuing to X" and then ending the turn is a violation, not a
+  mitigation: X happens in that message or the sentence isn't written. Applies to every nested
+  invocation in build (`recon`, `architecture`, `design`, `review-change`), not just this chain.
 
 ## Step D — Generate the held-back checklist (AUTHOR path; post-review)
 Re-run `status`; per `HELD` member: `ready` → generate via `openspec instructions <HELD-id> --json`
