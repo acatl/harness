@@ -340,7 +340,9 @@ Run in order; each must pass:
    reviewed spec for it to read. It **applies clear fixes to the working tree but does not commit and does
    not re-run sensors** (build owns both — Model-A). It returns `judge_findings`
    (`{summary, category, disposition}` per finding) + writes `<change-state-dir>/review-change-review.md`
-   with a `reviewed-range` footer. **Then build:** commit the applied fixes (its own group/commit model,
+   with a `reviewed-range` footer. **Its `■` end banner is not a yield point** — the commit + sensor re-run
+   below begin in the same message that carries it (Step C's no-yield rule governs here too; this is the
+   local restatement, because a rule far from the cue is what failed). **Then build:** commit the applied fixes (its own group/commit model,
    never amend) and **re-run the sensor gate (F.1)**; if any applied fix **touched runtime behavior**,
    **re-run behavioral-verify (F.2)** too — a runtime fix invalidates the pre-fix verdict. A
    `design-stop` disposition is a **genuine fork** — surface for a human (build is autonomous, so the
