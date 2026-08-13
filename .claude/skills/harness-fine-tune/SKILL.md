@@ -65,8 +65,10 @@ skip-condition as runtime-verification) — **guided mode** (arg `guided`, or th
 **skip the ask, auto-run `harness:test-guide`** directly (no `👉` gate); **otherwise** ask — terminal `👉`
 block — `👉 Walk the manual/behavioral test scenarios with /harness:test-guide before continuing?
 (yes / no)` and run it only on **yes**. When invoked, `harness:test-guide` runs as a
-**nested skill** (non-terminal — resume this loop after, per Sticky mode). **Route from test-guide's own
-outcome** — `fix now` → the finding becomes the next fix pass; `note & continue` / `stop` → don't force a
+**nested skill** (non-terminal — resume this loop after, per Sticky mode). **Its `■` end banner is not a
+yield point** — routing below begins in the same message that carries it. (Test-guide's *own* per-scenario
+`👉` pass/fail asks are genuine operator turns and do end turns; the no-yield rule binds only its **end**
+banner.) **Route from test-guide's own outcome** — `fix now` → the finding becomes the next fix pass; `note & continue` / `stop` → don't force a
 fix, just resume the loop. Record `test-guide-offered` in the marker **either way** so it's not re-asked on
 later passes or after a nested-skill/context-loss resume.
 ### 3. Ask for approval

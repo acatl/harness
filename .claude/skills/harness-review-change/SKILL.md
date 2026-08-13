@@ -320,11 +320,14 @@ Bird's-eye table of every decision-queue finding — no decisions, just orientat
 **If the decision queue is empty**, output instead — closing per the mode's handoff:
 
 > No decisions needed.
-> _pre-ship, review clean:_ Review clean — proceeding to push. _(fixes, if any, ride the ship commit.)_
+> _pre-ship, review clean:_ Review clean — handing back to ship. _(fixes, if any, ride the ship commit.)_
 > _operator, tree clean (nothing auto-fixed):_ Branch looks clean — ready to ship.
 > _operator, auto-fixes uncommitted:_ Fixes applied and verified — commit them before `harness:ship`.
 
-Then stop. Skip the wizard. (Still render the auto-fixed table + gate result above this line.)
+Skip the wizard. (Still render the auto-fixed table + gate result above this line.) **Then, by mode —
+`operator`: stop** (it's the operator's turn). **`pre-ship`: do NOT stop** — it is nested, so ship's
+Step 4 staging begins in this same message. An empty decision queue is the clean path, so a terminal
+stop here would end the turn on the most common run of all.
 
 | #   | Severity                           | Lens          | File            | Summary              |
 | --- | ----------------------------------- | ------------- | ---------------- | --------------------- |
