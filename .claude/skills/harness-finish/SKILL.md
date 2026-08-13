@@ -92,7 +92,9 @@ for the machine, fast-path for the human.
      **chore PR** via `harness:ship` (Conventional `chore:` title). This is the second, final merge.
      **Run straight through to the open PR — no push confirm.** Invoking `finish` is consent to open the
      chore PR, so the delegated `ship` call pushes without re-asking (it carries only sync+archive
-     plumbing). Report the chore-PR URL when done. (Don't merge it — that's the human's final act.)
+     plumbing). **Ship's `■` end banner is not a yield point** — Step 6 begins in the same message that
+     carries it, and ship prints no trail / `Next:` when nested (finish owns both). Report the chore-PR
+     URL when done. (Don't merge it — that's the human's final act.)
 
 6. **Close the linked task — mode-aware (autonomous only when the change has actually landed).**
    - **two-merge:** Step 2 confirmed the feature PR **merged** → fire the `done` verb + `merged` stage hook

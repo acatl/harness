@@ -31,6 +31,7 @@ extend instead of building new?** Records *what exists* + *the reuse verdict* �
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
 - **start:** `▶ harness:recon` + any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
 - **end:** `■ harness:recon v<hash8> → <outcome>` — one-line result; add `stopped: <fork>` / `skipped: <reason>` when applicable. `<hash8>` = first 8 chars of `git hash-object` on this SKILL.md — compute it (run the command) in the end-of-run commands; never a placeholder.
+- **Nested run** (invoked by another harness skill, not the operator): the end line is a **progress marker, not a turn end**. Emit it, then continue the caller's next step **in the same message** — its next tool call or next start breadcrumb follows immediately. Never end a message on this banner; a written "Continuing to X" without X happening in that message is the defect this prevents. **Carve-out — no-yield ≠ never-stop:** a genuine operator fork, a `👉` ask, or a `stopped: <fork>` outcome still ends the turn; the fork card / ask is the terminal block below the banner. The ban is on a **silent** stop, not on a stop the operator is asked for.
 
 ## Operator input
 `👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
@@ -113,6 +114,9 @@ Next: author design.md (reads the proposal incl. verdicts)
       harness:architecture — gate; verifies design honored the verdicts
 ```
 Ran-anyway path (Step 2 **yes**) → replace Next with: "design already exists — feed the ledger to `harness:architecture`."
+**Nested (called by `harness:build`): omit the `Next:` lines entirely** — the caller owns what comes next,
+and a `Next:` pointer reads as a handoff to the operator. Print the tally lines only, then continue into
+`design.md` in the same message.
 
 ## Don't
 - Writes **two places only** — the marked `harness:recon` block in `proposal.md` + `<change-state-dir>/recon.md`. No other artifact, no code. Never edit vendor files (`.claude/skills/openspec-*`, `.claude/commands/opsx/*`).

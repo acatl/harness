@@ -49,6 +49,18 @@ transcript so harness iteration can grep it to locate every skill run, attribute
 outcome.
 - The `## Breadcrumbs` block is **self-contained in each SKILL.md** — skills travel as standalone dirs
   and cannot reference repo docs at runtime.
+- **Nested-run carve-out — mandatory in any skill another harness skill invokes.** The end line is
+  terminal-*shaped* (banner + a wrap-up command run); standalone that's correct, nested it pattern-matches
+  as *turn over* and the agent stops mid-pipeline. Every nested-invocable skill's Breadcrumbs block carries
+  a `- **Nested run**` bullet: the end line is a **progress marker, not a turn end** — emit it, then
+  continue the caller's next step **in the same message**. Carries a **carve-out** so the bullet can't be
+  read as *never stop*: a genuine operator fork / `👉` ask / `stopped: <fork>` outcome still ends the turn
+  (the fork card is the terminal block below the banner) — the ban is on a **silent** stop. Same rule for
+  any `Next:` / handoff block or pipeline trail in the skill's `## Output` —
+  **suppress it when nested**; the caller owns what comes next (and renders its own trail). The caller
+  states the reciprocal at each invocation site ("its end banner is not a yield point"), because one
+  side alone has proven insufficient. (Origin: two mid-`harness:build` turn deaths in one yolo run,
+  2026-08-11/12, after `harness:recon` and `harness:architecture` banners — ~19 min operator dead time.)
 - `<hash8>` = first 8 chars of `git hash-object` of the skill's own SKILL.md — its content version, so
   transcript friction can be attributed to a specific skill version. **It goes on the END line, not the
   start.** The start line is the first thing emitted — pure text, before any tool call — so a start-line
