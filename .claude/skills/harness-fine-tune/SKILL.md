@@ -27,6 +27,7 @@ Lightweight session state machine for iterative polishing after a change is impl
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
 - **start:** `▶ harness:fine-tune` + any mode/target this run has (e.g. ` · gated · <change>`, ` · <task-id>`, ` · #<pr>`).
 - **end:** `■ harness:fine-tune v<hash8> → <outcome>` — one-line result; add `stopped: <fork>` / `skipped: <reason>` when applicable. `<hash8>` = first 8 chars of `git hash-object` on this SKILL.md — compute it (run the command) in the end-of-run commands; never a placeholder.
+- **Nested run** (invoked by another harness skill, not the operator): the end line is a **progress marker, not a turn end**. Emit it, then continue the caller's next step **in the same message** — its next tool call or next start breadcrumb follows immediately. Never end a message on this banner; a written "Continuing to X" without X happening in that message is the defect this prevents. **Carve-out — no-yield ≠ never-stop:** a genuine operator fork, a `👉` ask, or a `stopped: <fork>` outcome still ends the turn; the fork card / ask is the terminal block below the banner. The ban is on a **silent** stop, not on a stop the operator is asked for.
 
 ## Operator input
 `👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
@@ -110,7 +111,13 @@ Fine-tune commits **locally**. When the operator is ready to ship, hand off to *
 + PR). It is **not** a substitute for the PR/review cycle, nor for the final `harness:finish` (main-spec
 sync + archive).
 
-**Exit trail + next (one runnable command).** The exit hands off to ship. Emit the `fine-tune · loop
+**Nested (entered from a paused `harness:test-guide` walk — its `fix now` route): emit neither the trail
+nor the `/harness:ship` next.** Test-guide owns what comes next: it re-walks the failed scenario to
+confirm the fix, then resumes the walk where it paused. Naming ship here would send the operator to push
+a branch whose walk is still half-finished. Report the fix landed and hand straight back in the same
+message. (Standalone fine-tune is unchanged — the paragraph below governs it.)
+
+**Exit trail + next (one runnable command; standalone).** The exit hands off to ship. Emit the `fine-tune · loop
 pause` trail (`references/pipeline-map.md`) **once** — Step 4d already emits it when the operator exits
 through the "what's next?" ask; a direct "exit"/"done" emits it here — then name **only** `/harness:ship`
 as the runnable next (`◦ ship` is the next stage). **Never print `/harness:finish`** (nor "then finish

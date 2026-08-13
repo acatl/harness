@@ -107,7 +107,10 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
   - **`fix now`** → hand the finding to **`/harness:fine-tune`** (test-guide never edits — fine-tune does
     the fix, with its sensor/commit discipline). Already inside a fine-tune loop → it's just the next fix
     pass; standalone → enter fine-tune for this finding. After the fix lands, **re-walk the failed scenario**
-    to confirm it now passes, then continue the walk from where it paused.
+    to confirm it now passes, then continue the walk from where it paused. **Fine-tune's `■` end banner is
+    not a yield point** — the re-walk begins in the same message that carries it, and fine-tune prints no
+    trail / `/harness:ship` next when entered this way (the walk owns what comes next, and the branch is
+    not ship-ready mid-walk).
   - **`note & continue`** → record the finding (ephemeral) and advance to the next test.
   - **`stop`** → end the walk now and surface the fail list.
 - **end** → print an **ephemeral summary** (not saved): `✅ N passed · ❌ N failed · ⏭️ N skipped`, then
