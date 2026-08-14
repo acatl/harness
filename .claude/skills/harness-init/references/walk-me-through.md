@@ -10,6 +10,41 @@ person to weigh blind.
 > any / all / none) is a different interaction — for that, a checkbox / `multiSelect` picker is the right
 > tool. Forks ≠ checklists.
 
+## Admissibility — what earns a row (runs BEFORE the shape)
+
+Options are **derived per decision, from this decision's evidence**. Never filled from a pre-written
+option set — a set written in advance cannot know whether its rows are live here.
+
+An option earns a lettered row only if **all four** hold:
+
+| Test | Passes when |
+|---|---|
+| **Live** | a real path the operator could defensibly pick *on this decision, today* |
+| **Non-dominated** | best on *some* axis — correctness, risk, cost, reversibility, blast radius. Worse than another row on **every** axis → drop it |
+| **Value-positive** | leaves the codebase better or equal, and the card tells the truth about it |
+| **Terminal** | resolves the decision *this turn* |
+
+**Never a row — no exceptions.** Shipping a known defect · weakening/deleting a test to make a check
+pass · a workaround for a cause that is diagnosable now · any option whose stated pro the card knows to
+be false.
+
+**Standing bans** (each has one narrow carve-out; absent it, the row does not exist):
+
+| Banned row | Only when |
+|---|---|
+| `Defer` · `Later` · `Separate PR` · `Track it` · `Open a ticket` | a **concrete blocker** makes it genuinely unreachable this session — external decision, blocking upstream, separate spec. **Not** "out of scope", "big change", "keeps the PR focused", "adds noise to the diff" |
+| `Ignore` · `Accept risk` · `Do nothing` · `Leave as-is` | it is defensible **on the merits** — the finding is wrong, or current behavior is correct. Then label it for what it is (`Decline — <why the finding is wrong>`), never as a scope trade |
+| `Revert the change` | the finding indicts the change's **premise**, not a fixable part of it — undoing the work is a path the operator might really take |
+| `Explain more` · `Discuss` · `Show me X first` | never — that is the escape, already on every card |
+
+**< 2 admissible options → there is no fork.** State the call in one line, do it, advance. Padding a
+lone live option with a throwaway B to fill the table is the failure this gate exists to kill: it costs
+a turn, teaches the operator the table is decoration, and buys nothing.
+
+**Never a fork at all** — the answer is always the same, so the stop has no decision in it: permission
+to proceed · queue scope (`all` / `blockers only`) · "ready?" · "shall I show you X first" · confirming
+a step the invocation already authorized.
+
 ## Per-fork card (render exactly this shape — every labeled line is MANDATORY)
 
 Reproduce the counter, `Cost if <letter>:` line, `Escape:` line, and `Pick:` line **verbatim** — they are
@@ -53,7 +88,8 @@ Pick: A / B / <escape-letter>?
 - **Pros/cons terse** — fragments, one short phrase per cell, no filler.
 - **Recommendation always**, grounded in a named signal, with a **concrete** cost ("one migration, ~15
   lines" beats "small change"; "locks the vendor for 2 years" beats "long-term commitment").
-- **Two-option forks still use the table** — consistency over saving three lines.
+- **Two-option forks still use the table** — consistency over saving three lines. Two *admissible*
+  options; the table never justifies inventing a second one.
 - **Lock tight:** one line `Locked: **<choice>**.` then the next fork. No re-summarizing prior picks.
 - **Escape → drop the table**, engage in prose, then re-enter for the same fork (or skip if resolved).
 
@@ -69,3 +105,7 @@ Pick: A / B / <escape-letter>?
 - Recommendation without reasoning or with a vague cost ("some refactoring").
 - Missing escape hatch.
 - Re-asking a locked fork.
+- **Filler row** — a second option added to fill the table when only one is admissible.
+- **Pre-written option set** applied to a decision instead of options derived from it.
+- **Dominated row** left in ("considered, rejected: X (worse on all axes)" is one line above the card, not a row).
+- **Ceremony fork** — permission / queue-scope / "ready?" rendered as a card.

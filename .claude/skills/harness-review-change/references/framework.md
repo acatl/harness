@@ -667,7 +667,12 @@ code) can make, not the caller folding findings after the fact:
   say to just apply it (depth-axis: correct fix within scope = do it).
 - **decision-needing** — a trade-off, a scope question, an architectural call,
   or anything where two reasonable engineers could pick differently. These reach
-  the operator; they are never auto-fixed.
+  the operator; they are never auto-fixed. **Bar: name the ≥2 admissible
+  resolutions before classifying** — each live, non-dominated, value-positive and
+  terminal (`walk-me-through.md` › Admissibility). Can only name one, and the
+  runner-up is "leave it" / "defer it" / "fix it later"? That is not a second
+  resolution — the finding is `clear`. A `decision-needing` classification whose
+  card would need a filler row was misclassified.
 
 When in doubt, classify **decision-needing** — but the doubt that queues is doubt
 about **which resolution** is right (a real trade-off), or **scope-axis** (the fix

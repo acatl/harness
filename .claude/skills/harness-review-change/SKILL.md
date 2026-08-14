@@ -364,56 +364,48 @@ Code context (L<start>–L<end>):
 | A | <option name> | <terse pro> | <terse con> |
 | B | <option name> | <terse pro> | <terse con> |
 
+_(rows = the admissible options for THIS finding — two shown as the minimum, not a fixed count)_
+
 Recommendation: **<letter> — <option name>.** <one-line reasoning>
 Cost if <letter>: <concrete>
 
 Escape: <next-letter> discuss / propose other.
 
-Pick: A / B / C / <escape-letter>?
+Pick: A / B / … / <escape-letter>?
 
-**Option sets by severity** — fill the card's options table with the matching set below. The escape
-letter always means "discuss later" (deferred to a post-wizard discussion) — do not add it as a lettered
-row; it is the fork's built-in escape hatch.
+**Options are DERIVED per finding — there is no per-severity option set.** Enumerate the resolutions
+this specific finding actually admits, then gate each through `references/walk-me-through.md` ›
+Admissibility (live · non-dominated · value-positive · terminal, plus the standing bans). Never paste a
+generic ladder (`Fix now / Defer / Accept risk / Ignore / Revert / Explain more`) — those rows are
+pre-written, so they cannot be live for *this* finding, and four of them are standing-banned. The escape
+letter always means "discuss later" (deferred to a post-wizard discussion) — never a lettered row.
 
-**🔴 Blocker** — no "do nothing"; blockers prevent shipping by definition:
+Typical shape of a **real** decision queue entry: `A` = the fix the reviewer proposes · `B` = a
+materially different fix (different mechanism, different blast radius, different thing preserved) ·
+`C` = `Decline — <why the finding is wrong>`, present only when declining is defensible on the merits.
 
-| #   | Option                  | Pros                     | Cons                |
-| --- | ------------------------ | ------------------------- | -------------------- |
-| A   | Fix now _(Recommended)_ | unblocks shipping         | adds time now        |
-| B   | Revert the change        | fast path to clean state  | loses the work        |
-| C   | Explain more              | full reasoning first       | —                     |
+**Severity constrains what can be admissible — it does not supply the rows:**
 
-Escape (`D`): discuss later.
+| Severity | Constraint |
+|---|---|
+| 🔴 Blocker | no do-nothing row — a Blocker prevents shipping by definition. `Revert` only if reverting is genuinely on the table |
+| 🟠 Warning | `Defer` only under a concrete blocker (external decision · blocking upstream · separate spec) — never for scope, PR focus, or size |
+| 🟡 Style | same bar. "Adds noise to the diff" is not a reason to defer; in-branch findings get fixed in the branch |
 
-**🟠 Warning:**
-
-| #   | Option                  | Pros                  | Cons                     |
-| --- | ------------------------ | ----------------------- | -------------------------- |
-| A   | Fix now _(Recommended)_ | ships clean              | adds scope to this PR      |
-| B   | Defer                    | keeps PR focused         | risk ships temporarily     |
-| C   | Accept risk               | no added scope           | technical debt accepted    |
-
-Escape (`D`): discuss later.
-
-**🟡 Style:**
-
-| #   | Option                                | Pros                  | Cons                        |
-| --- | -------------------------------------- | ----------------------- | ----------------------------- |
-| A   | Fix now                                | clean from the start     | adds noise to the PR diff     |
-| B   | Defer to separate PR _(Recommended)_  | keeps PR focused         | may never get done            |
-| C   | Ignore                                  | no added scope           | inconsistency stays           |
-
-Escape (`D`): discuss later.
+**A finding whose only admissible option is the fix is not a decision** — it never reaches the wizard.
+Route it to the reviewer's auto-fix path (`Fix class: clear`) and report it in the auto-fixed table. The
+queue holds only findings with **≥2 admissible options**; if the queue empties under this gate, say
+_"No decisions — all findings resolved"_ and go straight to the Decisions Summary.
 
 The escape's free-text reply also serves "explain / why" — handled in **After each reply** below.
 
 **After each reply:**
 
-- **A/B/C (a decision, non-explain)**: Record the decision. Confirm in one line: _"Got it — #<N> →
+- **A lettered pick (a decision)**: Record the decision. Confirm in one line: _"Got it — #<N> →
   <option name>."_ Immediately move to the next card.
-- **"Explain more" (Blocker option C, or `explain`/`why` via the escape)**: present which lens flagged
-  it, what the reviewer verified, what would change the assessment, and any alternative interpretations
-  considered — then **re-render the same card without recording a decision**.
+- **`explain` / `why` via the escape**: present which lens flagged it, what the reviewer verified, what
+  would change the assessment, and any alternative interpretations considered — then **re-render the
+  same card without recording a decision**.
 - **Escape → free text (a decision)**: Ask them to type their decision. Record it. Confirm in one line
   and move on.
 - **Escape → "discuss later"**: Add to the flagged list. Confirm: _"Flagged #<N> for discussion after
@@ -427,36 +419,42 @@ Do not elaborate, re-explain, or offer follow-up on confirmed decisions. Momentu
 group, and again before the first card of the Style group, render the shortcut **iff ≥3 findings are
 queued in the group being entered**. Independent of whether the preceding group had any cards — a queue
 of 3 Warnings and 0 Blockers still gets the Warnings shortcut. (For 1–2 the card costs more than the
-cards it saves — go straight to them.) Never render it for Blockers: a Blocker's option set has no
-"do nothing", so there's nothing to bulk.
+cards it saves — go straight to them.) Never render it for Blockers: a Blocker has no do-nothing
+resolution, so there's nothing to bulk.
 
-Entering Warnings with ≥3 queued, render:
+**Additional gate — the group must be homogeneous.** Render the shortcut only when the queued findings
+share a lens **and** a file family, so one call can honestly cover them all. Heterogeneous group → skip
+the shortcut, walk the cards. A bulk card over unlike findings manufactures a decision the operator
+cannot actually make.
+
+Entering Warnings with ≥3 queued **and homogeneous**, render:
 
 Handle Warnings one by one, or decide for all?
 
-TLDR: N Warnings queued — pick per-item review or one bulk call for all of them.
+TLDR: N Warnings queued, all `<lens>` in `<file family>` — per-item review or one call for all.
 Why it matters: a bulk pick applies the same decision to every remaining Warning.
 
 | # | Option | Pros | Cons |
 |---|--------|------|------|
-| A | One by one | per-item judgment | slower |
-| B | Fix all Warnings now | ships clean | adds scope to this PR |
-| C | Defer all Warnings | keeps PR focused | tracked as separate work |
-| D | Accept risk on all Warnings | fastest | debt accepted across the board |
+| A | One by one | per-item judgment | N cards |
+| B | Fix all N now | ships clean, one pass | one broad edit, reviewed as a set |
 
-Recommendation: **A — One by one**, unless the Warnings are visibly homogeneous (same lens, same file
-family) — then a bulk pick is safe.
-Cost if A: N more cards.
+Recommendation: **B** when the N fixes are the same edit repeated; **A** when any one needs its own
+call.
+Cost if B: `<concrete — files + approx lines across the N>`
 
-Escape: E discuss / propose other.
+Escape: C discuss / propose other.
 
-Pick: A / B / C / D / E?
+Pick: A / B / C?
 
-Entering Style with ≥3 queued, render the same shape with options: One by one / Defer all to separate
-PR _(Recommended)_ / Ignore all / Fix all now.
+`Defer all` / `Accept risk on all` / `Ignore all` are **not** rows here — same standing bans as the
+per-finding card (`references/walk-me-through.md` › Admissibility). A blanket defer is admissible only
+when one concrete blocker covers the whole group; then it is a third row naming that blocker.
 
-If the operator picks a bulk option, record that decision for all remaining findings in the group,
-confirm in one line (_"Got it — all N Warnings → Defer."_), and move on.
+Entering Style with ≥3 queued and homogeneous, render the same shape.
+
+If the operator picks the bulk option, record that decision for all remaining findings in the group,
+confirm in one line (_"Got it — all N Warnings → fix now."_), and move on.
 
 **After the final card:**
 
