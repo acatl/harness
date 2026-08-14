@@ -148,7 +148,10 @@ after reviews so it derives from the reviewed spec.
      + evidence to `<change-state-dir>/recon.md`). This is the gap-fix — author proposal → recon →
      design. **Recon's end banner is not a yield point** — proposal → recon → design runs without
      yielding to the operator; authoring `design.md` starts in the same message that carries recon's
-     banner. Recon prints no `Next:` when nested (build owns what's next).
+     banner. Recon prints no `Next:` when nested (build owns what's next). **Guard — a recon fork still
+     stops** (its seam check, a contested verdict): a `👉` ask or `stopped: <fork>` outcome is the
+     operator's turn, so answer it first and resume after. No-yield binds the ordinary completion, never
+     a fork.
    - **Author remaining prerequisites loop:** run `status`; needed = `missingDeps` of not-yet-ready
      `applyRequires` gates (transitive). **Spec-less guard:** if `spec_mode = spec-less`, remove `specs`
      from `needed` — never author a `specs/` delta (keep proposal · a lean `design` · tasks). **Consequence
