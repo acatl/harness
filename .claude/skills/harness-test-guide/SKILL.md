@@ -110,7 +110,9 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
     to confirm it now passes, then continue the walk from where it paused. **Fine-tune's `■` end banner is
     not a yield point** — the re-walk begins in the same message that carries it, and fine-tune prints no
     trail / `/harness:ship` next when entered this way (the walk owns what comes next, and the branch is
-    not ship-ready mid-walk).
+    not ship-ready mid-walk). **Guard — a fine-tune fork still stops** (its approval ask, a drift or
+    accumulation nudge): a `👉` ask or `stopped: <fork>` outcome is the operator's turn — answer it, then
+    re-walk. No-yield binds ordinary completion, never a fork.
   - **`note & continue`** → record the finding (ephemeral) and advance to the next test.
   - **`stop`** → end the walk now and surface the fail list.
 - **end** → print an **ephemeral summary** (not saved): `✅ N passed · ❌ N failed · ⏭️ N skipped`, then

@@ -59,7 +59,10 @@ outcome.
   any `Next:` / handoff block or pipeline trail in the skill's `## Output` —
   **suppress it when nested**; the caller owns what comes next (and renders its own trail). The caller
   states the reciprocal at each invocation site ("its end banner is not a yield point"), because one
-  side alone has proven insufficient. (Origin: two mid-`harness:build` turn deaths in one yolo run,
+  side alone has proven insufficient — **and the reciprocal carries its own fork guard** (a `👉` ask or
+  `stopped: <fork>` outcome is the operator's turn: answer first, resume after). An unqualified
+  caller-side "continue in the same message" is the over-correction: read literally at the cue, it
+  barrels past a Hard Gate, which is a worse failure than the turn death it prevents. (Origin: two mid-`harness:build` turn deaths in one yolo run,
   2026-08-11/12, after `harness:recon` and `harness:architecture` banners — ~19 min operator dead time.)
 - `<hash8>` = first 8 chars of `git hash-object` of the skill's own SKILL.md — its content version, so
   transcript friction can be attributed to a specific skill version. **It goes on the END line, not the
