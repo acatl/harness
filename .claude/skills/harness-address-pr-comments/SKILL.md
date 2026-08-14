@@ -54,9 +54,12 @@ direction-affecting ambiguity surfaces to the operator. **Default bias: correctn
 **Positive test, not negative.** Default AUTO-FIX. A finding → DECISION-NEEDED **only** if a criterion
 below clearly applies. Can't name the criterion → stays AUTO-FIX. "Might be load-bearing" isn't enough.
 
-**Second gate — the criterion alone doesn't queue it.** After naming the criterion, name the **≥2
-admissible resolutions** (`references/walk-me-through.md` › Admissibility: live · non-dominated ·
-value-positive · terminal). Only one exists → back to AUTO-FIX. Both gates or no card.
+**Second gate — the criterion alone doesn't queue it.** Naming a criterion makes DECISION-NEEDED
+**provisional**; it is final only after the resolutions are derived (4c) and **≥2 admissible** ones
+survive (`references/walk-me-through.md` › Admissibility: live · non-dominated · value-positive ·
+terminal). Fewer than two → re-triage **by what the sole resolution is**, never by the count alone:
+sole **code fix** → AUTO-FIX · sole **decline** (reviewer is wrong / current behavior correct) →
+DECLINE · **zero** → UNCLEAR (nothing actionable — reply and ask). Both gates or no card.
 
 **Decision-needed (ask)** — any one true:
 - **Public contract change** — exported API, response DTO shape, route shape, CLI flag, any symbol re-exported from a package index.
@@ -172,8 +175,8 @@ publish, or reach the network).
 Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of 5–8, all in parallel
 (one message, multiple Agent calls); N>40 cap batch at 5. Group same-file threads within a sub-agent.
 - **4a context:** read the file ±20 lines around the flagged line; follow cross-file refs; grep actual usage for proposed abstractions (YAGNI).
-- **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion) → AUTO-FIX.
-- **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → the admissible options (recommended + any genuine alternative; **no alternative exists → re-triage to AUTO-FIX**, don't invent one) + `Blocker: <one-line | none>` (reachable this session? default none).
+- **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion — **provisional until 4c derives the options**) → AUTO-FIX.
+- **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → the admissible options (recommended + any genuine alternative; never invent one) + `Blocker: <one-line | none>` (reachable this session? default none). **<2 admissible → the 4b verdict was provisional; finalize by what the sole resolution is** — sole code fix → AUTO-FIX · sole decline → DECLINE · zero → UNCLEAR. Counting alone never picks the verdict.
 - **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts/**`RUN_N`** — Phase 5 renders from returned data and must not re-fetch, so an unreturned `RUN_N` means the 5c.1 brake silently never fires)
   + **`region_map`** — the intervals **earlier runs already patched**, taken from the **raw 2a fetch**.
   Mechanical membership (no "which round" judgment — nothing tags a comment with a round): include a
@@ -269,7 +272,7 @@ Main agent renders from returned data (no re-fetch).
   block). Explicit yes → continue (5d wizard, then Phase 6); else stop — don't walk 5d forks for a run
   that won't execute.
 - **Option-pick format:** render a walk-me-through fork card (`references/walk-me-through.md`) — `Q<N> of <total>` + `#<N>` title, framing (comment / why-it-needs-a-decision), options table (terse Pros/Cons), grounded Recommendation (pick + reasoning + `Cost if`), `Escape:` + `Pick:` lines; operator replies by letter. **Never `AskUserQuestion` or a native picker.** One fork per turn. Yes/no gates one line.
-- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter; never `AskUserQuestion`. **Options are derived per thread and gated by `references/walk-me-through.md` › Admissibility — never a fixed A/B/C/D ladder.** `A` = the fix; `B` = a materially different fix, **only if one genuinely exists** (different mechanism / blast radius — not a reworded A, never a filler row); `C — Decline finding` **only when declining is defensible on the merits** (reviewer is wrong / current behavior correct), stating why; `D — Defer (blocked)` **only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). **< 2 admissible options → not DECISION-NEEDED**: re-triage to AUTO-FIX (or DECLINE) and never wizard it — a card whose only real answer is `A` costs a turn and buys nothing. One-line confirm, continue — a pick on a Decision-Gate path records `{path, pending}` in `GATE_DECIDED` (no bytes exist yet — 6a hasn't run), which 6b.2 b1 redeems into a real blob on first encounter. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
+- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter; never `AskUserQuestion`. **Options are derived per thread and gated by `references/walk-me-through.md` › Admissibility — never a fixed A/B/C/D ladder.** `A` = the fix; `B` = a materially different fix, **only if one genuinely exists** (different mechanism / blast radius — not a reworded A, never a filler row); `C — Decline finding` **only when declining is defensible on the merits** (reviewer is wrong / current behavior correct), stating why; `D — Defer (blocked)` **only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). **< 2 admissible options → not DECISION-NEEDED**: re-triage per 4c (sole fix → AUTO-FIX · sole decline → DECLINE · zero → UNCLEAR) and never wizard it — a card whose only real answer is `A` costs a turn and buys nothing. One-line confirm, continue — a pick on a Decision-Gate path records `{path, pending}` in `GATE_DECIDED` (no bytes exist yet — 6a hasn't run), which 6b.2 b1 redeems into a real blob on first encounter. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
 
 ## Phase 6 — execute end-to-end
 Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no per-step re-confirm. Stop only for a mid-flight cascading decision (6b.1), the 5c.1 convergence brake, an unrecognized dirty path (6b.2), corrective re-entries exhausted (6c), or a hard-gate failure.

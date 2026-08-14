@@ -45,10 +45,22 @@ a turn, teaches the operator the table is decoration, and buys nothing.
 to proceed · queue scope (`all` / `blockers only`) · "ready?" · "shall I show you X first" · confirming
 a step the invocation already authorized.
 
+**Scope of the gate: rows YOU offer, never what the operator decides.** The bans exist to stop the
+card manufacturing choices, not to overrule the human. An operator who takes the escape and writes
+"defer this" or "leave it" has made a call the gate has no standing to refuse — record it and move on;
+**re-rendering the card to make them answer again is itself a ceremony fork.** Record it *as what it
+is*, though: a non-terminal or do-nothing decision is named in the run's report/summary (finding still
+open, nothing changed) so nothing closes silently. Only re-render when their reply is genuinely
+undecidable — it names no resolution at all.
+
 ## Per-fork card (render exactly this shape — every labeled line is MANDATORY)
 
 Reproduce the counter, `Cost if <letter>:` line, `Escape:` line, and `Pick:` line **verbatim** — they are
 not optional and not substitutable by prose. The shape below is the contract, not a loose guide.
+Verbatim means the **line's form**, not a fixed option count: `Pick:` enumerates the letters this card
+actually carries (`Pick: A / B / C?` for two options + escape), never an ellipsis or a count the rows
+don't match. `Cost if <letter>:` names the **recommended** letter — if the recommendation is
+conditional, the cost line is conditional with it, never pinned to one branch.
 
 **The `text` code fence below is presentational — it delimits the template for reading. Emit the card as
 live markdown (rendered table), NEVER wrapped in a code fence. A fenced card shows raw `|` pipes to the
@@ -71,7 +83,7 @@ operator and breaks the interaction.**
 
 **Escape:** `<next-letter>` discuss / propose other.
 
-Pick: A / B / <escape-letter>?
+Pick: <each lettered option, slash-separated> / <escape-letter>?
 ```
 
 ## Rules

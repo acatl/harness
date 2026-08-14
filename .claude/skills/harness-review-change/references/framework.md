@@ -620,6 +620,12 @@ Issue: <what is wrong>
 Why it matters: <impact>
 Suggested fix: <concrete action>
 Fix class: <clear | decision-needing>
+Admissible options: <only on `decision-needing` — the ≥2 resolutions this finding
+  admits, one per line as `<name> | <terse pro> | <terse con>`; these become the
+  wizard card's rows verbatim, so the main agent never re-derives them>
+Recommended option: <only on `decision-needing` — which option, and the concrete
+  signal driving it; feeds the card's mandatory Recommendation line>
+Cost if recommended: <only on `decision-needing` — concrete: files/lines/effort>
 Disposition: <applied | queued | design-stop | refuted>
 Fix note: <one line — only on `applied`; the auto-fix log entry>
 Refuted because: <one line — only on `refuted`; why it was considered and dropped>
@@ -669,10 +675,23 @@ code) can make, not the caller folding findings after the fact:
   or anything where two reasonable engineers could pick differently. These reach
   the operator; they are never auto-fixed. **Bar: name the ≥2 admissible
   resolutions before classifying** — each live, non-dominated, value-positive and
-  terminal (`walk-me-through.md` › Admissibility). Can only name one, and the
-  runner-up is "leave it" / "defer it" / "fix it later"? That is not a second
-  resolution — the finding is `clear`. A `decision-needing` classification whose
-  card would need a filler row was misclassified.
+  terminal (`walk-me-through.md` › Admissibility) — and **carry them into the
+  finding's `Admissible options:` field**; they are the wizard's rows, and the
+  main agent cannot re-derive them (it may not re-fetch). Can only name one, and
+  the runner-up is "leave it" / "defer it" / "fix it later"? That is not a second
+  resolution — classify by **what the sole resolution is**, never by the count
+  alone: a sole **code fix** → `clear` (auto-applied); a sole **decline** (the
+  finding is wrong / current behavior is correct) → `refuted` with
+  `Refuted because`, never a working-tree change; **zero** admissible
+  resolutions → the finding isn't actionable as written — `refuted`, saying so.
+  A `decision-needing` classification whose card would need a filler row was
+  misclassified.
+  **Load-bearing overrides the count.** The `Load-bearing is never auto-fixed`
+  rule (`SKILL.md` › fix ownership) wins: a fix touching a scope-axis or
+  load-bearing convention stays `decision-needing` even with one repair — and it
+  has two admissible options by construction, since "don't let the reviewer touch
+  CI / root config / a project rule unattended" is itself live, value-positive
+  and terminal. Emit them as `apply the fix` / `leave it to the operator`.
 
 When in doubt, classify **decision-needing** — but the doubt that queues is doubt
 about **which resolution** is right (a real trade-off), or **scope-axis** (the fix

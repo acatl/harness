@@ -364,21 +364,28 @@ Code context (L<start>–L<end>):
 | A | <option name> | <terse pro> | <terse con> |
 | B | <option name> | <terse pro> | <terse con> |
 
-_(rows = the admissible options for THIS finding — two shown as the minimum, not a fixed count)_
+_(rows = this finding's `Admissible options:` from the reviewer — two shown as the minimum, not a fixed count)_
 
 Recommendation: **<letter> — <option name>.** <one-line reasoning>
 Cost if <letter>: <concrete>
 
 Escape: <next-letter> discuss / propose other.
 
-Pick: A / B / … / <escape-letter>?
+Pick: <each lettered option, slash-separated> / <escape-letter>?
 
 **Options are DERIVED per finding — there is no per-severity option set.** Enumerate the resolutions
 this specific finding actually admits, then gate each through `references/walk-me-through.md` ›
 Admissibility (live · non-dominated · value-positive · terminal, plus the standing bans). Never paste a
 generic ladder (`Fix now / Defer / Accept risk / Ignore / Revert / Explain more`) — those rows are
-pre-written, so they cannot be live for *this* finding, and four of them are standing-banned. The escape
+pre-written, so they cannot be live for _this_ finding, and four of them are standing-banned. The escape
 letter always means "discuss later" (deferred to a post-wizard discussion) — never a lettered row.
+
+**Render the options the reviewer returned.** Each queued finding carries an `Admissible options:`
+block (`references/framework.md` › return format) — the ≥2 resolutions the reviewer derived when it
+classified the finding `decision-needing`. Those are the card's rows. Stage 2 forbids re-fetching, so
+re-deriving rows here from an abbreviated code excerpt is exactly the invention this gate exists to
+stop. A queued finding that arrives without the block is a **reviewer contract violation** — surface it
+as a design-stop, don't fabricate rows for it.
 
 Typical shape of a **real** decision queue entry: `A` = the fix the reviewer proposes · `B` = a
 materially different fix (different mechanism, different blast radius, different thing preserved) ·
@@ -388,7 +395,7 @@ materially different fix (different mechanism, different blast radius, different
 
 | Severity | Constraint |
 |---|---|
-| 🔴 Blocker | no do-nothing row — a Blocker prevents shipping by definition. `Revert` only if reverting is genuinely on the table |
+| 🔴 Blocker | no do-nothing row — a Blocker prevents shipping by definition. `Revert` only when the finding indicts the change's **premise**, not a fixable part of it |
 | 🟠 Warning | `Defer` only under a concrete blocker (external decision · blocking upstream · separate spec) — never for scope, PR focus, or size |
 | 🟡 Style | same bar. "Adds noise to the diff" is not a reason to defer; in-branch findings get fixed in the branch |
 
@@ -422,25 +429,29 @@ of 3 Warnings and 0 Blockers still gets the Warnings shortcut. (For 1–2 the ca
 cards it saves — go straight to them.) Never render it for Blockers: a Blocker has no do-nothing
 resolution, so there's nothing to bulk.
 
-**Additional gate — the group must be homogeneous.** Render the shortcut only when the queued findings
-share a lens **and** a file family, so one call can honestly cover them all. Heterogeneous group → skip
-the shortcut, walk the cards. A bulk card over unlike findings manufactures a decision the operator
+**Additional gate — one shared resolution, not just a shared lens.** Same lens + same file family is
+necessary but **not sufficient**: it does not prove `Fix all N now` is live, non-dominated,
+value-positive and terminal for every member. Render the shortcut only when the findings share a
+**resolution signature** — one transformation, stated in a single sentence, that **every** member
+admits (check each against it; one member needing its own call kills the shortcut). Otherwise skip it
+and walk the cards. A bulk card over findings with no common fix manufactures a decision the operator
 cannot actually make.
 
-Entering Warnings with ≥3 queued **and homogeneous**, render:
+Entering Warnings with ≥3 queued **sharing a resolution**, render:
 
 Handle Warnings one by one, or decide for all?
 
-TLDR: N Warnings queued, all `<lens>` in `<file family>` — per-item review or one call for all.
-Why it matters: a bulk pick applies the same decision to every remaining Warning.
+TLDR: N Warnings queued, all `<lens>` in `<file family>`, all resolved by `<the shared fix>` — per-item
+review or one call for all.
+Why it matters: a bulk pick applies that one fix to every remaining Warning.
 
 | # | Option | Pros | Cons |
 |---|--------|------|------|
 | A | One by one | per-item judgment | N cards |
 | B | Fix all N now | ships clean, one pass | one broad edit, reviewed as a set |
 
-Recommendation: **B** when the N fixes are the same edit repeated; **A** when any one needs its own
-call.
+Recommendation: **B** — the gate above already established every member admits the same fix; that is
+what makes the shortcut renderable at all. (Can't recommend B? The gate failed — don't render the card.)
 Cost if B: `<concrete — files + approx lines across the N>`
 
 Escape: C discuss / propose other.
