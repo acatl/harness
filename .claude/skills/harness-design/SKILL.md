@@ -117,7 +117,7 @@ On return:
 - `STATUS: escalate` → spec-less change found spec-worthy. **Terminal: apply nothing, write no spec
   edits.** Print the reason + the observable behavior/contract it changes, then return it as a
   **blocking signal to the caller** — escalate-vs-defer is the caller's fork, not ours (build's Step E:
-  **(A) escalate to full** / **(B) log + defer**; load-bearing, always logged). Don't author `specs/`,
+  **(A) escalate to full** / **(B) log + defer**; load-bearing, always logged. Row B is admissible despite the `Defer` standing ban — a *recorded terminal disposition*, `walk-me-through.md` carve-out b). Don't author `specs/`,
   don't flip the spec-mode marker, don't pick an outcome. Standalone (no caller to fork) → render that
   same two-option card yourself. Breadcrumb `stopped: spec-worthy → caller fork`. Never downgrade it to
   a finding — an applied finding lets the run continue to task generation and ships the contract change

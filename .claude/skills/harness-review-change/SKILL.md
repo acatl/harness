@@ -435,28 +435,31 @@ wizard walks, resolves no finding this turn, and is banned outright by
 about the queue** — it is the ordinary finding card, rendered once over a group that genuinely shares
 one resolution.
 
-**Merge gate — one shared resolution, all four admissibility tests, every member.** Merge a group into
-a single card **iff** ≥3 findings are queued in that severity group **and** they share a **resolution
-signature**: one transformation, stated in a single sentence, that **every** member admits (check each;
-one member needing its own call kills the merge). Same lens + same file family is a hint, **not** the
-test — it does not prove the shared fix is live, non-dominated, value-positive and terminal for each.
+**Merge gate — ≥2 shared resolutions, all four admissibility tests, every member.** Merge a group into
+a single card **iff** ≥3 findings are queued in that severity group **and** they share **at least two
+resolution signatures**: each one transformation, stated in a single sentence, that **every** member
+admits (check each; one member needing its own call kills the merge). **Two, not one** — the merged card
+is an ordinary card and needs ≥2 admissible rows; a group sharing only one resolution would render a
+single-row card or grow a filler row, so it walks individually instead. Same lens + same file family is
+a hint, **not** the test — it does not prove a shared fix is live, non-dominated, value-positive and
+terminal for each.
 Gate fails → walk the individual cards, no announcement. (For 1–2 findings never merge — the merged
 card costs more than the cards it saves.) Blockers merge on the same terms as any group.
 
-Gate passes → render **one ordinary fork card** covering the group, whose rows are the group's shared
-`Admissible options:` (the shared fix, plus any genuine alternative that likewise covers every member):
+Gate passes → render **one ordinary fork card** covering the group, whose rows are the ≥2 shared
+resolutions the gate proved every member admits:
 
 Findings #<a>, #<b>, #<c> — <shared summary> <severity>
 
 `<file family>` | Lens: <lens name>
 
-TLDR: N findings, all resolved by `<the shared fix>`.
+TLDR: N findings, each resolved by the same set of options.
 Why it matters: <impact of the class, not of one instance>
 
 | # | Option | Pros | Cons |
 |---|--------|------|------|
-| A | <the shared fix, applied to all N> | <terse pro> | <terse con> |
-| B | <genuine alternative covering all N, if one exists> | <terse pro> | <terse con> |
+| A | <shared resolution 1, applied to all N> | <terse pro> | <terse con> |
+| B | <shared resolution 2, applied to all N — the gate proved it exists> | <terse pro> | <terse con> |
 
 Recommendation: **<letter> — <name>.** <one-line reasoning>
 Cost if <letter>: <concrete — files + approx lines across the N>

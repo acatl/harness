@@ -686,16 +686,20 @@ code) can make, not the caller folding findings after the fact:
   resolutions → the finding isn't actionable as written — `refuted`, saying so.
   A `decision-needing` classification whose card would need a filler row was
   misclassified.
-  **Load-bearing is a consent gate, not a fork, and never `clear`.** The
-  `Load-bearing is never auto-fixed` rule (`SKILL.md` › fix ownership) wins over
-  the count: a fix touching a scope-axis or load-bearing convention (CI, root
-  config, lockfile, a project rule) is **never** auto-applied, however obvious the
-  repair. With one repair it is not a fork either — do **not** manufacture a
+  **The downgrade is fail-closed — it removes the card, never the stop.**
+  Before classifying a sole resolution `clear`, test it against the **must-stop
+  class**: scope-axis / load-bearing convention (CI, root config, lockfile, a
+  project rule) · **public contract** (exported API, response shape, route, CLI
+  flag) · **irreversible or destructive** (deletion, public-symbol rename,
+  breaking change) · schema or migration. Any hit → `consent-gate`, never
+  `clear`. **Default-deny: can't tell → consent-gate it** — a needless ask costs
+  one line, a missed one auto-applies a rename nobody approved. A sole resolution
+  on any of these is **never** auto-applied, however obvious the repair. With one repair it is not a fork either — do **not** manufacture a
   second row (`leave it to the operator` is the banned do-nothing runner-up and
   resolves nothing). Emit `Fix class: consent-gate`: the reviewer leaves the
   working tree untouched and states the exact action and its blast radius; the
   main agent renders a one-line `👉` permission ask, not a card
-  (`walk-me-through.md` › consent gate). Genuinely ≥2 repairs on a load-bearing
+  (`walk-me-through.md` › consent gate). Genuinely ≥2 repairs on a must-stop
   surface → `decision-needing` as usual, with the consent framing in the card's
   Why-it-matters. **Disposition:** the reviewer emits `queued` (transient, like
   any operator-bound finding); the ask resolves it to `applied` on yes, or

@@ -32,7 +32,7 @@ be false.
 
 | Banned row | Only when |
 |---|---|
-| `Defer` · `Later` · `Separate PR` · `Track it` · `Open a ticket` | a **concrete blocker** makes it genuinely unreachable this session — external decision, blocking upstream, separate spec. **Not** "out of scope", "big change", "keeps the PR focused", "adds noise to the diff" |
+| `Defer` · `Later` · `Separate PR` · `Track it` · `Open a ticket` | either (a) a **concrete blocker** makes it genuinely unreachable this session — external decision, blocking upstream, separate spec — **or** (b) it is a **recorded terminal disposition**: the option's whole content is *writing the decision down somewhere durable and proceeding deliberately* (`log + defer` on a spec-worthiness escalation, `leave as a recorded spec gap`). That resolves the finding this turn — the record **is** the outcome — so it is terminal, unlike an open-ended "later". **Not** "out of scope", "big change", "keeps the PR focused", "adds noise to the diff" |
 | `Ignore` · `Accept risk` · `Do nothing` · `Leave as-is` | it is defensible **on the merits** — the finding is wrong, or current behavior is correct. Then label it for what it is (`Decline — <why the finding is wrong>`), never as a scope trade |
 | `Revert the change` | the finding indicts the change's **premise**, not a fixable part of it — undoing the work is a path the operator might really take |
 | `Explain more` · `Discuss` · `Show me X first` | never — that is the escape, already on every card |
@@ -40,6 +40,21 @@ be false.
 **< 2 admissible options → there is no fork.** State the call in one line, do it, advance. Padding a
 lone live option with a throwaway B to fill the table is the failure this gate exists to kill: it costs
 a turn, teaches the operator the table is decoration, and buys nothing.
+
+**But "no fork" NEVER means "no stop" — the downgrade is fail-closed.** Collapsing to one option
+removes the *card*, never a **must-stop invariant** the surrounding skill already guarantees. A sole
+resolution that touches one of these is a **consent gate** (below), not an autonomous action:
+
+- a **public contract** — exported API, response shape, route, CLI flag, re-exported symbol
+- **irreversible or destructive** — deletion, public-symbol rename, breaking change
+- **schema / migration**, or **load-bearing config** — CI, lockfile, root build config, a project rule
+- anything the calling skill has independently marked must-stop (a `Downstream` annotation, an
+  escalation status, a scope-axis flag)
+
+**Default-deny: can't tell whether it touches one → it does.** Don't downgrade; ask. This inverts the
+dangerous direction — an unrecognized must-stop surface now stops instead of silently auto-applying,
+and a needless ask costs one line while a missed one ships a rename nobody approved. A skill's own
+must-stop rule always outranks this gate; this gate removes menus, never guards.
 
 **Never a fork at all** — the answer is always the same, so the stop has no decision in it: permission
 to proceed · queue scope (`all` / `blockers only`) · "ready?" · "shall I show you X first" · confirming

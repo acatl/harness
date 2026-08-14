@@ -104,7 +104,9 @@ TRADEOFF → UNCLEAR — so counters read true; don't leave `<total>` for someon
 **Gate every drafted card through `walk-me-through.md` › Admissibility before emitting it** — each row
 live, non-dominated, value-positive, terminal; no pre-written ladder; no `Defer` / `Accept risk` /
 `Ignore` / `Explain more` / `Discuss` rows outside their stated carve-outs. **< 2 admissible rows → not
-a card:** emit the finding as `straightforward` instead. A drafted card is rendered verbatim, so a
+a card:** emit the finding as `straightforward` instead — **fail-closed, though**: a finding carrying a
+`Downstream` annotation keeps `Type: options` regardless (this skill's invariant, below: `straightforward`
++ `Downstream` is auto-applied without ever stopping). The gate removes a *card*, never a *stop*. A drafted card is rendered verbatim, so a
 filler row you draft here reaches the operator unchallenged.
 
 Check for TRADEOFF / UNCLEAR — you draft the card content, the orchestrator asks the operator:
