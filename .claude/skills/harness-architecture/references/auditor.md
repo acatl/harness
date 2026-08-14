@@ -111,15 +111,26 @@ options table with terse Pros/Cons · Recommendation naming a concrete signal ·
 `Escape:` · `Pick:`. Number cards in the order the orchestrator renders them — severity order
 TRADEOFF → UNCLEAR → RISK — so counters read true; don't leave `<total>` for someone else to fill.
 
+**Gate every drafted card through `walk-me-through.md` › Admissibility before emitting it** — each row
+live, non-dominated, value-positive, terminal; no pre-written ladder; no `Defer` / `Accept risk` /
+`Ignore` / `Explain more` / `Discuss` rows outside their stated carve-outs. **< 2 admissible rows → not
+a card:** emit the finding as `straightforward` instead. A drafted card is rendered verbatim, so a
+filler row you draft here reaches the operator unchallenged.
+
 Check for TRADEOFF / UNCLEAR / RISK — you draft the card content, the orchestrator asks the operator:
 - **TRADEOFF** — real choice, no objectively correct option (REST vs event, sync vs async, cursor vs offset).
   Options: 2–3 concrete (label = approach; Pros/Cons = upside/downside/rough effort); mark "(Recommended)".
 - **UNCLEAR** — spec too underspecified to evaluate a lens (migration referenced not described; retry
   behavior undefined; error contract unspecified). Title: "spec doesn't define [X] — intended behavior?";
-  2–4 likely options + "Not sure — leave as spec gap".
+  2–4 likely options + `Leave as a recorded spec gap` (admissible: on an UNCLEAR the operator may genuinely not know, and recording the gap **is** a real, terminal disposition — not a deferral. Label it as the disposition it is; never as "not sure").
 - **RISK** — chosen approach carries known risk, no alternative being weighed (table-locking migration no
-  downtime plan; TOCTOU no coordination; sync external call no timeout/breaker). Options: "Mitigate before
-  apply" / "Accept with documented TODO" / "Explain more".
+  downtime plan; TOCTOU no coordination; sync external call no timeout/breaker). **Derive the options from
+  this risk** — never the fixed ladder `Mitigate / Accept with documented TODO / Explain more`: "Explain
+  more" is the escape (already on every card, never a row), and a bare "Accept with documented TODO" is
+  the standing-banned `Accept risk` + `Track it` pair. Normal shape: the concrete mitigations this risk
+  admits (each a real, different mitigation — not one reworded), plus `Accept — <why the risk is tolerable
+  here>` **only when accepting is defensible on the merits** and the card says why. **Only one mitigation
+  and accepting isn't defensible → it isn't a fork:** emit it as a `straightforward` finding, not a card.
 Per card, note which finding #s the answer folds into.
 
 ## Calibration (read before findings)
@@ -180,7 +191,8 @@ STATUS: reviewed
 - Options: | Option | Meaning | Upside | Downside | Proposed | + 1-sentence recommendation  (options type)
   Every option's `Proposed` cell carries its OWN `<target file>` · <layer> → exact language, **or** an
   explicit no-write outcome: `no-write — leave as spec gap` (A6's mandatory UNCLEAR escape) ·
-  `no-write — explain, then re-ask` (RISK's "Explain more") · `no-write — <what happens instead>`.
+  `no-write — <what happens instead>` (**never** a `no-write — explain, then re-ask` row: "explain" is
+  the card's escape, which every card already carries — a row for it is standing-banned).
   The orchestrator writes the picked option's language verbatim and never drafts its own; a `no-write`
   pick writes nothing and is recorded as such. An **empty** cell is unusable — the pick resolves to
   neither an edit nor a stated outcome.

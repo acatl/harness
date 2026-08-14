@@ -66,8 +66,8 @@ the return contract — the engine itself is identical.
 clear fixes are applied, results reported (plus the final sensor gate in `pre-ship` / `operator` — in
 `build-run` build owns that gate; see Final verification gate). The **only** stop in the interactive
 modes is a **genuine fork** (≥2 defensible resolutions, per `Fix class: decision-needing`) — normally one
-card per finding, or **one bulk card standing in for ≥3 same-severity findings** (Stage 2 › bulk
-shortcuts), which is the same decision asked once instead of N times. Never ask whether to walk the
+card per finding, or **one merged card over ≥3 same-severity findings that share a resolution** (Stage
+2 › merged cards), which is the same decision asked once instead of N times. Never ask whether to walk the
 queue, whether to apply decisions already made, or whether to proceed to the next stage — those are
 ceremony, not decisions, and the operator's answer is always the same. A stop must carry a real pick; if
 it doesn't, announce and continue.
@@ -335,8 +335,8 @@ Then stop. Skip the wizard. (Still render the auto-fixed table + gate result abo
 directly, walking the **whole** queue (Blockers → Warnings → Style). Reaching the wizard at all means
 genuine forks exist; asking permission to ask them is a stop with no decision in it (the answer is
 always "all"). The only stops in interactive modes are the **finding fork cards** — each a real
-≥2-defensible-option pick, one per finding or one bulk card per ≥3-finding severity group (Stage 2 ›
-bulk shortcuts) — plus the flagged-item discussion the operator opts into.
+≥2-defensible-option pick, one per finding or one merged card per ≥3-finding group sharing a
+resolution (Stage 2 › merged cards) — plus the flagged-item discussion the operator opts into.
 
 Announce instead, one line, then start card #1: _"N decisions need your call — walking them now,
 Blockers first."_
@@ -380,6 +380,13 @@ generic ladder (`Fix now / Defer / Accept risk / Ignore / Revert / Explain more`
 pre-written, so they cannot be live for _this_ finding, and four of them are standing-banned. The escape
 letter always means "discuss later" (deferred to a post-wizard discussion) — never a lettered row.
 
+**`Fix class: consent-gate` renders as a one-line ask, never a card.** A load-bearing fix with one
+correct repair is a permission boundary, not a choice (`references/walk-me-through.md` › consent gate).
+Render: `👉 <exact action> on <path> — <blast radius>. Apply?` as the message's terminal block. Yes →
+apply, record `How: Consent`. No → leave untouched, record it as declined-by-operator. Never pad it
+into a two-row table. (`build-run` has no wizard → a `consent-gate` finding escalates to `design-stop`,
+build's fork mechanism; it is never auto-applied there either.)
+
 **Render the options the reviewer returned.** Each queued finding carries an `Admissible options:`
 block (`references/framework.md` › return format) — the ≥2 resolutions the reviewer derived when it
 classified the finding `decision-needing`. Those are the card's rows. Stage 2 forbids re-fetching, so
@@ -420,52 +427,48 @@ The escape's free-text reply also serves "explain / why" — handled in **After 
 
 Do not elaborate, re-explain, or offer follow-up on confirmed decisions. Momentum matters.
 
-**Bulk decision shortcuts — between severity groups:**
+**Merged cards — one card over a group that shares a resolution:**
 
-**Trigger = entering the group, not finishing the previous one.** Before the first card of the Warnings
-group, and again before the first card of the Style group, render the shortcut **iff ≥3 findings are
-queued in the group being entered**. Independent of whether the preceding group had any cards — a queue
-of 3 Warnings and 0 Blockers still gets the Warnings shortcut. (For 1–2 the card costs more than the
-cards it saves — go straight to them.) Never render it for Blockers: a Blocker has no do-nothing
-resolution, so there's nothing to bulk.
+**Never ask "one by one, or all at once?"** — that is queue scope, not a resolution: it decides how the
+wizard walks, resolves no finding this turn, and is banned outright by
+`references/walk-me-through.md` (Never a fork at all · Terminal). The shortcut is **not a meta-card
+about the queue** — it is the ordinary finding card, rendered once over a group that genuinely shares
+one resolution.
 
-**Additional gate — one shared resolution, not just a shared lens.** Same lens + same file family is
-necessary but **not sufficient**: it does not prove `Fix all N now` is live, non-dominated,
-value-positive and terminal for every member. Render the shortcut only when the findings share a
-**resolution signature** — one transformation, stated in a single sentence, that **every** member
-admits (check each against it; one member needing its own call kills the shortcut). Otherwise skip it
-and walk the cards. A bulk card over findings with no common fix manufactures a decision the operator
-cannot actually make.
+**Merge gate — one shared resolution, all four admissibility tests, every member.** Merge a group into
+a single card **iff** ≥3 findings are queued in that severity group **and** they share a **resolution
+signature**: one transformation, stated in a single sentence, that **every** member admits (check each;
+one member needing its own call kills the merge). Same lens + same file family is a hint, **not** the
+test — it does not prove the shared fix is live, non-dominated, value-positive and terminal for each.
+Gate fails → walk the individual cards, no announcement. (For 1–2 findings never merge — the merged
+card costs more than the cards it saves.) Blockers merge on the same terms as any group.
 
-Entering Warnings with ≥3 queued **sharing a resolution**, render:
+Gate passes → render **one ordinary fork card** covering the group, whose rows are the group's shared
+`Admissible options:` (the shared fix, plus any genuine alternative that likewise covers every member):
 
-Handle Warnings one by one, or decide for all?
+Findings #<a>, #<b>, #<c> — <shared summary> <severity>
 
-TLDR: N Warnings queued, all `<lens>` in `<file family>`, all resolved by `<the shared fix>` — per-item
-review or one call for all.
-Why it matters: a bulk pick applies that one fix to every remaining Warning.
+`<file family>` | Lens: <lens name>
+
+TLDR: N findings, all resolved by `<the shared fix>`.
+Why it matters: <impact of the class, not of one instance>
 
 | # | Option | Pros | Cons |
 |---|--------|------|------|
-| A | One by one | per-item judgment | N cards |
-| B | Fix all N now | ships clean, one pass | one broad edit, reviewed as a set |
+| A | <the shared fix, applied to all N> | <terse pro> | <terse con> |
+| B | <genuine alternative covering all N, if one exists> | <terse pro> | <terse con> |
 
-Recommendation: **B** — the gate above already established every member admits the same fix; that is
-what makes the shortcut renderable at all. (Can't recommend B? The gate failed — don't render the card.)
-Cost if B: `<concrete — files + approx lines across the N>`
+Recommendation: **<letter> — <name>.** <one-line reasoning>
+Cost if <letter>: <concrete — files + approx lines across the N>
 
-Escape: C discuss / propose other.
+Escape: <next-letter> discuss / propose other.
 
-Pick: A / B / C?
+Pick: <each lettered option, slash-separated> / <escape-letter>?
 
-`Defer all` / `Accept risk on all` / `Ignore all` are **not** rows here — same standing bans as the
-per-finding card (`references/walk-me-through.md` › Admissibility). A blanket defer is admissible only
-when one concrete blocker covers the whole group; then it is a third row naming that blocker.
-
-Entering Style with ≥3 queued and homogeneous, render the same shape.
-
-If the operator picks the bulk option, record that decision for all remaining findings in the group,
-confirm in one line (_"Got it — all N Warnings → fix now."_), and move on.
+`Defer all` / `Accept risk on all` / `Ignore all` are **not** rows — same standing bans as any card. A
+blanket defer is admissible only when one concrete blocker covers the whole group; then it is a row
+naming that blocker. Record the pick against every finding in the group and confirm in one line
+(_"Got it — #<a>, #<b>, #<c> → <option name>."_), then continue the queue.
 
 **After the final card:**
 
@@ -488,7 +491,7 @@ After all items are resolved (wizard + any discussion), show the consolidated ou
 | 1   | 🔴       | `<file>` | \<summary\> | **Fix now** | Wizard     |
 | 2   | 🟠       | `<file>` | \<summary\> | **Defer**   | Discussion |
 
-**How** values: Wizard · Bulk · Discussion
+**How** values: Wizard · Merged · Consent · Discussion
 
 ### Overall Assessment
 

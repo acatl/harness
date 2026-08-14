@@ -101,13 +101,19 @@ options table with terse Pros/Cons · Recommendation naming a concrete signal ·
 `Escape:` · `Pick:`. Number cards in the order the orchestrator renders them — severity order
 TRADEOFF → UNCLEAR — so counters read true; don't leave `<total>` for someone else to fill.
 
+**Gate every drafted card through `walk-me-through.md` › Admissibility before emitting it** — each row
+live, non-dominated, value-positive, terminal; no pre-written ladder; no `Defer` / `Accept risk` /
+`Ignore` / `Explain more` / `Discuss` rows outside their stated carve-outs. **< 2 admissible rows → not
+a card:** emit the finding as `straightforward` instead. A drafted card is rendered verbatim, so a
+filler row you draft here reaches the operator unchallenged.
+
 Check for TRADEOFF / UNCLEAR — you draft the card content, the orchestrator asks the operator:
 - **TRADEOFF** — genuine design choice, no objectively correct option; depends on product direction
   (paginate vs infinite scroll, required-at-draft vs at-submit, modal vs page, single vs multi-step).
   Options: 2–3 concrete (label = approach; Pros/Cons = upside/downside/rough effort); mark "(Recommended)".
 - **UNCLEAR** — spec too underspecified to evaluate a lens (form described but no fields listed;
   status change specced but user-facing label undefined; API called but no error states). Title: "spec
-  doesn't define [X] — intended behavior?"; 2–4 likely options + "Not sure — leave as spec gap".
+  doesn't define [X] — intended behavior?"; 2–4 likely options + `Leave as a recorded spec gap` (admissible: on an UNCLEAR the operator may genuinely not know, and recording the gap **is** a real, terminal disposition — not a deferral. Label it as the disposition it is; never as "not sure").
 Per card, note which finding #s the answer folds into ("leave as gap" → brief note in the relevant lens
 section of the findings).
 

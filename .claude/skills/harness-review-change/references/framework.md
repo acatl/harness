@@ -619,7 +619,7 @@ Summary: <one-line summary>
 Issue: <what is wrong>
 Why it matters: <impact>
 Suggested fix: <concrete action>
-Fix class: <clear | decision-needing>
+Fix class: <clear | decision-needing | consent-gate>
 Admissible options: <only on `decision-needing` — the ≥2 resolutions this finding
   admits, one per line as `<name> | <terse pro> | <terse con>`; these become the
   wizard card's rows verbatim, so the main agent never re-derives them>
@@ -660,7 +660,7 @@ code) can make, not the caller folding findings after the fact:
 
 ### `Fix class` field
 
-`Fix class` decides auto-fix vs queue. Classify:
+`Fix class` decides auto-fix vs consent-ask vs queue. Classify:
 
 - **clear** — one obvious correct resolution, no trade-off: a missing test, a
   wrong OpenAPI shape vs runtime, a stale doc reference, an unused export, a
@@ -686,12 +686,21 @@ code) can make, not the caller folding findings after the fact:
   resolutions → the finding isn't actionable as written — `refuted`, saying so.
   A `decision-needing` classification whose card would need a filler row was
   misclassified.
-  **Load-bearing overrides the count.** The `Load-bearing is never auto-fixed`
-  rule (`SKILL.md` › fix ownership) wins: a fix touching a scope-axis or
-  load-bearing convention stays `decision-needing` even with one repair — and it
-  has two admissible options by construction, since "don't let the reviewer touch
-  CI / root config / a project rule unattended" is itself live, value-positive
-  and terminal. Emit them as `apply the fix` / `leave it to the operator`.
+  **Load-bearing is a consent gate, not a fork, and never `clear`.** The
+  `Load-bearing is never auto-fixed` rule (`SKILL.md` › fix ownership) wins over
+  the count: a fix touching a scope-axis or load-bearing convention (CI, root
+  config, lockfile, a project rule) is **never** auto-applied, however obvious the
+  repair. With one repair it is not a fork either — do **not** manufacture a
+  second row (`leave it to the operator` is the banned do-nothing runner-up and
+  resolves nothing). Emit `Fix class: consent-gate`: the reviewer leaves the
+  working tree untouched and states the exact action and its blast radius; the
+  main agent renders a one-line `👉` permission ask, not a card
+  (`walk-me-through.md` › consent gate). Genuinely ≥2 repairs on a load-bearing
+  surface → `decision-needing` as usual, with the consent framing in the card's
+  Why-it-matters. **Disposition:** the reviewer emits `queued` (transient, like
+  any operator-bound finding); the ask resolves it to `applied` on yes, or
+  `refuted` + `Refuted because: operator declined the load-bearing edit` on no —
+  no new disposition value, so the run-log enum is unchanged.
 
 When in doubt, classify **decision-needing** — but the doubt that queues is doubt
 about **which resolution** is right (a real trade-off), or **scope-axis** (the fix

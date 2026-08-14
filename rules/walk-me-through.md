@@ -45,6 +45,18 @@ a turn, teaches the operator the table is decoration, and buys nothing.
 to proceed · queue scope (`all` / `blockers only`) · "ready?" · "shall I show you X first" · confirming
 a step the invocation already authorized.
 
+**A consent gate is not a fork — don't force it into a card.** Some stops are a *permission boundary*,
+not a choice between paths: one action, already known to be correct, that must not happen without
+explicit say-so (a Hard Gate — load-bearing config, a destructive or irreversible step, anything with
+external effect). There is no menu to gate, so admissibility does not apply. Render it as a **one-line
+`👉` ask naming the exact action and its blast radius** — never a two-row table, and above all never by
+inventing a second row (`leave it to me`, `skip it`, `decide later`) to make a consent gate look like a
+fork. That invented row is a filler row wearing a guard's uniform: it is not terminal (nothing is
+resolved), it is the banned do-nothing runner-up, and it makes a permission question read as a
+weighing of options. Distinguish it from the ceremony stops above by asking **what the answer would
+be**: if it is always yes, it is ceremony — don't ask. If a reasonable operator could say no *and the
+work must not proceed without their yes*, it is a consent gate — ask, in one line.
+
 **Scope of the gate: rows YOU offer, never what the operator decides.** The bans exist to stop the
 card manufacturing choices, not to overrule the human. An operator who takes the escape and writes
 "defer this" or "leave it" has made a call the gate has no standing to refuse — record it and move on;
