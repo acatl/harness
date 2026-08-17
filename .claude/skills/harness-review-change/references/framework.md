@@ -619,11 +619,14 @@ Summary: <one-line summary>
 Issue: <what is wrong>
 Why it matters: <impact>
 Suggested fix: <concrete action>
-Fix class: <clear | decision-needing | consent-gate>
+Fix class: <clear | decision-needing>
 Admissible options: <only on `decision-needing` — the ≥2 resolutions this finding
   admits, one per line as `<name> | <terse pro> | <terse con>`; these become the
   wizard card's rows verbatim, so the main agent never re-derives them>
-Recommended option: <only on `decision-needing` — which option, and the concrete
+Recommended option: <only on `decision-needing` — **the exact name of one entry
+  in `Admissible options` above** (verbatim string match; a name not in that list,
+  or a `Cost if recommended` describing a different entry, is a contract violation
+  the main agent surfaces as a design-stop — never rendered), plus the concrete
   signal driving it; feeds the card's mandatory Recommendation line>
 Cost if recommended: <only on `decision-needing` — concrete: files/lines/effort>
 Disposition: <applied | queued | design-stop | refuted>
@@ -660,7 +663,7 @@ code) can make, not the caller folding findings after the fact:
 
 ### `Fix class` field
 
-`Fix class` decides auto-fix vs consent-ask vs queue. Classify:
+`Fix class` decides auto-fix vs queue. Classify:
 
 - **clear** — one obvious correct resolution, no trade-off: a missing test, a
   wrong OpenAPI shape vs runtime, a stale doc reference, an unused export, a
@@ -673,38 +676,13 @@ code) can make, not the caller folding findings after the fact:
   say to just apply it (depth-axis: correct fix within scope = do it).
 - **decision-needing** — a trade-off, a scope question, an architectural call,
   or anything where two reasonable engineers could pick differently. These reach
-  the operator; they are never auto-fixed. **Bar: name the ≥2 admissible
-  resolutions before classifying** — each live, non-dominated, value-positive and
-  terminal (`walk-me-through.md` › Admissibility) — and **carry them into the
-  finding's `Admissible options:` field**; they are the wizard's rows, and the
-  main agent cannot re-derive them (it may not re-fetch). Can only name one, and
-  the runner-up is "leave it" / "defer it" / "fix it later"? That is not a second
-  resolution — classify by **what the sole resolution is**, never by the count
-  alone: a sole **code fix** → `clear` (auto-applied); a sole **decline** (the
-  finding is wrong / current behavior is correct) → `refuted` with
-  `Refuted because`, never a working-tree change; **zero** admissible
-  resolutions → the finding isn't actionable as written — `refuted`, saying so.
-  A `decision-needing` classification whose card would need a filler row was
-  misclassified.
-  **The downgrade is fail-closed — it removes the card, never the stop.**
-  Before classifying a sole resolution `clear`, test it against the **must-stop
-  class**: scope-axis / load-bearing convention (CI, root config, lockfile, a
-  project rule) · **public contract** (exported API, response shape, route, CLI
-  flag) · **irreversible or destructive** (deletion, public-symbol rename,
-  breaking change) · schema or migration. Any hit → `consent-gate`, never
-  `clear`. **Default-deny: can't tell → consent-gate it** — a needless ask costs
-  one line, a missed one auto-applies a rename nobody approved. A sole resolution
-  on any of these is **never** auto-applied, however obvious the repair. With one repair it is not a fork either — do **not** manufacture a
-  second row (`leave it to the operator` is the banned do-nothing runner-up and
-  resolves nothing). Emit `Fix class: consent-gate`: the reviewer leaves the
-  working tree untouched and states the exact action and its blast radius; the
-  main agent renders a one-line `👉` permission ask, not a card
-  (`walk-me-through.md` › consent gate). Genuinely ≥2 repairs on a must-stop
-  surface → `decision-needing` as usual, with the consent framing in the card's
-  Why-it-matters. **Disposition:** the reviewer emits `queued` (transient, like
-  any operator-bound finding); the ask resolves it to `applied` on yes, or
-  `refuted` + `Refuted because: operator declined the load-bearing edit` on no —
-  no new disposition value, so the run-log enum is unchanged.
+  the operator; they are never auto-fixed. **Carry the resolutions you weighed
+  into the finding's `Admissible options:` field** — they are the wizard's rows,
+  and the main agent cannot re-derive them (it may not re-fetch). Each must pass
+  `walk-me-through.md` › Admissibility; **never invent a row to fill the table.**
+  Fix class governs auto-fix vs queue as it always has — the admissibility gate
+  shapes what the _card offers_, and never reclassifies a finding or relaxes the
+  `Load-bearing is never auto-fixed` rule below.
 
 When in doubt, classify **decision-needing** — but the doubt that queues is doubt
 about **which resolution** is right (a real trade-off), or **scope-axis** (the fix

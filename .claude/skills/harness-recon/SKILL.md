@@ -87,7 +87,9 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    ```
 7. **Confirm.** Show verdict tally. Any judgment call (contested `extend` vs `build-new`, a coupling
    decision) → a walk-me-through fork card: rows `[Y] Accept` / `[A] Adjust`, escape `[D]` discuss / propose other
-   (**escape, never a lettered row** — `Discuss` is standing-banned as a row). On A or the escape, revise + rewrite both.
+   (**escape, never a lettered row** — `Discuss` is standing-banned as a row). On `[A]`, revise + rewrite both.
+   The escape opens prose — **rewrite nothing until the discussion produces a concrete verdict change**; then
+   revise + rewrite both, or re-render the card if it resolved nothing.
    A *contested* verdict that's resolved → append one line to the **decision log** (`<change-state-dir>/decisions.md`,
    per `references/decision-log.md` — `🤖 recon`, or `👤 human` if the human picked). Obvious verdicts: not logged.
 

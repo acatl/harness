@@ -25,7 +25,8 @@ broken.
 
 > **Bindings.** Resolve from `docs/HARNESS.md`: format sensor, branch/commit conventions, version
 > source, pre-push gate, task-tracker `link` verb + `PR open` stage hook, PR host, change-state dir,
-> **Finish › merge mode** (`single-merge` | `two-merge`) — governs Step 9's Next pointer. Never hardcode.
+> **Finish › merge mode** (`single-merge` | `two-merge`) — governs Step 9's Next pointer —
+> and **§ PR review** if present, which governs the Step 8.5 handoff. Never hardcode.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -102,9 +103,23 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    `ship` is consent to drive *its own* ticket through the pipeline; fire the `link` verb + `PR open` hook
    without asking. (Only mutations to a *different* ticket, or creating/closing tickets outside this one,
    need a confirm.)
+8.5 **Hand off to the review loop (only when the project declares one).** HARNESS.md has a
+   **§ PR review** section → invoke `harness:pr-autopilot #<pr>` (Skill tool) and let it run. It waits
+   for every expected reviewer to review this head, triages once, and repeats for the declared number
+   of rounds — notifying the operator only for a genuine fork or at the end. **This is the point of
+   the handoff:** the PR is open, the bots are starting, and there is nothing for the operator to do
+   until either a decision is needed or the rounds are done, so ship should not end by handing them a
+   command to babysit.
+   **Skip it** — and fall through to Step 9's pointer — when: HARNESS.md declares no **§ PR review**
+   section (never guess a reviewer roster), this ship is `finish`'s chore-PR step under `two-merge`
+   (that PR's reviews are not the feature's), or the operator asked to ship only. A skip is announced
+   in one line, never silent.
+
 9. **Pipeline trail + Next pointer.** Emit the "you are here" trail for the `ship` end stop per
    `references/pipeline-map.md` (one line), so the loop isn't silent. Then a `Next:` line — **branch on the
-   resolved Finish merge mode** (one runnable command rule, `references/pipeline-map.md`):
+   resolved Finish merge mode** (one runnable command rule, `references/pipeline-map.md`). **When Step 8.5
+   ran, the autopilot owns the next stop** and its own report carries the pointer — ship's trail still
+   emits, but do not print a competing `Next:`. When 8.5 was skipped:
    - **two-merge:** finish is genuinely **post-merge** (its own chore PR). Next = **only the
      immediately-runnable action: review + merge the PR** (a human action — no command yet). **Do NOT
      print `/harness:finish` or "then run X after merge"** — naming a not-yet-runnable command invites a

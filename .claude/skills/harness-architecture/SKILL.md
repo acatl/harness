@@ -139,7 +139,9 @@ arrive **complete** (auditor drafts the full shape, counters included) — rende
 renumber. Fold each answer into the finding #s the card names — the finding's Proposed language becomes
 the **chosen option's own `Proposed` cell** (each option carries one; never draft your own). A
 `no-write` cell writes nothing: record the stated outcome as a brief note on the finding
-(`no-write — explain, then re-ask` → answer, then re-render the same card, no decision recorded yet).
+(a `no-write` cell records its stated outcome as a note on the finding). **An `explain` reply is not a
+cell** — it arrives via the card's escape, is answered in prose, then the same card re-renders with no
+decision recorded.
 **Mark every folded finding # locked — Step 5 must not re-ask it.** Types: ⚠️ Tradeoff · ❓ Unclear ·
 🔺 Risk. None → straight to report.
 

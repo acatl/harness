@@ -41,20 +41,11 @@ be false.
 lone live option with a throwaway B to fill the table is the failure this gate exists to kill: it costs
 a turn, teaches the operator the table is decoration, and buys nothing.
 
-**But "no fork" NEVER means "no stop" — the downgrade is fail-closed.** Collapsing to one option
-removes the *card*, never a **must-stop invariant** the surrounding skill already guarantees. A sole
-resolution that touches one of these is a **consent gate** (below), not an autonomous action:
-
-- a **public contract** — exported API, response shape, route, CLI flag, re-exported symbol
-- **irreversible or destructive** — deletion, public-symbol rename, breaking change
-- **schema / migration**, or **load-bearing config** — CI, lockfile, root build config, a project rule
-- anything the calling skill has independently marked must-stop (a `Downstream` annotation, an
-  escalation status, a scope-axis flag)
-
-**Default-deny: can't tell whether it touches one → it does.** Don't downgrade; ask. This inverts the
-dangerous direction — an unrecognized must-stop surface now stops instead of silently auto-applying,
-and a needless ask costs one line while a missed one ships a rename nobody approved. A skill's own
-must-stop rule always outranks this gate; this gate removes menus, never guards.
+**Scope of that rule: it removes a CARD, never a STOP.** This gate governs **what a card offers** — it
+does not classify findings, pick verdicts, or decide whether the surrounding skill stops. Collapsing to
+one option means *don't render a table*; the skill's own rules (its verdict taxonomy, its gates, its
+must-stop invariants) decide what happens next, unchanged. Never read "< 2 → no fork" as license to
+downgrade a verdict, auto-apply, or skip a guard.
 
 **Never a fork at all** — the answer is always the same, so the stop has no decision in it: permission
 to proceed · queue scope (`all` / `blockers only`) · "ready?" · "shall I show you X first" · confirming
@@ -131,6 +122,10 @@ Pick: <each lettered option, slash-separated> / <escape-letter>?
   options; the table never justifies inventing a second one.
 - **Lock tight:** one line `Locked: **<choice>**.` then the next fork. No re-summarizing prior picks.
 - **Escape → drop the table**, engage in prose, then re-enter for the same fork (or skip if resolved).
+- **A resolved fork does not end the turn.** Recording a pick (lettered or via the escape) is ordinary
+  completion — continue in the **same message**: next fork, or the work the answers unblocked. Only a
+  terminal `👉` ask or an explicit stop hands the turn back. A nested caller must not treat a resolved
+  escape as a stop, and must not emit a second operator turn for the same decision.
 
 ## Anti-patterns
 

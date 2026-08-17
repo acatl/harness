@@ -114,9 +114,9 @@ TRADEOFF → UNCLEAR → RISK — so counters read true; don't leave `<total>` f
 **Gate every drafted card through `walk-me-through.md` › Admissibility before emitting it** — each row
 live, non-dominated, value-positive, terminal; no pre-written ladder; no `Defer` / `Accept risk` /
 `Ignore` / `Explain more` / `Discuss` rows outside their stated carve-outs. **< 2 admissible rows → not
-a card:** emit the finding as `straightforward` instead — **fail-closed, though**: a finding carrying a
-`Downstream` annotation keeps `Type: options` regardless (this skill's invariant, below: `straightforward`
-+ `Downstream` is auto-applied without ever stopping). The gate removes a *card*, never a *stop*. A drafted card is rendered verbatim, so a
+a card:** don't draft one — emit the finding with the `Type` its own rules already give it. **This gate
+shapes what a card OFFERS; it never changes a finding's `Type` and never relaxes a stop** (a `Downstream`
+annotation still forces `Type: options`, per the invariant below). A drafted card is rendered verbatim, so a
 filler row you draft here reaches the operator unchallenged.
 
 Check for TRADEOFF / UNCLEAR / RISK — you draft the card content, the orchestrator asks the operator:
@@ -132,10 +132,9 @@ Check for TRADEOFF / UNCLEAR / RISK — you draft the card content, the orchestr
   the standing-banned `Accept risk` + `Track it` pair. Normal shape: the concrete mitigations this risk
   admits (each a real, different mitigation — not one reworded), plus `Accept — <why the risk is tolerable
   here>` **only when accepting is defensible on the merits** and the card says why. **Only one mitigation
-  and accepting isn't defensible → it isn't a fork — but the downgrade is fail-closed.** `Downstream`-
-  annotated → **keep `Type: options`** (the invariant below forces it; `straightforward` + `Downstream`
-  is auto-applied without ever stopping) and say in the one option's cell that a single mitigation
-  exists, rather than inventing a second row. Un-annotated → `straightforward`, no card.
+  and accepting isn't defensible → don't draft a card** — but keep the finding's own `Type` (a
+  `Downstream`-annotated RISK stays `Type: options`, per the invariant below) and say in the single
+  option's cell that one mitigation exists, rather than inventing a second row.
 Per card, note which finding #s the answer folds into.
 
 ## Calibration (read before findings)

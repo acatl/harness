@@ -10,7 +10,7 @@ description: >
   self-review, or PRs where all threads are already resolved. Not a code-review tool.
 license: MIT
 compatibility: Requires git + a PR host CLI (GitHub `gh` shown) + jq.
-argument-hint: "#<pr-number>"
+argument-hint: "#<pr-number> [--partial]"
 metadata:
   author: acatl
   version: "1.3.2" # x-release-please-version
@@ -25,6 +25,8 @@ from current branch; else list open PRs and ask.
 > Verify commands resolve from **HARNESS.md › Sensors** (fallback: dynamic derivation in Phase 3a).
 > Project standards = the rules dir + context docs (HARNESS.md). Conventions (branch/commit) per HARNESS.md.
 > **Finish › merge mode** (`single-merge` | `two-merge`) per HARNESS.md — governs the end-stop Next pointer.
+> **§ PR review** per HARNESS.md (reviewer roster · readiness predicate · benign checks) — governs the
+> Phase-1.5 step-6 readiness gate. Absent → that gate is skipped, never guessed.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -54,22 +56,6 @@ direction-affecting ambiguity surfaces to the operator. **Default bias: correctn
 **Positive test, not negative.** Default AUTO-FIX. A finding → DECISION-NEEDED **only** if a criterion
 below clearly applies. Can't name the criterion → stays AUTO-FIX. "Might be load-bearing" isn't enough.
 
-**Second gate — the criterion alone doesn't queue it.** Naming a criterion makes DECISION-NEEDED
-**provisional**; it is final only after the resolutions are derived (4c) and **≥2 admissible** ones
-survive (`references/walk-me-through.md` › Admissibility: live · non-dominated · value-positive ·
-terminal). Fewer than two → re-triage **by what the sole resolution is**, never by the count alone:
-sole **code fix** → AUTO-FIX · sole **decline** (reviewer is wrong / current behavior correct) →
-DECLINE · **zero** → UNCLEAR (nothing actionable — reply and ask). Both gates or no card.
-
-**The downgrade is fail-closed — it removes the card, never the stop.** Before routing a sole code fix
-to AUTO-FIX, test it against the criteria above: touches a **public contract**, is **irreversible or
-destructive** (deletion, public-symbol rename, breaking change), or hits **schema/migration** or
-**load-bearing config** → **CONSENT-GATE**, not AUTO-FIX. Render a one-line `👉` naming the exact edit
-and its blast radius (`references/walk-me-through.md` › consent gate); yes → implement as an AUTO-FIX
-item, no → DECLINE with `wontfix: operator declined`. **Default-deny: can't tell → consent-gate it.**
-6b.2's b1 gate covers only lockfile/CI/root-config/migration **bytes**, so a destructive *source* edit
-has no downstream guard — this is its only one.
-
 **Decision-needed (ask)** — any one true:
 - **Public contract change** — exported API, response DTO shape, route shape, CLI flag, any symbol re-exported from a package index.
 - **Schema / migration** — DB schema, add/remove column, migration behavior, default values for existing rows.
@@ -93,8 +79,7 @@ file count. Volume isn't gate-triggering; ambiguity is.
 | Verdict | Meaning | Path |
 |---|---|---|
 | AUTO-FIX | Valid, clear correct answer. Fix without asking. | Implement |
-| DECISION-NEEDED | Valid, fix needs operator judgment (Decision Gate), **≥2 admissible resolutions**. | Walk operator (5d card) |
-| CONSENT-GATE | Valid, **one** correct fix, but it crosses a permission boundary — public contract · destructive/irreversible · schema/migration · load-bearing config. No menu to weigh. | One-line `👉` ask; yes → implement, no → DECLINE |
+| DECISION-NEEDED | Valid, fix needs operator judgment (Decision Gate). | Walk operator |
 | DECLINE | Reviewer is wrong / contradicts a load-bearing standard / YAGNI. | Reply, resolve |
 | ALREADY ADDRESSED | Already fixed in current code, or thread resolved. | Resolve |
 | UNCLEAR | Too vague to act on. | Reply + ask |
@@ -130,6 +115,23 @@ Main agent
 3. **Synced with origin both ways** (`git fetch origin <branch>; git rev-list --left-right --count HEAD...origin/<branch>` → `0\t0`; **left = ahead, right = behind**): **first match wins**: both non-zero → abort `error: <branch> has diverged from origin (N ahead, M behind). reconcile before re-invoking.`; else right non-zero → abort `error: behind origin/<branch> by N. pull first.`; else **left non-zero → abort** (see below) — the ahead message must carry **both** exits — `error: N unpushed commit(s) on <branch>. push them — or, if a prior run stopped rather than push (6c path-set guard), rework or drop that commit first; never push it as-is.` — because the wrong exit re-introduces the very unreviewed path that guard refused. A prior run that committed without pushing otherwise poisons two invariants: `region_map` line numbers come from the PR host in `origin/<branch>` coordinates and would be compared against a `START_SHA` that differs from them, and this run would resolve threads citing commits the remote lacks.
 4. `START_SHA=$(git rev-parse HEAD)` — this run's diff base (never advances). `EXPECTED_HEAD=$START_SHA` — the race-check baseline; **advances to each commit this run verifies** (6c), so a corrective second commit isn't blocked by its own predecessor.
 5. `GH_USER=$(gh api user --jq '.login')` — for the Phase 2 idempotency filter.
+6. **Review-round readiness** — only when HARNESS.md declares a **§ PR review** section (no section →
+   skip silently; **never guess a reviewer roster**). Run the readiness predicate it names, one
+   `--expect` per declared reviewer and one `--benign` per declared expected-failing check.
+   Exit `0` → proceed. Exit `10` → **abort**, printing its `reason=` plus the two ways forward: wait for
+   the round (`/harness:pr-autopilot #<pr>`, which is also what drives the rounds), or re-invoke with an
+   explicit **`--partial`** to triage what has arrived anyway. Exit `1` → surface the error and
+   **proceed** — an unreadable predicate is not evidence of a mid-review reviewer, and a host outage must
+   not make a PR untriageable.
+   **Why a gate and not advice:** triaging a half-arrived round replies to, resolves, and dismisses
+   threads for findings the missing reviewer is about to duplicate or contradict — so the PR is churned
+   in pieces and the next round re-opens what this one closed. It also inflates `RUN_N` toward the 5c.1
+   brake with rounds that were never the change's fault.
+   **`--partial` is the operator's call and is recorded** — in the final report and the Decision log,
+   because a reader seeing three patch rounds needs to know one was deliberately partial rather than a
+   convergence failure.
+   `harness:pr-autopilot` invokes this skill only after the same predicate passed, so under the
+   autopilot this step re-confirms in milliseconds and never waits twice.
 
 ## Phase 2 — fetch comments + thread IDs
 Use `$OWNER/$NAME` from Phase 1. **jq safety:** use `select(.body | length > 0)` — never `select(.body != "")` (the `!=` form can corrupt to the Unicode not-equal char and fail jq parse).
@@ -186,7 +188,7 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
 (one message, multiple Agent calls); N>40 cap batch at 5. Group same-file threads within a sub-agent.
 - **4a context:** read the file ±20 lines around the flagged line; follow cross-file refs; grep actual usage for proposed abstractions (YAGNI).
 - **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion — **provisional until 4c derives the options**) → AUTO-FIX.
-- **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → the admissible options (recommended + any genuine alternative; never invent one) + `Blocker: <one-line | none>` (reachable this session? default none). **<2 admissible → the 4b verdict was provisional; finalize by what the sole resolution is** — sole code fix → AUTO-FIX · sole decline → DECLINE · zero → UNCLEAR. Counting alone never picks the verdict, and the downgrade is **fail-closed**: a sole fix on a public-contract / destructive / schema / load-bearing surface → **CONSENT-GATE** (Decision Gate › fail-closed), never AUTO-FIX.
+- **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → the admissible options (recommended + any genuine alternative; never invent one) + `Blocker: <one-line | none>` (reachable this session? default none).
 - **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts/**`RUN_N`** — Phase 5 renders from returned data and must not re-fetch, so an unreturned `RUN_N` means the 5c.1 brake silently never fires)
   + **`region_map`** — the intervals **earlier runs already patched**, taken from the **raw 2a fetch**.
   Mechanical membership (no "which round" judgment — nothing tags a comment with a round): include a
@@ -273,7 +275,7 @@ missing return type"). Goal: the bot flags 1 of N identical spots → all N die 
 
 ## Phase 5 — overview + decision-only wizard
 Main agent renders from returned data (no re-fetch).
-- **5.0 announce (one line):** `PR #N · K threads → A auto-fix · G consent · D decisions · X decline · Y already · U unclear · S skipped. Walking D decisions now.` (D==0 → "No decisions needed — proceeding to implementation."; RUN_N>1 → append ` · run #<RUN_N>`.)
+- **5.0 announce (one line):** `PR #N · K threads → A auto-fix · D decisions · X decline · Y already · U unclear · S skipped. Walking D decisions now.` (D==0 → "No decisions needed — proceeding to implementation."; RUN_N>1 → append ` · run #<RUN_N>`.)
 - **5a/5b/5c:** PR overview table · verdict counts · full thread table (orientation only; emoji markers 🔧 AUTO-FIX · 🤔 DECISION · 🚫 DECLINE · ✅ ALREADY · ❓ UNCLEAR · ⏭️ SKIPPED).
 - **5c.1 convergence brake (after the 5a–5c tables, before 5d/Phase 6):** `RUN_N ≥ 3` **and** (A>0 or
   D>0) → do NOT auto-proceed (a no-op rerun — zero auto-fix, zero decisions — never brakes; 6c.1
@@ -282,7 +284,7 @@ Main agent renders from returned data (no re-fetch).
   block). Explicit yes → continue (5d wizard, then Phase 6); else stop — don't walk 5d forks for a run
   that won't execute.
 - **Option-pick format:** render a walk-me-through fork card (`references/walk-me-through.md`) — `Q<N> of <total>` + `#<N>` title, framing (comment / why-it-needs-a-decision), options table (terse Pros/Cons), grounded Recommendation (pick + reasoning + `Cost if`), `Escape:` + `Pick:` lines; operator replies by letter. **Never `AskUserQuestion` or a native picker.** One fork per turn. Yes/no gates one line.
-- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter; never `AskUserQuestion`. **Options are derived per thread and gated by `references/walk-me-through.md` › Admissibility — never a fixed A/B/C/D ladder.** `A` = the fix; `B` = a materially different fix, **only if one genuinely exists** (different mechanism / blast radius — not a reworded A, never a filler row); `C — Decline finding` **only when declining is defensible on the merits** (reviewer is wrong / current behavior correct), stating why; `D — Defer (blocked)` **only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). **< 2 admissible options → not DECISION-NEEDED**: re-triage per 4c (sole fix → AUTO-FIX · sole decline → DECLINE · zero → UNCLEAR) and never wizard it — a card whose only real answer is `A` costs a turn and buys nothing. - **5d.1 consent gates (CONSENT-GATE only, after the 5d cards):** zero → skip silently. For each, **one line, never a card** — `👉 <exact edit> in <file:line> — <blast radius>. Apply?` Batch them as consecutive terminal-block lines only if every one is on the same surface; otherwise one per turn. Yes → the item joins the 6a AUTO-FIX batch and records `{path, pending}` in `GATE_DECIDED`. No → DECLINE, reply `wontfix: operator declined`, resolve. Never render these as a fork card — there is no menu (`references/walk-me-through.md` › consent gate).
+- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter; never `AskUserQuestion`. **Rows = the thread's `Admissible options` list verbatim, in the order 4c derived it, lettered consecutively from `A` — never a fixed `A/B/C/D` role mapping** (a fixed mapping drops a third live fix and leaves gaps when a role is absent). Each row already passed `references/walk-me-through.md` › Admissibility, so render what arrived and add nothing: no filler row, and `Decline finding` / `Defer (blocked)` appear **only** when 4c admitted them (declining defensible on the merits · deferral under a concrete blocker or as a recorded terminal disposition — never for "out of scope" or "big change"; correctness over scope). Escape = the next free letter.
 
 One-line confirm, continue — a pick on a Decision-Gate path records `{path, pending}` in `GATE_DECIDED` (no bytes exist yet — 6a hasn't run), which 6b.2 b1 redeems into a real blob on first encounter. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
 

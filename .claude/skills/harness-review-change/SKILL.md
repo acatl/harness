@@ -66,7 +66,7 @@ the return contract — the engine itself is identical.
 clear fixes are applied, results reported (plus the final sensor gate in `pre-ship` / `operator` — in
 `build-run` build owns that gate; see Final verification gate). The **only** stop in the interactive
 modes is a **genuine fork** (≥2 defensible resolutions, per `Fix class: decision-needing`) — normally one
-card per finding, or **one merged card over ≥3 same-severity findings that share a resolution** (Stage
+card per finding, or **one merged card over ≥3 same-severity findings sharing ≥2 resolutions** (Stage
 2 › merged cards), which is the same decision asked once instead of N times. Never ask whether to walk the
 queue, whether to apply decisions already made, or whether to proceed to the next stage — those are
 ceremony, not decisions, and the operator's answer is always the same. A stop must carry a real pick; if
@@ -335,8 +335,8 @@ Then stop. Skip the wizard. (Still render the auto-fixed table + gate result abo
 directly, walking the **whole** queue (Blockers → Warnings → Style). Reaching the wizard at all means
 genuine forks exist; asking permission to ask them is a stop with no decision in it (the answer is
 always "all"). The only stops in interactive modes are the **finding fork cards** — each a real
-≥2-defensible-option pick, one per finding or one merged card per ≥3-finding group sharing a
-resolution (Stage 2 › merged cards) — plus the flagged-item discussion the operator opts into.
+≥2-defensible-option pick, one per finding or one merged card per ≥3-finding group sharing ≥2
+resolutions (Stage 2 › merged cards) — plus the flagged-item discussion the operator opts into.
 
 Announce instead, one line, then start card #1: _"N decisions need your call — walking them now,
 Blockers first."_
@@ -347,7 +347,7 @@ Blockers first."_
 
 For each queued finding (Blockers → Warnings → Style — the whole queue), render one fork card:
 
-Finding #<N> of <total queued> — <short summary> <🔴/🟠/🟡>
+Q<N> of <total queued> — Finding #<N>: <short summary> <🔴/🟠/🟡>
 
 `<file path>` | Lens: <lens name>
 
@@ -380,15 +380,8 @@ generic ladder (`Fix now / Defer / Accept risk / Ignore / Revert / Explain more`
 pre-written, so they cannot be live for _this_ finding, and four of them are standing-banned. The escape
 letter always means "discuss later" (deferred to a post-wizard discussion) — never a lettered row.
 
-**`Fix class: consent-gate` renders as a one-line ask, never a card.** A load-bearing fix with one
-correct repair is a permission boundary, not a choice (`references/walk-me-through.md` › consent gate).
-Render: `👉 <exact action> on <path> — <blast radius>. Apply?` as the message's terminal block. Yes →
-apply, record `How: Consent`. No → leave untouched, record it as declined-by-operator. Never pad it
-into a two-row table. (`build-run` has no wizard → a `consent-gate` finding escalates to `design-stop`,
-build's fork mechanism; it is never auto-applied there either.)
-
 **Render the options the reviewer returned.** Each queued finding carries an `Admissible options:`
-block (`references/framework.md` › return format) — the ≥2 resolutions the reviewer derived when it
+block (`references/framework.md` › return format) — the resolutions the reviewer weighed when it
 classified the finding `decision-needing`. Those are the card's rows. Stage 2 forbids re-fetching, so
 re-deriving rows here from an abbreviated code excerpt is exactly the invention this gate exists to
 stop. A queued finding that arrives without the block is a **reviewer contract violation** — surface it
@@ -403,13 +396,13 @@ materially different fix (different mechanism, different blast radius, different
 | Severity | Constraint |
 |---|---|
 | 🔴 Blocker | no do-nothing row — a Blocker prevents shipping by definition. `Revert` only when the finding indicts the change's **premise**, not a fixable part of it |
-| 🟠 Warning | `Defer` only under a concrete blocker (external decision · blocking upstream · separate spec) — never for scope, PR focus, or size |
+| 🟠 Warning | `Defer` only under a concrete blocker (external decision · blocking upstream · separate spec) **or as a recorded terminal disposition** (the row's whole content is a durable written record — `walk-me-through.md` › standing bans, carve-out b) — never for scope, PR focus, or size |
 | 🟡 Style | same bar. "Adds noise to the diff" is not a reason to defer; in-branch findings get fixed in the branch |
 
-**A finding whose only admissible option is the fix is not a decision** — it never reaches the wizard.
-Route it to the reviewer's auto-fix path (`Fix class: clear`) and report it in the auto-fixed table. The
-queue holds only findings with **≥2 admissible options**; if the queue empties under this gate, say
-_"No decisions — all findings resolved"_ and go straight to the Decisions Summary.
+**The queue is whatever the reviewer classified `decision-needing`** — this gate shapes the rows a card
+offers, it does not re-triage findings. A queued finding whose `Admissible options:` collapses to one row
+is a **reviewer contract violation** (per the block above): surface it as a design-stop, never fabricate a
+second row and never silently auto-apply it.
 
 The escape's free-text reply also serves "explain / why" — handled in **After each reply** below.
 
@@ -420,8 +413,12 @@ The escape's free-text reply also serves "explain / why" — handled in **After 
 - **`explain` / `why` via the escape**: present which lens flagged it, what the reviewer verified, what
   would change the assessment, and any alternative interpretations considered — then **re-render the
   same card without recording a decision**.
-- **Escape → free text (a decision)**: Ask them to type their decision. Record it. Confirm in one line
-  and move on.
+- **Escape → free text (a decision)**: Record it as given — the operator's own call is not gated by
+  admissibility (`references/walk-me-through.md` › Scope of the gate), and re-rendering to make them
+  answer again is a ceremony fork. **A non-terminal or do-nothing outcome is recorded as what it is:**
+  the finding stays **open** in the Decisions Summary (`Decision: <what they said>`, not "resolved"), and
+  the Overall Assessment counts it unaddressed. Confirm in one line and move on. Re-render the card
+  **only** when the reply names no resolution at all.
 - **Escape → "discuss later"**: Add to the flagged list. Confirm: _"Flagged #<N> for discussion after
   the wizard."_ Move to the next card immediately.
 
@@ -449,7 +446,7 @@ card costs more than the cards it saves.) Blockers merge on the same terms as an
 Gate passes → render **one ordinary fork card** covering the group, whose rows are the ≥2 shared
 resolutions the gate proved every member admits:
 
-Findings #<a>, #<b>, #<c> — <shared summary> <severity>
+Q<N> of <total queued> — Findings #<a>, #<b>, #<c>: <shared summary> <severity>
 
 `<file family>` | Lens: <lens name>
 
@@ -494,7 +491,7 @@ After all items are resolved (wizard + any discussion), show the consolidated ou
 | 1   | 🔴       | `<file>` | \<summary\> | **Fix now** | Wizard     |
 | 2   | 🟠       | `<file>` | \<summary\> | **Defer**   | Discussion |
 
-**How** values: Wizard · Merged · Consent · Discussion
+**How** values: Wizard · Merged · Discussion
 
 ### Overall Assessment
 
