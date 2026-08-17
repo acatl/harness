@@ -10,7 +10,7 @@ description: >
   self-review, or PRs where all threads are already resolved. Not a code-review tool.
 license: MIT
 compatibility: Requires git + a PR host CLI (GitHub `gh` shown) + jq.
-argument-hint: "#<pr-number> [--partial]"
+argument-hint: "#<pr-number>"
 metadata:
   author: acatl
   version: "1.3.2" # x-release-please-version
@@ -25,8 +25,6 @@ from current branch; else list open PRs and ask.
 > Verify commands resolve from **HARNESS.md › Sensors** (fallback: dynamic derivation in Phase 3a).
 > Project standards = the rules dir + context docs (HARNESS.md). Conventions (branch/commit) per HARNESS.md.
 > **Finish › merge mode** (`single-merge` | `two-merge`) per HARNESS.md — governs the end-stop Next pointer.
-> **§ PR review** per HARNESS.md (reviewer roster · readiness predicate · benign checks) — governs the
-> Phase-1.5 step-6 readiness gate. Absent → that gate is skipped, never guessed.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -115,23 +113,6 @@ Main agent
 3. **Synced with origin both ways** (`git fetch origin <branch>; git rev-list --left-right --count HEAD...origin/<branch>` → `0\t0`; **left = ahead, right = behind**): **first match wins**: both non-zero → abort `error: <branch> has diverged from origin (N ahead, M behind). reconcile before re-invoking.`; else right non-zero → abort `error: behind origin/<branch> by N. pull first.`; else **left non-zero → abort** (see below) — the ahead message must carry **both** exits — `error: N unpushed commit(s) on <branch>. push them — or, if a prior run stopped rather than push (6c path-set guard), rework or drop that commit first; never push it as-is.` — because the wrong exit re-introduces the very unreviewed path that guard refused. A prior run that committed without pushing otherwise poisons two invariants: `region_map` line numbers come from the PR host in `origin/<branch>` coordinates and would be compared against a `START_SHA` that differs from them, and this run would resolve threads citing commits the remote lacks.
 4. `START_SHA=$(git rev-parse HEAD)` — this run's diff base (never advances). `EXPECTED_HEAD=$START_SHA` — the race-check baseline; **advances to each commit this run verifies** (6c), so a corrective second commit isn't blocked by its own predecessor.
 5. `GH_USER=$(gh api user --jq '.login')` — for the Phase 2 idempotency filter.
-6. **Review-round readiness** — only when HARNESS.md declares a **§ PR review** section (no section →
-   skip silently; **never guess a reviewer roster**). Run the readiness predicate it names, one
-   `--expect` per declared reviewer and one `--benign` per declared expected-failing check.
-   Exit `0` → proceed. Exit `10` → **abort**, printing its `reason=` plus the two ways forward: wait for
-   the round (`/harness:pr-autopilot #<pr>`, which is also what drives the rounds), or re-invoke with an
-   explicit **`--partial`** to triage what has arrived anyway. Exit `1` → surface the error and
-   **proceed** — an unreadable predicate is not evidence of a mid-review reviewer, and a host outage must
-   not make a PR untriageable.
-   **Why a gate and not advice:** triaging a half-arrived round replies to, resolves, and dismisses
-   threads for findings the missing reviewer is about to duplicate or contradict — so the PR is churned
-   in pieces and the next round re-opens what this one closed. It also inflates `RUN_N` toward the 5c.1
-   brake with rounds that were never the change's fault.
-   **`--partial` is the operator's call and is recorded** — in the final report and the Decision log,
-   because a reader seeing three patch rounds needs to know one was deliberately partial rather than a
-   convergence failure.
-   `harness:pr-autopilot` invokes this skill only after the same predicate passed, so under the
-   autopilot this step re-confirms in milliseconds and never waits twice.
 
 ## Phase 2 — fetch comments + thread IDs
 Use `$OWNER/$NAME` from Phase 1. **jq safety:** use `select(.body | length > 0)` — never `select(.body != "")` (the `!=` form can corrupt to the Unicode not-equal char and fail jq parse).
