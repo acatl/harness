@@ -116,6 +116,24 @@ Main agent
 
 ## Phase 2 — fetch comments + thread IDs
 Use `$OWNER/$NAME` from Phase 1. **jq safety:** use `select(.body | length > 0)` — never `select(.body != "")` (the `!=` form can corrupt to the Unicode not-equal char and fail jq parse).
+
+**READ COMPLETENESS — every host read that gates a claim (HARD).** A read has **three** outcomes, never
+two: `complete` · `empty` · `unknown`. **Only a read proven complete may be reported as a negative**
+("no blocking reviews", "0 unresolved", "no duplicates", "already replied"). Prove it, per read:
+1. **Exit status AND shape.** Non-zero exit, empty output, or output that doesn't parse as the expected
+   JSON shape → `unknown`. An error is not an empty list.
+2. **Pagination exhausted.** REST: `--paginate`. GraphQL: loop `pageInfo.hasNextPage`/`endCursor` —
+   a bare `first:N` is not a complete read.
+3. **No page-cap saturation.** Result count **equal to** the requested page size → treat as `unknown`
+   and re-read with pagination. (`reviews(first:60)` returning exactly 60 is truncation, not sixty.)
+4. **Filters don't narrow the population.** A predicate over "unresolved threads" cannot answer a
+   question about *all* findings — resolved ≠ handled. Join over the full set, then filter.
+
+`unknown` → **say `unknown` in the report and take no action that depends on the negative.** Never
+dismiss a review, resolve a thread, skip a retry, or claim a clean state on an `unknown`. This invariant
+exists because each of these failed in production: a 503 read as "no blocking reviews"; a resolved-thread
+filter that hid a finding from the 6e.1 join; a post-verification helper whose own failed read caused
+duplicate replies; a 60-node page cap read as zero.
 - **2a inline:** `gh api repos/$OWNER/$NAME/pulls/<n>/comments --paginate | jq '[.[] | {id,path,line,start_line,original_line,original_start_line,side,start_side,body,user:.user.login,pull_request_review_id,in_reply_to_id,diff_hunk}] | map(select(.body|length>0))'` (all four line fields are load-bearing: an outdated comment has `line:null` → use `original_line`; a multi-line comment's `line` is the **end** of the range → without `start_line` the 4d `region_map` misses edits at the start or middle of it)
 - **2b review bodies:** `gh api repos/$OWNER/$NAME/pulls/<n>/reviews --paginate | jq '[.[] | {id,body,state,user:.user.login,user_type:.user.type}] | map(select((.body|length>0) or .state=="CHANGES_REQUESTED"))'` — **keep body-less `CHANGES_REQUESTED` reviews**: a bot review with inline comments and an empty body would otherwise never reach `reviews:` and could never be dismissed, blocking the PR with every finding fixed`
 - **2c issue comments:** `gh api repos/$OWNER/$NAME/issues/<n>/comments --paginate`
@@ -355,7 +373,13 @@ defect (uncertified bytes). Both are 6b.2 findings.
   phrase, lint/complexity ceiling just crossed) · **lost surface** (a deletion that removes a
   guard/validation/behavior with no replacement on the added side) · **class sibling** (re-run the
   Phase-4.5 signature on this diff — a fix can create a fresh sibling of the class it fixed) ·
-  **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a line **inside an
+  **dangling reference** (this diff removed or renamed a name — an option label, a field, a section
+  heading, a verdict, a path — that another file still cites: `rg` the **old** string repo-wide; any hit
+  outside this diff is a finding) · **caller-contract break** (a *caller* branches on the string you
+  renamed — a nested skill's outcome, a return field, a status token; renaming the callee without the
+  caller leaves the new value with no branch) · **literal placeholder** (a template line that would
+  render as content: an ellipsis row inside a table, a `repeat per …` instruction between rendered rows,
+  a `<…>` sample left where real output goes) · **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a line **inside an
   interval of the SAME `path`** the 4d `region_map` carries — match `path` first, then line overlap — resolved threads included, **except the entry whose
   `thread_id` is the thread this edit's verdict implements** (per 4d: a reopened thread's own re-fix must
   not trip a finding no fold can discharge). Attribution comes from the 4c fix plan + the owning batch's
@@ -376,7 +400,10 @@ defect (uncertified bytes). Both are 6b.2 findings.
   equality with the end line → fix the region's root cause, NOT the line; a re-patched line draws a fresh comment
   next round). The skill's
   own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
-  `code-review` here. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
+  `code-review` here. **The first three lenses are mechanical — run them as greps, not as judgement**:
+  every identifier this diff deletes or renames gets an `rg` for its old form across `.claude/`,
+  `rules/`, `docs/`, `templates/`; every rendered template block gets scanned for placeholder rows. A
+  zero-finding self-check that skipped those greps is not evidence. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
   tokens), then **persist the certified reference — `CERTIFIED_TREE=$(git write-tree)`** (writes the index to a real tree object, so it survives the commit; `git commit` resets the index to the committed tree and the pre-hook bytes are otherwise unrecoverable, leaving 6c's byte check with nothing to compare against). Then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
   Findings → fix, re-stage, re-run 6b → 6b.2 → 6b.2b, commit once; **cap 2 passes — the initial certify is pass 1, so at most one fix-fold re-run** — a pass-2 survivor is a
   **known defect: never commit it silently** — stop, walk it as a 6b.1 fork (fix now / commit
