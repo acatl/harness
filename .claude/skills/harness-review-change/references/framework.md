@@ -620,9 +620,15 @@ Issue: <what is wrong>
 Why it matters: <impact>
 Suggested fix: <concrete action>
 Fix class: <clear | decision-needing>
-Admissible options: <only on `decision-needing` — the ≥2 resolutions this finding
-  admits, one per line as `<name> | <terse pro> | <terse con>`; these become the
-  wizard card's rows verbatim, so the main agent never re-derives them>
+Admissible options: <only on `decision-needing` — every resolution this finding
+  admits, one per line as `<name> | <terse pro> | <terse con>` | <the executable
+  outcome: target file · layer · the exact write, or an explicit no-write and what
+  happens instead>. These become the wizard card's rows verbatim AND the thing the
+  main agent applies on a pick — it may not re-fetch, so an option with no
+  executable outcome cannot be carried out. Normally ≥2. **Exactly one is legal
+  when a must-stop rule forces the stop** (`Load-bearing is never auto-fixed`): the
+  stop is real, the menu is not — the wizard renders the one-option consent gate
+  (`walk-me-through.md`), never a one-row table and never a design-stop>
 Recommended option: <only on `decision-needing` — **the exact name of one entry
   in `Admissible options` above** (verbatim string match; a name not in that list,
   or a `Cost if recommended` describing a different entry, is a contract violation

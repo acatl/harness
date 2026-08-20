@@ -107,12 +107,11 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
     the fix, with its sensor/commit discipline). Already inside a fine-tune loop → it's just the next fix
     pass; standalone → enter fine-tune for this finding. After the fix lands, **re-walk the failed scenario**
     to confirm it now passes, then continue the walk from where it paused.
-  - **`log the fail, keep walking`** → the fail joins this session's fail list and appears in the end
-    summary + the surfaced fail list; **nothing is written to disk** (test-guide is read-only — the
-    record is lost when the session ends). Advance to the next test. Name it that way, not
-    `note & continue`: the contract bans a do-nothing row and requires every option to state its
-    concrete outcome without implying a phantom save — this one is admissible because the fail *is*
-    reported, and only if the card says plainly that the report is session-only.
+  - **`log the fail, keep walking`** → fail joins the session fail list → end summary + fail-list
+    handoff to fine-tune. **Never written to disk** (test-guide is read-only; record dies with the
+    session). Advance. Label it exactly so — not `note & continue`: the row is admissible only because
+    the fail *is* reported, and only while the card states the report is session-only (contract: state
+    the concrete outcome, never imply a phantom save).
   - **`stop`** → end the walk now and surface the fail list.
 - **end** → print an **ephemeral summary** (not saved): `✅ N passed · ❌ N failed · ⏭️ N skipped`, then
   the **fail list** as the handoff into fine-tune. Offer an **export** (Gherkin + a priority table) only

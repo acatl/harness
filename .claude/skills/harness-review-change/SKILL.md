@@ -408,8 +408,10 @@ materially different fix (different mechanism, different blast radius, different
 
 **The queue is whatever the reviewer classified `decision-needing`** — this gate shapes the rows a card
 offers, it does not re-triage findings. A queued finding whose `Admissible options:` collapses to one row
-is a **reviewer contract violation** (per the block above): surface it as a design-stop, never fabricate a
-second row and never silently auto-apply it.
+is a **reviewer contract violation** — surface it as a design-stop — **unless a must-stop rule forced the
+stop** (`Load-bearing is never auto-fixed`), which legitimately yields one option: render the one-option
+consent gate (`references/walk-me-through.md`), one line, apply-or-not. Never fabricate a second row;
+never silently auto-apply.
 
 The escape's free-text reply also serves "explain / why" — handled in **After each reply** below.
 
@@ -453,7 +455,7 @@ card costs more than the cards it saves.) Blockers merge on the same terms as an
 Gate passes → render **one ordinary fork card** covering the group, whose rows are the ≥2 shared
 resolutions the gate proved every member admits:
 
-Q<N> of <total cards> — Findings #<a>, #<b>, #<c>: <shared summary> <severity>
+Q<N> of <total cards> — Findings #<a>, #<b>, … (all in the group): <shared summary> <severity>
 
 `<file family>` | Lens: <lens name>
 
@@ -463,7 +465,8 @@ Why it matters: <impact of the class, not of one instance>
 | # | Option | Pros | Cons |
 |---|--------|------|------|
 | A | <shared resolution 1, applied to all N> | <terse pro> | <terse con> |
-| B | <shared resolution 2, applied to all N — the gate proved it exists> | <terse pro> | <terse con> |
+| B | <shared resolution 2, applied to all N — the gate proved ≥2 exist> | <terse pro> | <terse con> |
+| … | <one row per shared resolution — 2 is the gate's minimum, not the count> | | |
 
 Recommendation: **<letter> — <name>.** <one-line reasoning>
 Cost if <letter>: <concrete — files + approx lines across the N>

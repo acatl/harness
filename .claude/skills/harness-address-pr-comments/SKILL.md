@@ -266,6 +266,12 @@ Main agent renders from returned data (no re-fetch).
   that won't execute.
 - **Option-pick format:** render a walk-me-through fork card (`references/walk-me-through.md`) — `Q<N> of <total>` + `#<N>` title, framing (comment / why-it-needs-a-decision), options table (terse Pros/Cons), grounded Recommendation (pick + reasoning + `Cost if`), `Escape:` + `Pick:` lines; operator replies by letter. **Never `AskUserQuestion` or a native picker.** One fork per turn. Yes/no gates one line.
 - **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter; never `AskUserQuestion`. **Rows = the thread's `Admissible options` list verbatim, in the order 4c derived it, lettered consecutively from `A` — never a fixed `A/B/C/D` role mapping** (a fixed mapping drops a third live fix and leaves gaps when a role is absent). Each row already passed `references/walk-me-through.md` › Admissibility, so render what arrived and add nothing: no filler row, and `Decline finding` / `Defer (blocked)` appear **only** when 4c admitted them (declining defensible on the merits · deferral under a concrete blocker or as a recorded terminal disposition — never for "out of scope" or "big change"; correctness over scope). Escape = the next free letter.
+  **Exactly ONE admissible option → consent gate, not a card.** A criterion can fire (public contract ·
+  destructive · schema · load-bearing) while 4c derives a single correct repair. The verdict stays
+  DECISION-NEEDED — the stop is real — but there is no menu: emit `👉 <exact edit> in <file:line> —
+  <blast radius>. Apply?` per `references/walk-me-through.md` › one-option consent gate. Yes → the item
+  joins the 6a batch and records `{path, pending}` in `GATE_DECIDED`. No → DECLINE,
+  `wontfix: operator declined`, resolve. Never a one-row table, never a padded second row.
 
 One-line confirm, continue — a pick on a Decision-Gate path records `{path, pending}` in `GATE_DECIDED` (no bytes exist yet — 6a hasn't run), which 6b.2 b1 redeems into a real blob on first encounter. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
 

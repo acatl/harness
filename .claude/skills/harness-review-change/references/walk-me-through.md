@@ -41,6 +41,11 @@ be false.
 lone live option with a throwaway B to fill the table is the failure this gate exists to kill: it costs
 a turn, teaches the operator the table is decoration, and buys nothing.
 
+**One admissible option on a must-stop finding → consent gate, not a table.** The skill's own rules
+decide whether it stops. They say stop + only one resolution is admissible → no menu to weigh: emit the
+consent-gate ask below (one line, apply-or-not). Never a one-row table, never a padded second row. This
+is **the** path for that case — a skill that can stop must route it here.
+
 **Scope of that rule: it removes a CARD, never a STOP.** This gate governs **what a card offers** — it
 does not classify findings, pick verdicts, or decide whether the surrounding skill stops. Collapsing to
 one option means *don't render a table*; the skill's own rules (its verdict taxonomy, its gates, its
@@ -78,7 +83,9 @@ not optional and not substitutable by prose. The shape below is the contract, no
 Verbatim means the **line's form**, not a fixed option count: `Pick:` enumerates the letters this card
 actually carries (`Pick: A / B / C?` for two options + escape), never an ellipsis or a count the rows
 don't match. `Cost if <letter>:` names the **recommended** letter — if the recommendation is
-conditional, the cost line is conditional with it, never pinned to one branch.
+conditional, the cost line is conditional with it, never pinned to one branch. The table below shows
+`A`/`B` as the **minimum, not a cap**: emit **one row per admissible option**, lettered consecutively;
+`Pick:` lists exactly those letters plus the escape. Four admissible options → four rows.
 
 **The `text` code fence below is presentational — it delimits the template for reading. Emit the card as
 live markdown (rendered table), NEVER wrapped in a code fence. A fenced card shows raw `|` pipes to the
@@ -124,8 +131,9 @@ Pick: <each lettered option, slash-separated> / <escape-letter>?
 - **Escape → drop the table**, engage in prose, then re-enter for the same fork (or skip if resolved).
 - **A resolved fork does not end the turn.** Recording a pick (lettered or via the escape) is ordinary
   completion — continue in the **same message**: next fork, or the work the answers unblocked. Only a
-  terminal `👉` ask or an explicit stop hands the turn back. A nested caller must not treat a resolved
-  escape as a stop, and must not emit a second operator turn for the same decision.
+  terminal `👉` ask or an explicit **`stopped: <fork>`** outcome hands the turn back — that sentinel is
+  the protocol marker, so a nested caller has a deterministic test, not a judgement call. A caller must
+  not treat a resolved escape as a stop, nor emit a second operator turn for one decision.
 
 ## Anti-patterns
 
