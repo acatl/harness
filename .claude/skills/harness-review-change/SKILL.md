@@ -347,7 +347,14 @@ Blockers first."_
 
 For each queued finding (Blockers → Warnings → Style — the whole queue), render one fork card:
 
-Q<N> of <total queued> — Finding #<N>: <short summary> <🔴/🟠/🟡>
+**The counter counts CARDS, not findings.** Compute `<total cards>` **after** merging — a merged card is
+one question covering several findings, so a queue of 3 findings merged into 1 card is `Q1 of 1`, and a
+queue of 5 where 3 merge is `Q1 of 3`. Numbering findings instead makes the counter lie in both
+directions: it promises questions that never come, and it forces a jump when a merged group is passed.
+The finding numbers still appear in the title — that is what identifies coverage; the counter tracks
+only the operator's remaining turns.
+
+Q<N> of <total cards> — Finding #<N>: <short summary> <🔴/🟠/🟡>
 
 `<file path>` | Lens: <lens name>
 
@@ -446,7 +453,7 @@ card costs more than the cards it saves.) Blockers merge on the same terms as an
 Gate passes → render **one ordinary fork card** covering the group, whose rows are the ≥2 shared
 resolutions the gate proved every member admits:
 
-Q<N> of <total queued> — Findings #<a>, #<b>, #<c>: <shared summary> <severity>
+Q<N> of <total cards> — Findings #<a>, #<b>, #<c>: <shared summary> <severity>
 
 `<file family>` | Lens: <lens name>
 

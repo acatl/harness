@@ -197,6 +197,13 @@ autonomous mode. Then by `Type`:
   Otherwise render the payload's options table + recommendation; ask choice or invite their own
   direction; record the picked option's `Proposed` (their own direction → draft from input, "Good?").
   Picked a `no-write` option → record the outcome, write nothing; it counts as skipped, not applied.
+  **Exactly ONE admissible option in the payload → render a consent gate, not a table.** A `Downstream`
+  finding can legitimately admit a single mitigation, and a one-row fork card is banned
+  (`references/walk-me-through.md` › Admissibility). Emit that reference's consent-gate shape instead —
+  one line, `👉 <the mitigation> — <blast radius>. Apply?` Yes → record its `Proposed`; no → record
+  declined, write nothing (skipped, not applied). **The table goes; the stop stays** — never pad to two
+  rows, never auto-apply, and never fall through to Straightforward (the `Downstream` invariant above
+  forbids it).
 - **Missing Technical Concern**: autonomous → record the payload's drafted requirement/constraint as
   approved (capturing is the improvement-aligned default; only a genuine now-vs-later tradeoff →
   Options fork). gated → "Add to spec now or track as future work?".
