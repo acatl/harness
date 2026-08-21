@@ -39,7 +39,10 @@ be false.
 
 **< 2 admissible options → there is no fork.** State the call in one line, do it, advance. Padding a
 lone live option with a throwaway B to fill the table is the failure this gate exists to kill: it costs
-a turn, teaches the operator the table is decoration, and buys nothing.
+a turn, teaches the operator the table is decoration, and buys nothing. By count: **exactly one** →
+state the call, do it, advance. **Zero** → there is no decision the gate can shape — never fabricate an
+option; the deriving skill's own rules govern (its unclear / blocked / design-stop state), and that
+outcome is recorded, never silently advanced past.
 
 **One admissible option on a must-stop finding → consent gate, not a table.** The skill's own rules
 decide whether it stops. They say stop + only one resolution is admissible → no menu to weigh: emit the
@@ -135,7 +138,7 @@ Pick: <each lettered option, slash-separated> / <escape-letter>?
 - **A resolved fork does not end the turn.** Recording a pick (lettered or via the escape) is ordinary
   completion — continue in the **same message**: next fork, or the work the answers unblocked. Only a
   terminal `👉` ask or an explicit **`stopped: <fork>`** outcome hands the turn back — that sentinel is
-  the protocol marker, so a nested caller has a deterministic test, not a judgement call. A caller must
+  the protocol marker, so a nested caller has a deterministic test, not a judgment call. A caller must
   not treat a resolved escape as a stop, nor emit a second operator turn for one decision.
 
 ## Anti-patterns

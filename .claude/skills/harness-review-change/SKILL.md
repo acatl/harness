@@ -62,18 +62,22 @@ the return contract — the engine itself is identical.
 
 | Mode | Caller | Scope | Depth | Clean-tree gate | Fork behavior | Returns |
 |------|--------|-------|-------|-----------------|---------------|---------|
-| `build-run` | `harness:build` Step F.4 · `harness:address-pr-comments` 6b.2b | this run's diff (`<change-name>`) / from 6b.2b: the staged fix diff (`git diff --cached $START_SHA`; artifact only when the PR maps to a harness change, else return-only) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer) · returns `judge_findings` |
+| `build-run` | `harness:build` Step F.4 · `harness:address-pr-comments` 6b.2b | this run's diff (`<change-name>`) / from 6b.2b: the staged fix diff (`git diff --cached $START_SHA`; artifact only when the PR maps to a harness change, else return-only) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer); from 6b.2b: writes **`<change-state-dir>/pr-fix-review.md`** instead (+ `reviewed-scope` line, **never** `reviewed-range`) — a distinct artifact, so a fix-round pass never overwrites F.4's findings record and its footer · returns `judge_findings` |
 | `pre-ship` | `harness:ship` pre-push | whole branch `origin/<default-branch>...HEAD` | **thin** (see below) | **no hard abort** (ship's `git add -A` sweeps); show diff summary | decision-needing → wizard | hands back to ship (ship commits) |
 | `operator` | bare `/harness:review-change` | committed `origin/<default-branch>...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
 
 **Autonomous by default — every mode.** The review runs to completion without permission checkpoints:
 clear fixes are applied, results reported (plus the final sensor gate in `pre-ship` / `operator` — in
-`build-run` build owns that gate; see Final verification gate). The **only** stop in the interactive
-modes is a **genuine fork** (≥2 defensible resolutions, per `Fix class: decision-needing`) — one card
-per finding. Never ask whether to walk the
+`build-run` build owns that gate; see Final verification gate). Interactive modes stop only at:
+a **genuine fork** (≥2 admissible resolutions, per `Fix class: decision-needing`) — one card per
+finding; a **one-option consent gate** (a must-stop rule — `Load-bearing is never auto-fixed` — leaves
+a single admissible repair; one-line apply-or-not); a **design-stop on invalid reviewer data** (queued
+finding missing its `Admissible options:` block, the block is empty, its `Recommended option`
+names no row in it, or its `Cost if recommended` describes a different row — `references/framework.md` › return format). Never ask whether to walk the
 queue, whether to apply decisions already made, or whether to proceed to the next stage — those are
-ceremony, not decisions, and the operator's answer is always the same. A stop must carry a real pick; if
-it doesn't, announce and continue.
+ceremony, not decisions, and the operator's answer is always the same. A ceremony stop — one carrying
+no pick, no consent ask, no design-stop — → announce and continue; never read that as license to skip
+a consent gate or a design-stop.
 
 ¹ **full = all four stances _eligible_** — each runs only when its trigger surface is present (Adaptivity
 › Scale depth to the diff); stage 3 short-circuits when stages 1–2 applied no fixes. "Full" ≠ "all four
@@ -96,6 +100,15 @@ commits `build-run` never reviewed:
 footer `reviewed-range: <base>..<head>` (`<base>` = `origin/<default-branch>` merge-base, `<head>` = `git rev-parse
 HEAD` at review time) so `pre-ship` can compute the un-reviewed complement deterministically. Mirrors
 `pr-body.md`'s `folded-against` footer.
+**From the 6b.2b caller (staged-fix diff) — NEVER stamp `reviewed-range`.** That pass inspected only
+`git diff --cached $START_SHA`, not a commit range; a `reviewed-range: <merge-base>..HEAD` stamp would
+feed pre-ship's complement math commits this pass never inspected. When the artifact is written at all,
+write it to **`<change-state-dir>/pr-fix-review.md`** — never `review-change-review.md`, whose
+`reviewed-range` footer and F.4 findings an overwrite would destroy (pre-ship would then re-review
+already-reviewed commits and the F.4 record would be gone) — stamped `reviewed-scope: staged-fix diff
+at <START_SHA> (no commit range — excluded from pre-ship complement)`. Pre-ship reads only
+`review-change-review.md` and counts **only** `reviewed-range` footers — `pr-fix-review.md` never
+enters the union.
 
 ---
 
@@ -140,7 +153,7 @@ Skill (main context) — parse mode → set scope · depth · clean-tree · fork
         │  return: references/framework.md return format (preamble + per-finding blocks + refuted)
         │
   ├── Receive results
-  ├── build-run → write artifact (+ reviewed-range footer) + return judge_findings to build
+  ├── build-run → write artifact (+ provenance footer per caller) + return judge_findings to build
   └── pre-ship/operator → Output Format: auto-fixed table + fork-card wizard on the decision queue
 ```
 
@@ -182,7 +195,8 @@ Mode-specific spawn-prompt additions:
   caller passed return-only. **Autonomous:** apply clear fixes;
   a `decision-needing` finding is either `refuted` (with reason) or escalated to `design-stop` — there
   is **no wizard**. **Do NOT run the final sensor gate and do NOT commit** — build owns both. Stamp the
-  `reviewed-range` footer in the returned artifact.
+  `reviewed-range` footer in the returned artifact (from 6b.2b: the `reviewed-scope` line instead,
+  never `reviewed-range` — Modes › reviewed-range footer).
 - **`pre-ship`** — thin scope per Modes above. Run the final sensor gate before returning. `queued`
   findings flow to the skill's wizard.
 - **`operator`** — full depth, whole scope. Run the final sensor gate. `queued` findings → wizard.
@@ -273,7 +287,8 @@ it. (`build-run` skips this — build owns the gate.)
 Per `references/framework.md` return format — preamble + one block per finding (both vocabularies) + a
 `refuted` block. The skill then, per mode:
 - **`build-run`** — write `<change-state-dir>/review-change-review.md` (findings + `reviewed-range`
-  footer) and return the `judge_findings` triple (`{summary, category, disposition}` per finding) to
+  footer; from 6b.2b: `<change-state-dir>/pr-fix-review.md` with `reviewed-scope`, never
+  `reviewed-range`) and return the `judge_findings` triple (`{summary, category, disposition}` per finding) to
   build **verbatim** for its Step G.3 run-log row. No wizard, no operator handoff.
 - **`pre-ship` / `operator`** — the **auto-fixed table** (from `Disposition: applied` blocks) as
   reporting; the **decision queue** (`Disposition: queued` + any `design-stop`) into the wizard below.
@@ -342,8 +357,12 @@ Then stop. Skip the wizard. (Still render the auto-fixed table + gate result abo
 **Never ask "ready to walk through the findings?" or offer a queue-scope pick.** Stage 1 → Stage 2
 directly, walking the **whole** queue (Blockers → Warnings → Style). Reaching the wizard at all means
 genuine forks exist; asking permission to ask them is a stop with no decision in it (the answer is
-always "all"). The only stops in interactive modes are the **finding fork cards** — each a real
-≥2-defensible-option pick, one per finding — plus the flagged-item discussion the operator opts into.
+always "all"). The only stops in interactive modes: the **finding fork cards** — each a real
+≥2-admissible-option pick, one per finding — plus the **one-option consent gates** (must-stop rule,
+single admissible repair), the **design-stops on invalid reviewer data** (missing or empty
+`Admissible options:` block, a `Recommended option` naming no row, or a `Cost if recommended` describing a
+different row), and the flagged-item discussion
+the operator opts into.
 
 Announce instead, one line, then start card #1: _"N decisions need your call — walking them now,
 Blockers first."_
@@ -355,7 +374,9 @@ Blockers first."_
 For each queued finding (Blockers → Warnings → Style — the whole queue), render one fork card:
 
 **Two independent indices — never one placeholder for both.** `Q<C> of <total cards>` is the card's
-position in the wizard (C = how many cards rendered so far, total = queue length); `Finding #<F>` is the
+position in the wizard (C = how many cards rendered so far; total = the queued findings that will
+render fork cards — one-option consent gates render as `👉` lines, not cards, so they are **excluded
+from the count** while still walked in queue order and recorded in the Decisions Summary); `Finding #<F>` is the
 finding's own number from Stage 1. They coincide only by accident (skips, re-renders, non-contiguous
 finding numbers) — compute each separately, and record decisions against `#<F>`, never against `Q<C>`.
 
@@ -396,8 +417,9 @@ letter always means "discuss later" (deferred to a post-wizard discussion) — n
 block (`references/framework.md` › return format) — the resolutions the reviewer weighed when it
 classified the finding `decision-needing`. Those are the card's rows. Stage 2 forbids re-fetching, so
 re-deriving rows here from an abbreviated code excerpt is exactly the invention this gate exists to
-stop. A queued finding that arrives without the block is a **reviewer contract violation** — surface it
-as a design-stop, don't fabricate rows for it.
+stop. A queued finding that arrives without the block, **with an empty one**, with a `Recommended option`
+naming no row in it, or with a `Cost if recommended` describing a different row is a **reviewer contract violation** — surface it as a design-stop, don't fabricate
+rows for it.
 
 Typical shape of a **real** decision queue entry: `A` = the fix the reviewer proposes · `B` = a
 materially different fix (different mechanism, different blast radius, different thing preserved) ·
@@ -407,7 +429,7 @@ materially different fix (different mechanism, different blast radius, different
 
 | Severity | Constraint |
 |---|---|
-| 🔴 Blocker | no do-nothing row — a Blocker prevents shipping by definition. `Revert` only when the finding indicts the change's **premise**, not a fixable part of it |
+| 🔴 Blocker | no do-nothing row — a Blocker prevents shipping by definition. `Decline — <why the finding is wrong>` stays admissible when defensible on the merits (a refuted Blocker is a reviewer misfire, not a shipped defect — Risk derivation rules). `Revert` only when the finding indicts the change's **premise**, not a fixable part of it |
 | 🟠 Warning | `Defer` only under a concrete blocker (external decision · blocking upstream · separate spec) **or as a recorded terminal disposition** (the row's whole content is a durable written record — `walk-me-through.md` › standing bans, carve-out b) — never for scope, PR focus, or size |
 | 🟡 Style | same bar. "Adds noise to the diff" is not a reason to defer; in-branch findings get fixed in the branch |
 
@@ -424,7 +446,7 @@ The escape's free-text reply also serves "explain / why" — handled in **After 
 
 **After each reply:**
 
-- **A lettered pick (a decision)**: Record the decision. Confirm in one line: _"Got it — #<N> →
+- **A lettered pick (a decision)**: Record the decision. Confirm in one line: _"Got it — #<F> →
   <option name>."_ Immediately move to the next card.
 - **`explain` / `why` via the escape**: present which lens flagged it, what the reviewer verified, what
   would change the assessment, and any alternative interpretations considered — then **re-render the
@@ -432,10 +454,10 @@ The escape's free-text reply also serves "explain / why" — handled in **After 
 - **Escape → free text (a decision)**: Record it as given — the operator's own call is not gated by
   admissibility (`../walk-me-through/references/walk-me-through.md` › Scope of the gate), and re-rendering to make them
   answer again is a ceremony fork. **A non-terminal or do-nothing outcome is recorded as what it is:**
-  the finding stays **open** in the Decisions Summary (`Decision: <what they said>`, not "resolved"), and
+  the finding stays **open** in the Decisions Summary (`Decision: **Open — <what they said>**`, the summary's open form — never "resolved"), and
   the Overall Assessment counts it unaddressed. Confirm in one line and move on. Re-render the card
   **only** when the reply names no resolution at all.
-- **Escape → "discuss later"**: Add to the flagged list. Confirm: _"Flagged #<N> for discussion after
+- **Escape → "discuss later"**: Add to the flagged list. Confirm: _"Flagged #<F> for discussion after
   the wizard."_ Move to the next card immediately.
 
 Do not elaborate, re-explain, or offer follow-up on confirmed decisions. Momentum matters.
@@ -450,7 +472,7 @@ If nothing was flagged → go directly to Decisions Summary.
 
 If items were flagged → say:
 
-> "Wizard complete. You flagged <#N, #M, …> for deeper discussion. Let's go through them now, one at a
+> "Wizard complete. You flagged <#F, #G, …> for deeper discussion. Let's go through them now, one at a
 > time."
 
 For each flagged item: switch to **open conversation mode** (no fork card). Present the same card
@@ -458,13 +480,18 @@ again, then discuss until the operator arrives at a decision. Confirm before mov
 
 ### Decisions Summary
 
-After all items are resolved (wizard + any discussion), show the consolidated outcome:
+After every queued item has been walked (wizard + any discussion), show the consolidated outcome:
 
-| #   | Severity | File     | Summary     | Decision    | How        |
-| --- | -------- | -------- | ----------- | ----------- | ---------- |
-| 1   | 🔴       | `<file>` | \<summary\> | **Fix now** | Wizard     |
-| 2   | 🟠       | `<file>` | \<summary\> | **Defer**   | Discussion |
+| #   | Severity | File     | Summary     | Decision                                 | How        |
+| --- | -------- | -------- | ----------- | ---------------------------------------- | ---------- |
+| F   | 🔴       | `<file>` | \<summary\> | **\<picked option name\>**               | Wizard     |
+| G   | 🟠       | `<file>` | \<summary\> | **Open — \<repair declined \| what they said\>** | Consent |
 
+**Decision** = the picked option's name (the derived row, verbatim), the operator's own escape-provided
+resolution as given (recorded per After each reply; How: Discussion), or the open form
+`**Open — <repair declined | what they said>**`, legal only with How: Consent (denied repair) or
+How: Discussion (non-terminal / do-nothing escape reply). An open row stays unresolved and counts
+unaddressed in the Overall Assessment.
 **How** values: Wizard · Consent · Discussion
 
 ### Overall Assessment
@@ -477,19 +504,31 @@ auto-fixed clear findings as resolved.
 | Risk Level            | 🔴 High / 🟠 Medium / 🟡 Low                                      |
 | Ship Recommendation   | Approve / Needs Revision / Block                                  |
 | Findings              | N 🔴 N 🟠 N 🟡 (decision queue) + N auto-fixed                    |
-| Deferred              | List any deferred or accepted-risk items — these ship with the PR |
+| Not fixed             | List declined, deferred, and open items — these ship with the PR  |
 
-**Risk derivation rules:**
+**Risk derivation rules** — classify each decision by its resolution's executable outcome (the picked
+row, or the operator's escape-provided call): **write**
+(the pick edits the tree — a fix, a revert, a pinning test) · **declined on merits** (the operator
+adjudicated the finding wrong — `Decline — <why the finding is wrong>`; **resolved, not unaddressed**:
+a refuted Blocker must not force Block, else a reviewer misfire can never yield Approve, and the
+summary would contradict "reflects what the operator actually decided" — it still lists under _Not
+fixed_ so the call stays visible) vs **unaddressed** (deferred under a carve-out · **open**: denied
+consent, or a non-terminal / do-nothing escape reply):
 
-- 🔴 High / Block: any Blocker not marked "Fix now" (deferred or accepted-risk)
-- 🟠 Medium / Needs Revision: no unaddressed Blockers, but Warnings accepted as risk
-- 🟡 Low / Approve: all Blockers fixed or reverted; Warnings either fixed or deferred (not
-  accepted-risk)
+- 🔴 High / Block: any Blocker with an unaddressed outcome — deferred or open
+- 🟠 Medium / Needs Revision: every Blocker resolved (write or declined on merits), but ≥1 Warning
+  **open** (deferred under a carve-out ≠ open — the Warning severity row admits it; never drives
+  Needs Revision)
+- 🟡 Low / Approve: every Blocker resolved, every Warning resolved or deferred under a carve-out —
+  write outcome, declined on merits, auto-fixed, or (Warnings only) deferred; Style outcomes never gate
 
 ### Action Plan
 
-Organize "Fix now" decisions into **batches**. Omit if no "Fix now" decisions were made. (Clear
-findings are already fixed — this plan covers only operator-approved fixes from the decision queue.)
+Organize every decision whose resolution — picked row or escape-provided fix — carries a **write**
+executable outcome into **batches** — the batch executes exactly that outcome. Omit if no decision
+carries a write outcome. (Clear findings are already fixed and consent-approved repairs were applied at
+the gate — neither re-enters; this plan covers only operator-approved decisions from the queue; open /
+declined / deferred decisions never enter a batch.)
 
 **Batching rules:**
 
@@ -517,7 +556,7 @@ _Highest severity: 🟠_ | _Can parallel: No — depends on Batch 1_
 | --- | ---- | ------ | -------- | --------- |
 | ... | ...  | ...    | ...      | ...       |
 
-**No "ready to proceed?" confirm.** Each "Fix now" in the plan was already picked by the operator, card
+**No "ready to proceed?" confirm.** Each fix in the plan was already picked by the operator, card
 by card — re-confirming the batch asks the same question twice. Print the plan as an announcement and
 **implement immediately** — dependent batches in their sequenced order, independent batches in parallel
 per Batching rule 4. Do not re-plan, do not ask.
