@@ -92,7 +92,9 @@ quality, or common accessibility gaps — those are "add it" findings; downstrea
 items dilutes the signal.
 
 ## A6 — Detect forks (draft cards; never ask)
-**Read `walk-me-through.md` first** — sibling file in this same directory (resolve as in A4). The card
+**Read the walk-me-through fork-card contract first** — at the **absolute path handed in your spawn
+prompt** (the orchestrator resolves it from its base dir; it is a co-shipped skill, not a file in this
+directory). The card
 shape it defines is a contract: every labeled line mandatory. You draft **complete** cards — the
 orchestrator renders them verbatim, so a missing line ships broken.
 
@@ -101,13 +103,21 @@ options table with terse Pros/Cons · Recommendation naming a concrete signal ·
 `Escape:` · `Pick:`. Number cards in the order the orchestrator renders them — severity order
 TRADEOFF → UNCLEAR — so counters read true; don't leave `<total>` for someone else to fill.
 
+**Gate every drafted card through `walk-me-through.md` › Admissibility before emitting it** — each row
+live, non-dominated, value-positive, terminal; no pre-written ladder; no `Defer` / `Accept risk` /
+`Ignore` / `Explain more` / `Discuss` rows outside their stated carve-outs. **< 2 admissible rows → not
+a card:** don't draft one — emit the finding with the `Type` its own rules already give it. **This gate
+shapes what a card OFFERS; it never changes a finding's `Type` and never relaxes a stop** (a `Downstream`
+annotation still forces `Type: options`, per the invariant below). A drafted card is rendered verbatim, so a
+filler row you draft here reaches the operator unchallenged.
+
 Check for TRADEOFF / UNCLEAR — you draft the card content, the orchestrator asks the operator:
 - **TRADEOFF** — genuine design choice, no objectively correct option; depends on product direction
   (paginate vs infinite scroll, required-at-draft vs at-submit, modal vs page, single vs multi-step).
   Options: 2–3 concrete (label = approach; Pros/Cons = upside/downside/rough effort); mark "(Recommended)".
 - **UNCLEAR** — spec too underspecified to evaluate a lens (form described but no fields listed;
   status change specced but user-facing label undefined; API called but no error states). Title: "spec
-  doesn't define [X] — intended behavior?"; 2–4 likely options + "Not sure — leave as spec gap".
+  doesn't define [X] — intended behavior?"; 2–4 likely options + `Leave as a recorded spec gap` (admissible: on an UNCLEAR the operator may genuinely not know, and recording the gap **is** a real, terminal disposition — not a deferral. Label it as the disposition it is; never as "not sure").
 Per card, note which finding #s the answer folds into ("leave as gap" → brief note in the relevant lens
 section of the findings).
 

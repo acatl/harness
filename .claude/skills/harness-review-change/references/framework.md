@@ -620,6 +620,21 @@ Issue: <what is wrong>
 Why it matters: <impact>
 Suggested fix: <concrete action>
 Fix class: <clear | decision-needing>
+Admissible options: <only on `decision-needing` — every resolution this finding
+  admits, one per line as `<name> | <terse pro> | <terse con>` | <the executable
+  outcome: target file · layer · the exact write, or an explicit no-write and what
+  happens instead>. These become the wizard card's rows verbatim AND the thing the
+  main agent applies on a pick — it may not re-fetch, so an option with no
+  executable outcome cannot be carried out. Normally ≥2. **Exactly one is legal
+  when a must-stop rule forces the stop** (`Load-bearing is never auto-fixed`): the
+  stop is real, the menu is not — the wizard renders the one-option consent gate
+  (the handed walk-me-through contract), never a one-row table and never a design-stop>
+Recommended option: <only on `decision-needing` — **the exact name of one entry
+  in `Admissible options` above** (verbatim string match; a name not in that list,
+  or a `Cost if recommended` describing a different entry, is a contract violation
+  the main agent surfaces as a design-stop — never rendered), plus the concrete
+  signal driving it; feeds the card's mandatory Recommendation line>
+Cost if recommended: <only on `decision-needing` — concrete: files/lines/effort>
 Disposition: <applied | queued | design-stop | refuted>
 Fix note: <one line — only on `applied`; the auto-fix log entry>
 Refuted because: <one line — only on `refuted`; why it was considered and dropped>
@@ -667,7 +682,13 @@ code) can make, not the caller folding findings after the fact:
   say to just apply it (depth-axis: correct fix within scope = do it).
 - **decision-needing** — a trade-off, a scope question, an architectural call,
   or anything where two reasonable engineers could pick differently. These reach
-  the operator; they are never auto-fixed.
+  the operator; they are never auto-fixed. **Carry the resolutions you weighed
+  into the finding's `Admissible options:` field** — they are the wizard's rows,
+  and the main agent cannot re-derive them (it may not re-fetch). Each must pass
+  walk-me-through contract › Admissibility (path handed in your spawn prompt); **never invent a row to fill the table.**
+  Fix class governs auto-fix vs queue as it always has — the admissibility gate
+  shapes what the _card offers_, and never reclassifies a finding or relaxes the
+  `Load-bearing is never auto-fixed` rule below.
 
 When in doubt, classify **decision-needing** — but the doubt that queues is doubt
 about **which resolution** is right (a real trade-off), or **scope-axis** (the fix

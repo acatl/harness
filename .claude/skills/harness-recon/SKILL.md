@@ -41,8 +41,10 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 ## Steps
 1. **Resolve change.** Announce `Using change: <name>`. `openspec status --change "<name>" --json`.
    No `proposal` artifact → stop: "Recon needs a proposal; author it first (`openspec new` / `harness:build`)."
-2. **Seam check.** `design.md` exists → prevention impossible → a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`): `[R] Review-only` /
-   `[S] Stop`. Existing `harness:recon` block in proposal → re-run, replace in place.
+2. **Seam check.** `design.md` exists → prevention impossible → a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`),
+   full shape (counter + TLDR + why-it-matters + Recommendation + `Cost if` + `Escape:` + `Pick:`): rows
+   `[R] Review-only` / `[S] Stop`, escape `[D]` discuss / propose other. Both rows are terminal — one runs recon as a
+   read-only pass, the other ends the run. Existing `harness:recon` block in proposal → re-run, replace in place.
 3. **Extract capabilities.** Read `proposal.md`. List implied behaviors, **concept-level not
    file-level** (e.g. "rank tasks in a project"). Per capability: label, domain nouns, verb, likely
    layer. <2 emerge → note + continue (all-`build-new` is valid for a novel change).
@@ -88,7 +90,10 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    <!-- harness:recon:end -->
    ```
 7. **Confirm.** Show verdict tally. Any judgment call (contested `extend` vs `build-new`, a coupling
-   decision) → a walk-me-through fork card: `[Y] Accept` / `[A] Adjust` / `[D] Discuss`. On A/D, revise + rewrite both.
+   decision) → a walk-me-through fork card: rows `[Y] Accept` / `[A] Adjust`, escape `[D]` discuss / propose other
+   (**escape, never a lettered row** — `Discuss` is standing-banned as a row). On `[A]`, revise + rewrite both.
+   The escape opens prose — **rewrite nothing until the discussion produces a concrete verdict change**; then
+   revise + rewrite both, or re-render the card if it resolved nothing.
    A *contested* verdict that's resolved → append one line to the **decision log** (`<change-state-dir>/decisions.md`,
    per `references/decision-log.md` — `🤖 recon`, or `👤 human` if the human picked). Obvious verdicts: not logged.
 

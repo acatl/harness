@@ -120,6 +120,24 @@ Main agent
 
 ## Phase 2 — fetch comments + thread IDs
 Use `$OWNER/$NAME` from Phase 1. **jq safety:** use `select(.body | length > 0)` — never `select(.body != "")` (the `!=` form can corrupt to the Unicode not-equal char and fail jq parse).
+
+**READ COMPLETENESS — every host read that gates a claim (HARD).** A read has **three** outcomes, never
+two: `complete` · `empty` · `unknown`. **Only a read proven complete may be reported as a negative**
+("no blocking reviews", "0 unresolved", "no duplicates", "already replied"). Prove it, per read:
+1. **Exit status AND shape.** Non-zero exit, empty output, or output that doesn't parse as the expected
+   JSON shape → `unknown`. An error is not an empty list.
+2. **Pagination exhausted.** REST: `--paginate`. GraphQL: loop `pageInfo.hasNextPage`/`endCursor` —
+   a bare `first:N` is not a complete read.
+3. **No page-cap saturation.** Result count **equal to** the requested page size → treat as `unknown`
+   and re-read with pagination. (`reviews(first:60)` returning exactly 60 is truncation, not sixty.)
+4. **Filters don't narrow the population.** A predicate over "unresolved threads" cannot answer a
+   question about *all* findings — resolved ≠ handled. Join over the full set, then filter.
+
+`unknown` → **say `unknown` in the report and take no action that depends on the negative.** Never
+dismiss a review, resolve a thread, skip a retry, or claim a clean state on an `unknown`. This invariant
+exists because each of these failed in production: a 503 read as "no blocking reviews"; a resolved-thread
+filter that hid a finding from the 6e.1 join; a post-verification helper whose own failed read caused
+duplicate replies; a 60-node page cap read as zero.
 - **2a inline:** `gh api repos/$OWNER/$NAME/pulls/<n>/comments --paginate | jq '[.[] | {id,path,line,start_line,original_line,original_start_line,side,start_side,body,user:.user.login,pull_request_review_id,in_reply_to_id,diff_hunk}] | map(select(.body|length>0))'` (all four line fields are load-bearing: an outdated comment has `line:null` → use `original_line`; a multi-line comment's `line` is the **end** of the range → without `start_line` the 4d `region_map` misses edits at the start or middle of it)
 - **2b review bodies:** `gh api repos/$OWNER/$NAME/pulls/<n>/reviews --paginate | jq '[.[] | {id,body,state,user:.user.login,user_type:.user.type}] | map(select((.body|length>0) or .state=="CHANGES_REQUESTED"))'` — **keep body-less `CHANGES_REQUESTED` reviews**: a bot review with inline comments and an empty body would otherwise never reach `reviews:` and could never be dismissed, blocking the PR with every finding fixed`
 - **2c issue comments:** `gh api repos/$OWNER/$NAME/issues/<n>/comments --paginate`
@@ -172,8 +190,8 @@ publish, or reach the network).
 Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of 5–8, all in parallel
 (one message, multiple Agent calls); N>40 cap batch at 5. Group same-file threads within a sub-agent.
 - **4a context:** read the file ±20 lines around the flagged line; follow cross-file refs; grep actual usage for proposed abstractions (YAGNI).
-- **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion) → AUTO-FIX.
-- **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → two options (recommended + alternative) + `Blocker: <one-line | none>` (reachable this session? default none).
+- **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion — **provisional until 4c derives the options**) → AUTO-FIX.
+- **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → the admissible options (recommended + any genuine alternative; never invent one) + `Blocker: <one-line | none>` (reachable this session? default none).
 - **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts/**`RUN_N`** — Phase 5 renders from returned data and must not re-fetch, so an unreturned `RUN_N` means the 5c.1 brake silently never fires)
   + **`region_map`** — the intervals **earlier runs already patched**, taken from the **raw 2a fetch**.
   Mechanical membership (no "which round" judgment — nothing tags a comment with a round): include a
@@ -222,7 +240,7 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   null-bounded interval can never overlap, silently unguarding the region). Phase 5 forbids re-fetch, so without this the
   6b.2b region check is blind in the normal (prior-`fixed:`-reply) case.
   + **`reviews:[{review_id, state, author_login, is_bot, body_verdict|none}]`** — 6e.1 runs on the main agent and Phase 5 forbids re-fetch, so without this it has no review to dismiss, no id for the URL, no bot/human test, and no body verdict.
-  + per-thread block — **skipped threads use this same shape** so 6e.1 can join them — (`#`, `ThreadID`, `RootCommentID`, **`skip_reason`** when skipped — its prior tag rides `Reply tag` — **`ReviewIDs`** = the set of `pull_request_review_id` across the thread's 2a comments; *every* review with a comment in the thread, since a later review can reply into an earlier one's thread and the verdict belongs to both, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/`Option A`/`Option B`/`Blocker`, `Reply tag`, `Code context`).
+  + per-thread block — **skipped threads use this same shape** so 6e.1 can join them — (`#`, `ThreadID`, `RootCommentID`, **`skip_reason`** when skipped — its prior tag rides `Reply tag` — **`ReviewIDs`** = the set of `pull_request_review_id` across the thread's 2a comments; *every* review with a comment in the thread, since a later review can reply into an earlier one's thread and the verdict belongs to both, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/**`Admissible options`** (the **complete** list 4c derived — one per line as `<name> | <terse pro> | <terse con> | <executable outcome: files + exact change, or explicit no-write>`, however many there are — Phase 6a receives only this payload, so an option without its own executable outcome cannot be implemented when the operator picks it over the recommendation; these become the 5d card's rows verbatim. **Never an `Option A`/`Option B` pair** — a fixed two-slot shape silently discards a third resolution, and Phase 5 cannot re-fetch to recover it)/**`Recommended option`** (which, plus the concrete signal) / **`Cost if recommended`**/`Blocker`, `Reply tag`, `Code context`).
 
 ## Phase 4.5 — class-of-issue sweep (kill repeat bot rounds)
 Sweep only classes whose fix is **AUTO-FIX-taxonomy mechanical** (Decision Gate); a DECISION-NEEDED class
@@ -256,7 +274,11 @@ missing return type"). Goal: the bot flags 1 of N identical spots → all N die 
 - **Dedup vs reviewer:** a sibling already covered by another thread is **already handled**, not swept —
   count only instances no thread flagged.
 - **Emit** per swept class: `{class, source_thread, tier1_siblings:[file:line], tier2_instances:[file:line],
-  gate_deferred:[file:line]}` → tier1 → 6a; tier2 + gate_deferred → report (gate_deferred also → 5d when interactive).
+  gate_deferred:[file:line]}` → tier1 → 6a; tier2 + gate_deferred → report. **A gate_deferred candidate
+  gets a full 4c derivation before 5d renders it** — admissible options (each with its executable
+  outcome), recommended option, cost, blocker — synthesized for the CANDIDATE (its file:line, its
+  surface), not inherited from the AUTO-FIX source thread, which cannot supply candidate-specific
+  alternatives. Bare `file:line` never reaches the wizard.
 
 ## Phase 5 — overview + decision-only wizard
 Main agent renders from returned data (no re-fetch).
@@ -269,7 +291,18 @@ Main agent renders from returned data (no re-fetch).
   block). Explicit yes → continue (5d wizard, then Phase 6); else stop — don't walk 5d forks for a run
   that won't execute.
 - **Option-pick format:** render a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`) — `Q<N> of <total>` + `#<N>` title, framing (comment / why-it-needs-a-decision), options table (terse Pros/Cons), grounded Recommendation (pick + reasoning + `Cost if`), `Escape:` + `Pick:` lines; operator replies by letter. **Never `AskUserQuestion` or a native picker.** One fork per turn. Yes/no gates one line.
-- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table A/B + C `Decline finding` + D `Defer (blocked)` only when a concrete blocker exists, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter — `A — <name> (Recommended)`, `B — <name>`, `C — Decline finding`, `D — Defer (blocked)`; never `AskUserQuestion`. **Offer D only when genuinely unreachable this session** (separate spec / external decision / blocking upstream) — never for "out of scope" or "big change" (correctness over scope). One-line confirm, continue — a pick on a Decision-Gate path records `{path, pending}` in `GATE_DECIDED` (no bytes exist yet — 6a hasn't run), which 6b.2 b1 redeems into a real blob on first encounter. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
+- **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter; never `AskUserQuestion`. **Rows = the thread's `Admissible options` list verbatim, in the order 4c derived it, lettered consecutively from `A` — never a fixed `A/B/C/D` role mapping** (a fixed mapping drops a third live fix and leaves gaps when a role is absent). Each row already passed `../walk-me-through/references/walk-me-through.md` › Admissibility, so render what arrived and add nothing: no filler row, and `Decline finding` / `Defer (blocked)` appear **only** when 4c admitted them (declining defensible on the merits · deferral under a concrete blocker or as a recorded terminal disposition — never for "out of scope" or "big change"; correctness over scope). Escape = the next free letter.
+  **Exactly ONE admissible option → consent gate, not a card.** A criterion can fire (public contract ·
+  destructive · schema · load-bearing) while 4c derives a single correct repair. The verdict stays
+  DECISION-NEEDED — the stop is real — but there is no menu: emit `👉 <exact edit> in <file:line> —
+  <blast radius>. Apply?` per `../walk-me-through/references/walk-me-through.md` › one-option consent gate. Yes → the item
+  joins the 6a batch and records `{path, pending}` in `GATE_DECIDED`. **No → the thread stays OPEN** —
+  denial rejects the repair, not the finding (a load-bearing finding is not proven wrong by "not now").
+  Reply `unclear: operator declined the repair (<one-line what>); finding stands — how should it be
+  addressed?`, do not resolve, count it unaddressed in the report. Never a one-row table, never a padded
+  second row.
+
+One-line confirm, continue — a pick on a Decision-Gate path records `{path, pending}` in `GATE_DECIDED` (no bytes exist yet — 6a hasn't run), which 6b.2 b1 redeems into a real blob on first encounter. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
 
 ## Phase 6 — execute end-to-end
 Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no per-step re-confirm. Stop only for a mid-flight cascading decision (6b.1), the 5c.1 convergence brake, an unrecognized dirty path (6b.2), corrective re-entries exhausted (6c), or a hard-gate failure.
@@ -288,7 +321,7 @@ to `FIX_SET` is a defect (silently dropped from the commit); a staged file the r
 defect (uncertified bytes). Both are 6b.2 findings.
 - **6a implement (sub-agent fan-out default):** build the batch graph (independent → parallel, dependent → sequential; same-file grouped; structural items single-threaded); dispatch one sub-agent per independent batch in a single message. Each sub-agent gets its items + fix plans, the scope statement, the Phase-3 standards summary, and `VERIFY_CMDS`; implements, verifies its batch, returns `{batch_id, files_touched, artifacts_observed, tracked_observed, verify_status, errors, cascading_findings}` — the union of `files_touched` seeds `FIX_SET`; `artifacts_observed` (per 6b's snapshot rule) is evidence about **untracked** paths only — it decides *which ask* 6b.2 raises, never that a path may be deleted, and never ownership of a **tracked** path. **Keep on main agent (don't fan out)** when: ≤3 mechanical items; any item touches load-bearing shared config (serialize); operator chose Other with no concrete plan. **Fold in Phase-4.5 tier-1 swept siblings** — each rides its owning finding's batch; the implementer confirms every candidate genuinely matches the class before fixing (per 4.5), skipping any that don't. **Always update tests inline** with each behavioral change.
 - **6b verify:** **snapshot `git status --porcelain` immediately before and after every `VERIFY_CMDS` invocation** (here and inside each 6a sub-agent, which returns **two** lists alongside `files_touched`: `artifacts_observed:[path]` for **untracked** appearances and **`tracked_observed:[path]`** for tracked paths that changed across its verify window — carry the tracked list separately and **never** as ownership; without it a sub-agent-refreshed lockfile is dirty both before *and* after the main agent's own snapshot, so b4 can never classify it and the run aborts at b5 instead of taking b4's fork) — absent-before/present-after is the *only* evidence 6b.2 accepts for an **untracked** path; it never authorizes deletion, and it never establishes ownership of a tracked path (6b.2 routes those to a fork). Then run `VERIFY_CMDS` (typecheck → lint → test). Fail → diagnose root cause, fix, re-run; don't proceed until clean. **Failure because the runner binary is absent** (not because the code is wrong — e.g. no `node_modules/.bin/<tool>`) → re-derive per 3a from the next match and note it; **never install anything to make a sensor run.** **Every file touched while diagnosing (fixture, shared helper, new test) → `FIX_SET`** — verification passes against the whole worktree, so an unrecorded file passes 6b and then vanishes from the commit.
-- **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same shape + letters as 5d — A/B + C `Decline finding` + D `Defer (blocked)` when a concrete blocker exists, then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class. Any file a cascading fix touches → `FIX_SET`; a Decision-Gate pick here records **`{path, pending}`** in `GATE_DECIDED`, as 5d does — this fork runs before 6b.2 stages, so `git rev-parse :<path>` would read the pre-implementation entry (or fail outright for a new path) and b1 would re-ask the operator the same question.
+- **6b.1 cascading-finding policy** (something found during the fix loop, not in the comments): AUTO-FIX class → fix silently in the batch, track for the report; Decision-Gate hit → stop the batch, mid-execution walk-me-through fork card (same admissibility-gated derivation as 5d — the fix + any genuine alternative; `Decline` / `Defer (blocked)` only under their 5d carve-outs; then `Escape:`/`Pick:`), resume after; genuinely blocked → stop batch, file a follow-up, `deferred:` reply, continue other batches. Never silently expand beyond AUTO-FIX class. Any file a cascading fix touches → `FIX_SET`; a Decision-Gate pick here records **`{path, pending}`** in `GATE_DECIDED`, as 5d does — this fork runs before 6b.2 stages, so `git rev-parse :<path>` would read the pre-implementation entry (or fail outright for a new path) and b1 would re-ask the operator the same question.
 - **6b.2 stage + reconcile (inline, no sub-agent; certification is 6b.2b):** stage exactly
   `FIX_SET` — `git add -- <FIX_SET>` (never `-A`/`.` — a stray verify artifact must not enter the
   certified payload; staging applies clean filters and makes new files visible). **Reconcile before
@@ -351,7 +384,13 @@ defect (uncertified bytes). Both are 6b.2 findings.
   phrase, lint/complexity ceiling just crossed) · **lost surface** (a deletion that removes a
   guard/validation/behavior with no replacement on the added side) · **class sibling** (re-run the
   Phase-4.5 signature on this diff — a fix can create a fresh sibling of the class it fixed) ·
-  **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a line **inside an
+  **dangling reference** (this diff removed or renamed a name — an option label, a field, a section
+  heading, a verdict, a path — that another file still cites: `rg` the **old** string repo-wide; any hit
+  outside this diff is a finding) · **caller-contract break** (a *caller* branches on the string you
+  renamed — a nested skill's outcome, a return field, a status token; renaming the callee without the
+  caller leaves the new value with no branch) · **literal placeholder** (a template line that would
+  render as content: an ellipsis row inside a table, a `repeat per …` instruction between rendered rows,
+  a `<…>` sample left where real output goes) · **cross-batch** (two 6a sub-agents on one surface) · **region** (this run touched a line **inside an
   interval of the SAME `path`** the 4d `region_map` carries — match `path` first, then line overlap — resolved threads included, **except the entry whose
   `thread_id` is the thread this edit's verdict implements** (per 4d: a reopened thread's own re-fix must
   not trip a finding no fold can discharge). Attribution comes from the 4c fix plan + the owning batch's
@@ -372,7 +411,10 @@ defect (uncertified bytes). Both are 6b.2 findings.
   equality with the end line → fix the region's root cause, NOT the line; a re-patched line draws a fresh comment
   next round). The skill's
   own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
-  `code-review` here. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
+  `code-review` here. **The first three lenses are mechanical — run them as greps, not as judgement**:
+  every identifier this diff deletes or renames gets an `rg` for its old form across `.claude/`,
+  `rules/`, `docs/`, `templates/`; every rendered template block gets scanned for placeholder rows. A
+  zero-finding self-check that skipped those greps is not evidence. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
   tokens), then **persist the certified reference — `CERTIFIED_TREE=$(git write-tree)`** (writes the index to a real tree object, so it survives the commit; `git commit` resets the index to the committed tree and the pre-hook bytes are otherwise unrecoverable, leaving 6c's byte check with nothing to compare against). Then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
   Findings → fix, re-stage, re-run 6b → 6b.2 → 6b.2b, commit once; **cap 2 passes — the initial certify is pass 1, so at most one fix-fold re-run** — a pass-2 survivor is a
   **known defect: never commit it silently** — stop, walk it as a 6b.1 fork (fix now / commit
