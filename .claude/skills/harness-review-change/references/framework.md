@@ -584,6 +584,13 @@ and wizard without re-fetching anything. You apply `clear` fixes to the working
 tree as you go (per `SKILL.md`) and still return this same structured format
 covering every finding — fixed and queued alike.
 
+**The preamble's `Files fixed:` line is MANDATORY — every mode, every run** (`None` when you wrote
+nothing). It is the **only** channel that tells the caller which paths you edited: your fixes land as
+uncommitted working-tree edits _the caller_ must stage. `harness:address-pr-comments` 6b.2b adds them
+to `FIX_SET`; nothing else tells it which paths you touched — an omitted path stays unstaged, is
+absent from the commit, and its post-commit reconciliation buckets it at b5 and **aborts the run**.
+`Files changed:` is the _reviewed diff's_ files — never a substitute for `Files fixed:`.
+
 **If there's nothing in scope to review** — no commits diverge from `origin/main`, and (in `operator`
 mode) no uncommitted working-tree changes either — return only:
 
@@ -597,6 +604,7 @@ STATUS: no-commits
 PREAMBLE
 Commits: <list of commits, one per line>
 Files changed: <list>
+Files fixed: <paths you wrote to, one per line, or "None">
 OpenSpec changes: <list or "None">
 Change summary:
 - <bullet 1>
@@ -623,9 +631,14 @@ Fix class: <clear | decision-needing>
 Admissible options: <only on `decision-needing` — every resolution this finding
   admits, one per line as `<name> | <terse pro> | <terse con>` | <the executable
   outcome: target file · layer · the exact write, or an explicit no-write and what
-  happens instead>. These become the wizard card's rows verbatim AND the thing the
-  main agent applies on a pick — it may not re-fetch, so an option with no
-  executable outcome cannot be carried out. Normally ≥2. **Exactly one is legal
+  happens instead>. **The first three fields ARE the wizard card's row, verbatim** —
+  they fill `Option | Pros | Cons` of the walk-me-through 4-column table (`#` carries
+  the letter). **The executable outcome is NOT a rendered column** — it is
+  implementation payload carried *alongside* the row (the thing the main agent applies
+  on a pick: review-change's Action Plan, `harness:address-pr-comments` 6a) and is
+  **never printed in the card**; rendering all four fields spills the write plan into
+  the Cons column. The main agent may not re-fetch, so an option with no executable
+  outcome cannot be carried out. Normally ≥2. **Exactly one is legal
   when a must-stop rule forces the stop** (`Load-bearing is never auto-fixed`): the
   stop is real, the menu is not — the wizard renders the one-option consent gate
   (the handed walk-me-through contract), never a one-row table and never a design-stop>

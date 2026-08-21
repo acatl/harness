@@ -62,7 +62,7 @@ the return contract — the engine itself is identical.
 
 | Mode | Caller | Scope | Depth | Clean-tree gate | Fork behavior | Returns |
 |------|--------|-------|-------|-----------------|---------------|---------|
-| `build-run` | `harness:build` Step F.4 · `harness:address-pr-comments` 6b.2b | this run's diff (`<change-name>`) / from 6b.2b: the staged fix diff (`git diff --cached $START_SHA`; artifact only when the PR maps to a harness change, else return-only) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer); from 6b.2b: writes **`<change-state-dir>/pr-fix-review.md`** instead (+ `reviewed-scope` line, **never** `reviewed-range`) — a distinct artifact, so a fix-round pass never overwrites F.4's findings record and its footer · returns `judge_findings` |
+| `build-run` | `harness:build` Step F.4 · `harness:address-pr-comments` 6b.2b | this run's diff (`<change-name>`) / from 6b.2b: the staged fix diff (`git diff --cached $START_SHA`; artifact only when the PR maps to a harness change, else return-only) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer); from 6b.2b: writes **`<change-state-dir>/pr-fix-review.md`** instead (+ `reviewed-scope` line, **never** `reviewed-range`) — a distinct artifact, so a fix-round pass never overwrites F.4's findings record and its footer · returns `judge_findings` + `files_touched` |
 | `pre-ship` | `harness:ship` pre-push | whole branch `origin/<default-branch>...HEAD` | **thin** (see below) | **no hard abort** (ship's `git add -A` sweeps); show diff summary | decision-needing → wizard | hands back to ship (ship commits) |
 | `operator` | bare `/harness:review-change` | committed `origin/<default-branch>...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
 
@@ -288,8 +288,16 @@ Per `references/framework.md` return format — preamble + one block per finding
 `refuted` block. The skill then, per mode:
 - **`build-run`** — write `<change-state-dir>/review-change-review.md` (findings + `reviewed-range`
   footer; from 6b.2b: `<change-state-dir>/pr-fix-review.md` with `reviewed-scope`, never
-  `reviewed-range`) and return the `judge_findings` triple (`{summary, category, disposition}` per finding) to
-  build **verbatim** for its Step G.3 run-log row. No wizard, no operator handoff.
+  `reviewed-range`) and return **`judge_findings` + `files_touched`**:
+  - `judge_findings` — the triple (`{summary, category, disposition}` per finding) to build
+    **verbatim** for its Step G.3 run-log row.
+  - `files_touched` — the preamble's `Files fixed` list (`references/framework.md` › return format)
+    verbatim: every path the reviewer-fixer wrote to, `[]` when none. Load-bearing — the fixes are
+    **uncommitted working-tree edits** and the caller stages them (`harness:address-pr-comments`
+    6b.2b → `FIX_SET`); omitted, they reach the caller's post-commit reconciliation unowned, bucket
+    at b5, and abort the run.
+
+  No wizard, no operator handoff.
 - **`pre-ship` / `operator`** — the **auto-fixed table** (from `Disposition: applied` blocks) as
   reporting; the **decision queue** (`Disposition: queued` + any `design-stop`) into the wizard below.
   If the queue is empty, skip the wizard; report the auto-fixed table + gate result + the mode's
@@ -411,7 +419,11 @@ this specific finding actually admits, then gate each through `../walk-me-throug
 Admissibility (live · non-dominated · value-positive · terminal, plus the standing bans). Never paste a
 generic ladder (`Fix now / Defer / Accept risk / Ignore / Revert / Explain more`) — those rows are
 pre-written, so they cannot be live for _this_ finding, and four of them are standing-banned. The escape
-letter always means "discuss later" (deferred to a post-wizard discussion) — never a lettered row.
+carries the **next free letter** — `../walk-me-through/references/walk-me-through.md` › Rules requires it
+so `Pick:` can name it — but is **never a table row**. Its letter is a channel, not a disposition: the
+reply dispatches per **After each reply** below — `explain` / `why` → re-render the same card, record
+nothing · free text naming a resolution → record it as given (open form when non-terminal) · explicit
+"discuss later" → the flagged list, walked after the wizard.
 
 **Render the options the reviewer returned.** Each queued finding carries an `Admissible options:`
 block (`references/framework.md` › return format) — the resolutions the reviewer weighed when it
@@ -441,8 +453,6 @@ consent gate (`../walk-me-through/references/walk-me-through.md`), one line, app
 `How: Consent`. **No → the finding stays OPEN** — denial rejects the repair, not the finding; record it
 unaddressed in the Decisions Summary and Overall Assessment, never as resolved. Never fabricate a second
 row; never silently auto-apply.
-
-The escape's free-text reply also serves "explain / why" — handled in **After each reply** below.
 
 **After each reply:**
 

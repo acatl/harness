@@ -43,10 +43,13 @@ cost · escape · pick), the rules, and the anti-patterns are the contract, not 
 
 **Admissibility runs first.** Options are derived per decision and each must be live · non-dominated ·
 value-positive · terminal. A pre-written option ladder is banned; so are `Defer` / `Ignore` / `Accept
-risk` / `Explain more` rows outside their narrow carve-outs. **< 2 admissible options → not a fork:**
-state the call in one line, do it, advance. **Exception** — a must-stop rule leaving exactly one
-admissible option → the blocking consent gate from [`references/walk-me-through.md`](references/walk-me-through.md):
-apply only on explicit approval; denial keeps the finding open. See the reference for the full gate.
+risk` / `Explain more` rows outside their narrow carve-outs. **< 2 admissible options → not a fork**, by
+count: **exactly one** → state the call in one line, do it, advance. **Zero** → no decision the gate can
+shape: never fabricate an option — the deriving skill's own rules govern (its unclear / blocked /
+design-stop state), and that outcome is recorded, never silently advanced past. **Exception** — a
+must-stop rule leaving exactly one admissible option → the blocking consent gate from
+[`references/walk-me-through.md`](references/walk-me-through.md): apply only on explicit approval;
+denial keeps the finding open. See the reference for the full gate.
 
 ## Flow
 

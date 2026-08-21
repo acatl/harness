@@ -97,7 +97,7 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    from `[A]`: `[A] Keep <current verdict> — artifacts stand as written` / `[B] Switch to <competing verdict> —
    revise + rewrite both artifacts with that verdict` (one `Switch` row per genuinely competing verdict),
    escape = next free letter (`[C]` when one competitor) discuss / propose other
-   (**escape, never a lettered row** — `Discuss` is standing-banned as a row).
+   (**escape line — lettered, never a table row**; `Discuss` is standing-banned as an option row).
    The escape opens prose — **rewrite nothing until the discussion produces a concrete verdict change**; then
    revise + rewrite both, or re-render the card if it resolved nothing.
    A *contested* verdict that's resolved → append one line to the **decision log** (`<change-state-dir>/decisions.md`,
