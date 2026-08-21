@@ -269,7 +269,10 @@ At the gate, emit the **pipeline trail** for the `build · spec-review gate` sto
    - **Dispatch implementing agents** — one Task agent per parallel cluster; serial clusters sequential.
      Each agent prompt includes **verbatim** (not by reference): full content of every pre-loaded rule
      file; the surface map (≥ Parallel clusters + Transitive dependencies); spec `contextFiles`; the
-     assigned task IDs + descriptions. (Fresh subagents don't inherit context.)
+     assigned task IDs + descriptions. (Fresh subagents don't inherit context.) **Findings-only
+     spawn — no fork-card contract handed:** an implementing agent surfaces a design gap /
+     spec-worthy tripwire to the orchestrator, which alone reaches the operator and renders the card;
+     the agent never derives, gates on, or renders admissible options.
    - **Each agent:** implements only its tasks (minimal, focused); reports per-task `[<id>] <summary>`
      + `files: <paths>` (orchestrator surfaces the summary immediately, accumulates files for the
      commit); after each edit runs **soft per-task verification** — narrowest applicable sensor (test

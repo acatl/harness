@@ -169,8 +169,8 @@ The spawn prompt is **mode-aware** — say, in substance:
 
 > You are the reviewer-fixer for a code-change review (**mode: `<mode>`**). Load and follow
 > `references/framework.md` (13 lenses, severity taxonomy, `Category`/`Fix class`/`Disposition`, return
-> format) and `references/deep-stances.md` (the four stances). The walk-me-through fork-card contract is
-> at **`<abs path, resolved by the orchestrator from ../walk-me-through/references/walk-me-through.md>`**
+> format) and `references/deep-stances.md` (the four stances). `Fork-card contract:
+> <abs path, resolved by the orchestrator from ../walk-me-through/references/walk-me-through.md>`
 > — read it for option admissibility. Grade against the project's quality-score
 > rubric (`docs/HARNESS.md` › Context docs). Review the change in scope: **`<scope for this mode>`**.
 >
