@@ -26,6 +26,10 @@ broken.
 > **Bindings.** Resolve from `docs/HARNESS.md`: format sensor, branch/commit conventions, version
 > source, pre-push gate, task-tracker `link` verb + `PR open` stage hook, PR host, change-state dir,
 > **Finish › merge mode** (`single-merge` | `two-merge`) — governs Step 9's Next pointer. Never hardcode.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -49,7 +53,7 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 - **No internal yes/no gates.** Invoking `ship` is consent through commit → push → PR; **announce and
   proceed, never gate** (no push confirm, no pre-commit confirm). A genuine ≥2-option fork (e.g. PR-scoping,
   or a **decision-needing pre-ship review finding** — Step 3) still renders as a walk-me-through fork card
-  (`references/walk-me-through.md`), reply by letter; never `AskUserQuestion`. A **clean** pre-ship review
+  (`../walk-me-through/references/walk-me-through.md`), reply by letter; never `AskUserQuestion`. A **clean** pre-ship review
   is not a fork — it never stops; ship proceeds to push exactly as today.
 
 ## Flow
@@ -64,9 +68,11 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    atomic ship commit (never a second commit or an amend). **A clean review does not stop** — announce
    "review clean" and continue. **The review is autonomous**: it applies its clear fixes and reports them;
    it never asks whether to fix them, whether to walk its findings, or whether to proceed. Only a
-   **decision-needing** finding stops, and it stops as a **fork card carrying a real pick** — one per
-   finding, or one bulk card per ≥3-finding severity group (no "ready to walk the queue?" preamble, no
-   post-plan re-confirm) — resolve, apply the chosen fixes, continue. That's the
+   **decision-needing** finding stops — a **fork card carrying a real pick**, one per finding, or the
+   **one-option consent gate** when a must-stop rule leaves a single admissible repair (denial keeps
+   the finding open), or a **design-stop** (design-level finding or invalid reviewer data — heads the
+   queue; no bulk cards, no "ready to walk the queue?" preamble, no post-plan re-confirm) —
+   resolve, apply the chosen fixes, continue. That's the
    Contract's genuine-fork carve-out, not a new push gate. Skip only when the change has genuinely **no reviewable behavior/contract
    surface** — pure prose (README/CHANGELOG/comments), formatting, or CI-config. A file being markdown
    doesn't make it inert: a skill or a rules-file edit is behavior, not docs.

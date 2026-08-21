@@ -45,7 +45,7 @@ Keep it tight — this is the lightweight pass, not the 15/11-lens deep dives. D
 - **Severity** each finding `🔴` critical / `🟠` major / `🟡` minor.
 - **Auto-apply** unambiguous, in-scope fixes (like the heavy reviews); re-verify after.
 - **Stop on a genuine fork** — a design-level problem, a tradeoff, or a needed decision → surface as a
-  walk-me-through fork card (`references/walk-me-through.md`), never silently patch.
+  walk-me-through fork card (the walk-me-through fork-card contract (path handed by the orchestrator — SKILL.md › Fork-card contract)), never silently patch.
 - **Gate artifact:** write `<change-state-dir>/spec-less-review.md` — findings table + per-finding
   **Problem / Impact / Evidence / Resolution** (applied AND deferred) + any forks resolved. Same durable
   record shape as the heavy reviews' artifacts; always written in full.

@@ -25,6 +25,10 @@ verified-not-shipped** — never pushes, never opens a PR (that's `harness:ship`
 > **Bindings.** Resolve from `docs/HARNESS.md`: sensors, task-tracker verbs + stage hooks, rules dir,
 > change-state dir, run-log path, runtime-verification recipe, context docs. Never hardcode a command,
 > path, or convention. `Co-Authored-By` trailer per environment.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -88,7 +92,7 @@ Default is **full**; spec-less is opt-in.
   proceeds without a stop.
 
 ## Asking the user to choose between options
-Pick-between-alternatives (not yes/no): render a walk-me-through fork card (`references/walk-me-through.md`)
+Pick-between-alternatives (not yes/no): render a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`)
 — one per turn, `Q<N> of <total>`, TLDR + why-it-matters + options table (terse Pros/Cons) + grounded
 Recommendation + `Cost if` + `Escape:` + `Pick:`; operator replies by letter. **Never `AskUserQuestion`
 or any native picker.** Yes/no gates (H2, plan-approval) and plain selections stay one line.
@@ -265,7 +269,10 @@ At the gate, emit the **pipeline trail** for the `build · spec-review gate` sto
    - **Dispatch implementing agents** — one Task agent per parallel cluster; serial clusters sequential.
      Each agent prompt includes **verbatim** (not by reference): full content of every pre-loaded rule
      file; the surface map (≥ Parallel clusters + Transitive dependencies); spec `contextFiles`; the
-     assigned task IDs + descriptions. (Fresh subagents don't inherit context.)
+     assigned task IDs + descriptions. (Fresh subagents don't inherit context.) **Findings-only
+     spawn — no fork-card contract handed:** an implementing agent surfaces a design gap /
+     spec-worthy tripwire to the orchestrator, which alone reaches the operator and renders the card;
+     the agent never derives, gates on, or renders admissible options.
    - **Each agent:** implements only its tasks (minimal, focused); reports per-task `[<id>] <summary>`
      + `files: <paths>` (orchestrator surfaces the summary immediately, accumulates files for the
      commit); after each edit runs **soft per-task verification** — narrowest applicable sensor (test
@@ -293,7 +300,10 @@ At the gate, emit the **pipeline trail** for the `build · spec-review gate` sto
      architecture/design reviews spec-less skipped (Steps B–C), regenerate the held checklist (Step D),
      then **resume impl** honoring `tasks.md` `- [x]` + `progress.md` (never redo completed work).
      **(B) log + defer** — append `## D<N> · <👤 human|🤖 build> · <decision>` to `decisions.md` and stay
-     spec-less. The flip is load-bearing → always logged. **full/absent:** inert (specs already authored,
+     spec-less. **Admissible despite the `Defer` standing ban** — it is a *recorded terminal disposition*
+     (`../walk-me-through/references/walk-me-through.md` › standing bans, carve-out b): the durable `decisions.md` entry **is**
+     the outcome, resolving the fork this turn, not an open-ended "later". Without that carve-out this
+     mandated fork would collapse to automatic escalation. The flip is load-bearing → always logged. **full/absent:** inert (specs already authored,
      nothing to escalate) — the design-gap fork above runs verbatim.
    - Update `progress.md` as each group commits. Repeat per group.
 
@@ -326,7 +336,8 @@ Run in order; each must pass:
    never amend) and **re-run the sensor gate (F.1)**; if any applied fix **touched runtime behavior**,
    **re-run behavioral-verify (F.2)** too — a runtime fix invalidates the pre-fix verdict. A
    `design-stop` disposition is a **genuine fork** — surface for a human (build is autonomous, so the
-   review raises no wizard). Keep the returned `judge_findings` verbatim for the Step G.3 run-log row.
+   review raises no wizard); a block whose `Admissible options` carries **exactly one** (a must-stop
+   rule forced the stop) is the **one-option consent gate**, one line apply-or-not — never a one-row card. Keep the returned `judge_findings` verbatim for the Step G.3 run-log row.
    **Spec-less runs this identically** — its proportional depth (trivial diff → baseline stance only) *is*
    the post-impl code review; the pre-impl inline `spec-less-review.md` (Step B/C) already reviewed the
    plan, so the two occupy different pipeline stages (plan vs code) with no duplication.

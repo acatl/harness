@@ -22,6 +22,10 @@ extend instead of building new?** Records *what exists* + *the reuse verdict* �
 
 > **Bindings.** Resolve rules dir, sources layout, change-state dir from `docs/HARNESS.md` (› Paths).
 > Never hardcode a project's directory structure.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -32,13 +36,18 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 `👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 **Where:** `harness:build` invokes it after `proposal.md`, before `design.md`. Also runs standalone.
-**Input:** optional change name; if omitted, infer from context, else `openspec list --json` + a walk-me-through fork card (`references/walk-me-through.md`).
+**Input:** optional change name; if omitted, infer from context, else `openspec list --json` + a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`).
 
 ## Steps
 1. **Resolve change.** Announce `Using change: <name>`. `openspec status --change "<name>" --json`.
    No `proposal` artifact → stop: "Recon needs a proposal; author it first (`openspec new` / `harness:build`)."
-2. **Seam check.** `design.md` exists → prevention impossible → a walk-me-through fork card (`references/walk-me-through.md`): `[R] Review-only` /
-   `[S] Stop`. Existing `harness:recon` block in proposal → re-run, replace in place.
+2. **Seam check.** `design.md` exists → prevention impossible; the only productive action is to run
+   recon anyway → **consent gate, not a fork** (`../walk-me-through/references/walk-me-through.md` ›
+   consent gate — never a two-row card with `Stop` as the filler row). Terminal block:
+   `👉 design.md already exists — recon can no longer prevent duplication, only ledger it. Run anyway?
+   Writes recon.md + the proposal's harness:recon block (an existing block is replaced in place);
+   authors no design content. (yes / no)`. **yes** → continue; **no** → end the run, write nothing,
+   breadcrumb `stopped: seam check — consent denied`.
 3. **Extract capabilities.** Read `proposal.md`. List implied behaviors, **concept-level not
    file-level** (e.g. "rank tasks in a project"). Per capability: label, domain nouns, verb, likely
    layer. <2 emerge → note + continue (all-`build-new` is valid for a novel change).
@@ -84,7 +93,13 @@ Emit one line at start + one at end — so harness iteration can trace this run 
    <!-- harness:recon:end -->
    ```
 7. **Confirm.** Show verdict tally. Any judgment call (contested `extend` vs `build-new`, a coupling
-   decision) → a walk-me-through fork card: `[Y] Accept` / `[A] Adjust` / `[D] Discuss`. On A/D, revise + rewrite both.
+   decision) → a walk-me-through fork card, rows derived from the competing verdicts, lettered consecutively
+   from `[A]`: `[A] Keep <current verdict> — artifacts stand as written` / `[B] Switch to <competing verdict> —
+   revise + rewrite both artifacts with that verdict` (one `Switch` row per genuinely competing verdict),
+   escape = next free letter (`[C]` when one competitor) discuss / propose other
+   (**escape line — lettered, never a table row**; `Discuss` is standing-banned as an option row).
+   The escape opens prose — **rewrite nothing until the discussion produces a concrete verdict change**; then
+   revise + rewrite both, or re-render the card if it resolved nothing.
    A *contested* verdict that's resolved → append one line to the **decision log** (`<change-state-dir>/decisions.md`,
    per `references/decision-log.md` — `🤖 recon`, or `👤 human` if the human picked). Obvious verdicts: not logged.
 
@@ -97,7 +112,7 @@ Verdicts: <R> reuse · <E> extend · <B> build-new
 Next: author design.md (reads the proposal incl. verdicts)
       harness:architecture — gate; verifies design honored the verdicts
 ```
-Review-only mode → replace Next with: "design already exists — feed the ledger to `harness:architecture`."
+Ran-anyway path (Step 2 **yes**) → replace Next with: "design already exists — feed the ledger to `harness:architecture`."
 
 ## Don't
 - Writes **two places only** — the marked `harness:recon` block in `proposal.md` + `<change-state-dir>/recon.md`. No other artifact, no code. Never edit vendor files (`.claude/skills/openspec-*`, `.claude/commands/opsx/*`).

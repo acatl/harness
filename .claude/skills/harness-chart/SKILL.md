@@ -20,6 +20,11 @@ metadata:
 
 # harness:chart — chart the *how*
 
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
+
 Destination is settled (`harness:refine`, or a clear stated goal). Chart plots the route there: survey →
 lay out the live routes → weigh convergently → converge on one → hand to `build`. **A stance with a
 heading** — thinking-partner tone, but it drives toward a chosen route. Not a step machine.
@@ -32,7 +37,7 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 ## Operator input
 `👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
-**Every pick is a walk-me-through fork card** (`references/walk-me-through.md`) — pure text: counter, indexed options (pros/cons), a grounded recommendation, `Cost if …`, `Escape:`, and the `Pick:` line, reproduced **verbatim**; operator replies by letter. **Never `AskUserQuestion` or any native picker.** A fork card *is* the terminal block — don't `👉`-prefix it; `👉` is only for a **bare inline ask** (e.g. the refine bounce), not a fork card. One fork per turn. (The closing handoff is the one deliberate exception — a lighter bold-led pick, below.)
+**Every pick is a walk-me-through fork card** (`../walk-me-through/references/walk-me-through.md`) — pure text: counter, indexed options (pros/cons), a grounded recommendation, `Cost if …`, `Escape:`, and the `Pick:` line, reproduced **verbatim**; operator replies by letter. **Never `AskUserQuestion` or any native picker.** A fork card *is* the terminal block — don't `👉`-prefix it; `👉` is only for a **bare inline ask** (e.g. the refine bounce), not a fork card. One fork per turn. (The closing handoff is the one deliberate exception — a lighter bold-led pick, below.)
 
 ## Stance
 Grounded (chart the real codebase, not theory) · visual (tables for comparisons · ASCII sketches for
@@ -89,7 +94,7 @@ Digestible + convergent — the machinery is on-purpose here (picking a route), 
 - Surface only the live, non-dominated routes. **One line each** (the overview).
 - **Dive one at a time** (auto-advance): tradeoff · risk · cost · reversibility. ASCII sketch over prose.
 - **Auto-advance** — route wraps → open the next in the *following* turn, naming it. One-per-turn holds — don't stack routes in one message, and don't advance past an open `👉`.
-- **Recommend one + why**, then render the pick as a **fork card** (`references/walk-me-through.md`) — options = the live routes; escape = discuss / merge / ask for another. Operator replies by letter → converge. **Never `AskUserQuestion`.**
+- **Recommend one + why**, then render the pick as a **fork card** (`../walk-me-through/references/walk-me-through.md`) — options = the live routes; escape = discuss / merge / ask for another. Operator replies by letter → converge. **Never `AskUserQuestion`.**
 
 ## Termination — pick, don't know
 Chart **picks**, it doesn't *know*. Stop at the first point a route is defensibly best; surface it; the

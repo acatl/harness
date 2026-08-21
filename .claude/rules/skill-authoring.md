@@ -92,6 +92,25 @@ input it reads at runtime must live **inside the skill dir**, referenced by a sk
 - SKILL.md refs these as `references/foo.md` / `templates/foo.md` — never `../../templates/...` (a
   relative climb out of the dir breaks when the dir is copied/packaged) and never an absolute path.
 
+**Co-shipped dependency exception.** The `walk-me-through` fork-card contract is consumed by every
+pipeline skill that renders a fork card (14 of the 15 — `harness:status` renders none);
+bundling a copy per skill multiplied review noise (bots file findings per copy) and
+inflated every contract-touching diff ~5×. It is instead a **declared hard dependency** (like
+OpenSpec): skills resolve `../walk-me-through/references/walk-me-through.md` **from their injected
+base directory** — the one sanctioned `../` climb, valid only for a dependency declared in the
+skill's Fork-card-contract binding line, never for repo-root `templates/`/`docs/`. Selective
+installs must include `walk-me-through`; a missing dependency is a stop-and-tell-the-operator error,
+never silently improvised around. Orchestrators hand sub-agents the contract's absolute path exactly
+as they hand their own `references/` paths.
+**Checkable, not implied — a sub-agent has no base dir, so it cannot resolve `../` itself.** Per skill,
+enumerate every spawn whose agent *derives, gates on, or renders* admissible options / fork cards, and
+carry `Fork-card contract: <abs path>` in each of those prompts. **Nested spawns need the whole chain**:
+an intermediate sub-agent that fans out further must be handed the path so it can pass the same absolute
+string down. A spawn whose agent only *returns findings the main agent renders* does not need it — say
+so in the skill rather than leaving the omission ambiguous. (This class recurred: one round fixed
+`architecture`/`design`/`review-change` and missed `address-pr-comments`' Phase-4 fan-out, because the
+obligation had no enumeration to check against.)
+
 **Single source of truth + sync.** The canonical copy of a shared input stays at repo root
 (`templates/`, `docs/`); the bundles are copies kept in sync by `scripts/sync-skill-resources.sh`
 (manifest of canonical→bundle pairs). After editing a canonical template/doc, run it (`sync`); CI/pre-push

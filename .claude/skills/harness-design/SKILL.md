@@ -26,6 +26,10 @@ loop, and owns **all writes**. Lens files never enter main context.
 
 > **Bindings.** Resolve the change-state dir, design references (HARNESS.md › Context docs), and the
 > design-system doc from `docs/HARNESS.md`. Never hardcode paths or product specifics.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -50,7 +54,7 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 
 ## Genuine forks — stop in BOTH modes
 - **TRADEOFF / UNCLEAR** (Step 3): a genuine design choice / an underspecified spec. Surface as
-  walk-me-through fork cards (`references/walk-me-through.md`) before the report.
+  walk-me-through fork cards (`../walk-me-through/references/walk-me-through.md`) before the report.
 - **Options-mode findings** (Step 5): a finding with a real choice or a `→ Downstream` annotation.
 - Else (one clearly correct fix) → auto-applied (autonomous) / walked (gated).
 
@@ -83,6 +87,7 @@ pulling them into main context defeats the topology. Spawn prompt, in substance:
 > `<skill-dir>/references/auditor.md` (procedure, lenses pointer, categories, return format).
 > Target change dir: **`<abs change dir>`**. Change-state dir: **`<abs path>`**.
 > Project bindings file: **`<abs path to docs/HARNESS.md>`** — resolve design references from it.
+> Fork-card contract: **`<abs path to ../walk-me-through/references/walk-me-through.md, resolved from this skill's base dir>`** — read it for option admissibility.
 > Caller context (each item changes what counts as a defect):
 > · Held artifacts: **`<roles intentionally not-yet-authored, or "none">`** — absent by design; never a finding.
 > · Spec mode: **`<full | spec-less>`** — spec-less has no `specs/` delta by design; never flag its
@@ -117,7 +122,7 @@ On return:
 - `STATUS: escalate` → spec-less change found spec-worthy. **Terminal: apply nothing, write no spec
   edits.** Print the reason + the observable behavior/contract it changes, then return it as a
   **blocking signal to the caller** — escalate-vs-defer is the caller's fork, not ours (build's Step E:
-  **(A) escalate to full** / **(B) log + defer**; load-bearing, always logged). Don't author `specs/`,
+  **(A) escalate to full** / **(B) log + defer**; load-bearing, always logged. Row B passes the `Defer` ban as a *recorded terminal disposition* — `walk-me-through.md` carve-out b). Don't author `specs/`,
   don't flip the spec-mode marker, don't pick an outcome. Standalone (no caller to fork) → render that
   same two-option card yourself. Breadcrumb `stopped: spec-worthy → caller fork`. Never downgrade it to
   a finding — an applied finding lets the run continue to task generation and ships the contract change
@@ -131,7 +136,7 @@ On return:
 
 ## Step 3 — Fork cards (before the report)
 Payload's `## Fork cards` non-empty → surface each as a walk-me-through fork card
-(`references/walk-me-through.md`), severity order TRADEOFF → UNCLEAR, one at a time. Cards arrive
+(`../walk-me-through/references/walk-me-through.md`), severity order TRADEOFF → UNCLEAR, one at a time. Cards arrive
 **complete** (auditor drafts the full shape, counters included) — render verbatim, don't renumber.
 Fold each answer into the finding #s the card names — the finding's Proposed language becomes the
 **chosen option's own `Proposed` cell** (each option carries one; never draft your own). A `no-write`
@@ -190,6 +195,12 @@ autonomous mode. Then by `Type`:
   Otherwise render the payload's options table + recommendation; ask choice or invite their own
   direction; record the picked option's `Proposed` (their own direction → draft from input, "Good?").
   Picked a `no-write` option → record the outcome, write nothing; it counts as skipped, not applied.
+  **ONE admissible option in the payload → consent gate, not a table.** A `Downstream` finding may
+  legitimately admit one mitigation; a one-row card is banned (`../walk-me-through/references/walk-me-through.md`).
+  - emit: `👉 <the mitigation> — <blast radius>. Apply?` — one line
+  - yes → record its `Proposed` · no → record declined, write nothing (skipped, not applied)
+  - never: pad to two rows · auto-apply · fall through to Straightforward (`Downstream` invariant forbids)
+  - **table goes, stop stays**
 - **Missing Journey**: autonomous → record the payload's drafted requirement as approved (capturing is
   the improvement-aligned default; only a genuine now-vs-later tradeoff → Options fork). gated →
   "Spec now or track as future work?".

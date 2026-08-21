@@ -21,6 +21,10 @@ harness improvements**. The log matters only because this reads it — a log nob
 
 > **Bindings.** Run-log path + schema from `docs/HARNESS.md › Observability` (schema:
 > `references/harness-runs.SCHEMA.md`). Reality backfill via the PR host + task tracker (HARNESS.md).
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -79,7 +83,7 @@ For each **recurring** friction pattern (not one-offs):
 ### 5. Output
 - Short report: the aggregates (grouped by `skill_version`), the top 1–3 friction patterns, the proposed
   edits with their justifying rows.
-- Ask which proposals to apply — as a walk-me-through fork card (`references/walk-me-through.md`), one per
+- Ask which proposals to apply — as a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`), one per
   turn, reply by letter; never `AskUserQuestion`. Apply only the approved ones; if a proposal edits a skill,
   note that the next run's `skill_version` changes so the effect is measurable.
 
