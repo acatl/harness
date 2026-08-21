@@ -32,6 +32,10 @@ task** — never create an OpenSpec change/spec or propose a technical approach 
 > tracker ops than the 5-verb pipeline contract** — resolve a task, create a task, search/list tasks
 > (incl. closed), update a task, close a task with a reason, tags. Map these to the backend per
 > HARNESS.md (e.g. Kino `mcp__kino__*`). Never grep to resolve a task id.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -61,7 +65,7 @@ ambition with no grounding/verdict, that's a brainstorm/idea tool, not refine.
 - **Surface before solving** — charter conflicts, already-built, load-bearing defaults named first.
 - **Interaction kinds — pick the right tool:**
   - **Single-pick fork** (clarify, project-resolve, "commit / tighten / discuss") → a **walk-me-through fork
-    card** (`references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
+    card** (`../walk-me-through/references/walk-me-through.md`): one per turn, indexed options + grounded rec + cost + escape,
     reply by letter. **Never `AskUserQuestion` or ad-hoc prose `(a)/(b)/(c)` for a fork.**
   - **Multi-select opt-in** (the ✨ Improvements pick) → a **checkbox** (`AskUserQuestion`, `multiSelect:true`)
     — check any / all / none. This is the *one* sanctioned `AskUserQuestion` use; it's the right form for a
@@ -129,7 +133,7 @@ fork the operator decides ("extend, or net-new alongside?"), never a silent shri
   banned feature.
 - Clear enough → **ask nothing**.
 - Else ≤2–3, load-bearing only, **one per turn**, each as a walk-me-through fork card
-  (`references/walk-me-through.md`) — pure text, operator replies by letter; never `AskUserQuestion`. Categories:
+  (`../walk-me-through/references/walk-me-through.md`) — pure text, operator replies by letter; never `AskUserQuestion`. Categories:
   - **Actor** — human / agent / system (watch "two wearing one coat").
   - **Problem vs solution** — solution stated, real problem unclear.
   - **Scope boundary** — one capability or three.
@@ -249,7 +253,7 @@ never writes the `spec-mode` marker or creates a change (`harness:build` does bo
   touches load-bearing config (`tsconfig`/`eslint`/CI), or preserves an architectural invariant. Blast
   radius sets review depth, **not** the mode — a pure refactor is spec-less however many files it spans and
   however many ACs verify it.
-- **Fork** (`references/walk-me-through.md`: `[A] spec-less · [B] full (recommended default)`) only when
+- **Fork** (`../walk-me-through/references/walk-me-through.md`: `[A] spec-less · [B] full (recommended default)`) only when
   spec-worthiness is genuinely borderline — never on AC or file count alone.
 - Carry the result into the build pointer (6c.5): spec-less recommended/chosen → append `--spec-less`.
 

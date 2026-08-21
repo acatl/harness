@@ -26,6 +26,10 @@ loop, and owns **all writes**. Lens files never enter main context.
 
 > **Bindings.** Resolve the change-state dir, context docs (ARCHITECTURE / RELIABILITY / SECURITY),
 > and rules dir from `docs/HARNESS.md`. Never hardcode paths.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -50,7 +54,7 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 
 ## Genuine forks — stop in BOTH modes
 - **TRADEOFF / UNCLEAR / RISK** (Step 3): real technical choice / underspecified spec / committed
-  risk. Surface as walk-me-through fork cards (`references/walk-me-through.md`) before the report.
+  risk. Surface as walk-me-through fork cards (`../walk-me-through/references/walk-me-through.md`) before the report.
 - **Options-mode findings** (Step 5): finding with a real choice or a `→ Downstream` annotation.
 - Else (one clearly correct fix) → auto-applied (autonomous) / walked (gated).
 
@@ -134,7 +138,7 @@ On return:
 
 ## Step 3 — Fork cards (before the report)
 Payload's `## Fork cards` non-empty → surface each as a walk-me-through fork card
-(`references/walk-me-through.md`), severity order TRADEOFF → UNCLEAR → RISK, one at a time. Cards
+(`../walk-me-through/references/walk-me-through.md`), severity order TRADEOFF → UNCLEAR → RISK, one at a time. Cards
 arrive **complete** (auditor drafts the full shape, counters included) — render verbatim, don't
 renumber. Fold each answer into the finding #s the card names — the finding's Proposed language becomes
 the **chosen option's own `Proposed` cell** (each option carries one; never draft your own). A

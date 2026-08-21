@@ -74,7 +74,7 @@ review depth.
    data/security · multi-capability · underspecified). Any hit → recommend **full**, silently. The common case.
 2. **None** → recommend **spec-less**. Note the **review depth** (light · or `+architecture`) from a quick
    **code-peek** of the touched surface — the peek confirms no *hidden* contract change and gauges blast radius.
-3. **Fork** (walk-me-through card, `references/walk-me-through.md`) only when spec-worthiness is genuinely
+3. **Fork** (walk-me-through card, the walk-me-through fork-card contract (path handed by the orchestrator — SKILL.md › Fork-card contract)) only when spec-worthiness is genuinely
    borderline — `[A] spec-less · [B] full (recommended default)`. Never fork on file-count alone.
 
 ## How build's tripwire applies this (mid-impl)

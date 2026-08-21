@@ -92,6 +92,16 @@ input it reads at runtime must live **inside the skill dir**, referenced by a sk
 - SKILL.md refs these as `references/foo.md` / `templates/foo.md` — never `../../templates/...` (a
   relative climb out of the dir breaks when the dir is copied/packaged) and never an absolute path.
 
+**Co-shipped dependency exception.** The `walk-me-through` fork-card contract is consumed by every
+pipeline skill; bundling a copy per skill multiplied review noise (bots file findings per copy) and
+inflated every contract-touching diff ~5×. It is instead a **declared hard dependency** (like
+OpenSpec): skills resolve `../walk-me-through/references/walk-me-through.md` **from their injected
+base directory** — the one sanctioned `../` climb, valid only for a dependency declared in the
+skill's Fork-card-contract binding line, never for repo-root `templates/`/`docs/`. Selective
+installs must include `walk-me-through`; a missing dependency is a stop-and-tell-the-operator error,
+never silently improvised around. Orchestrators hand sub-agents the contract's absolute path exactly
+as they hand their own `references/` paths.
+
 **Single source of truth + sync.** The canonical copy of a shared input stays at repo root
 (`templates/`, `docs/`); the bundles are copies kept in sync by `scripts/sync-skill-resources.sh`
 (manifest of canonical→bundle pairs). After editing a canonical template/doc, run it (`sync`); CI/pre-push

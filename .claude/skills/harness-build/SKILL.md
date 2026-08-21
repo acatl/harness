@@ -25,6 +25,10 @@ verified-not-shipped** — never pushes, never opens a PR (that's `harness:ship`
 > **Bindings.** Resolve from `docs/HARNESS.md`: sensors, task-tracker verbs + stage hooks, rules dir,
 > change-state dir, run-log path, runtime-verification recipe, context docs. Never hardcode a command,
 > path, or convention. `Co-Authored-By` trailer per environment.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -88,7 +92,7 @@ Default is **full**; spec-less is opt-in.
   proceeds without a stop.
 
 ## Asking the user to choose between options
-Pick-between-alternatives (not yes/no): render a walk-me-through fork card (`references/walk-me-through.md`)
+Pick-between-alternatives (not yes/no): render a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`)
 — one per turn, `Q<N> of <total>`, TLDR + why-it-matters + options table (terse Pros/Cons) + grounded
 Recommendation + `Cost if` + `Escape:` + `Pick:`; operator replies by letter. **Never `AskUserQuestion`
 or any native picker.** Yes/no gates (H2, plan-approval) and plain selections stay one line.

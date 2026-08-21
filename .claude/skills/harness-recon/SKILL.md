@@ -22,6 +22,10 @@ extend instead of building new?** Records *what exists* + *the reuse verdict* �
 
 > **Bindings.** Resolve rules dir, sources layout, change-state dir from `docs/HARNESS.md` (› Paths).
 > Never hardcode a project's directory structure.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -32,12 +36,12 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 `👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
 
 **Where:** `harness:build` invokes it after `proposal.md`, before `design.md`. Also runs standalone.
-**Input:** optional change name; if omitted, infer from context, else `openspec list --json` + a walk-me-through fork card (`references/walk-me-through.md`).
+**Input:** optional change name; if omitted, infer from context, else `openspec list --json` + a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`).
 
 ## Steps
 1. **Resolve change.** Announce `Using change: <name>`. `openspec status --change "<name>" --json`.
    No `proposal` artifact → stop: "Recon needs a proposal; author it first (`openspec new` / `harness:build`)."
-2. **Seam check.** `design.md` exists → prevention impossible → a walk-me-through fork card (`references/walk-me-through.md`): `[R] Review-only` /
+2. **Seam check.** `design.md` exists → prevention impossible → a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`): `[R] Review-only` /
    `[S] Stop`. Existing `harness:recon` block in proposal → re-run, replace in place.
 3. **Extract capabilities.** Read `proposal.md`. List implied behaviors, **concept-level not
    file-level** (e.g. "rank tasks in a project"). Per capability: label, domain nouns, verb, likely

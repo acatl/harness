@@ -26,6 +26,10 @@ job; this only surfaces what to check and how. Works cold.
 > **Bindings.** Resolve from `docs/HARNESS.md`: change-state dir, the **Runtime verification** recipe
 > (launch / driver / teardown — for the *how to drive each scenario* steps), the `test` sensor command
 > (for the coverage check). Never hardcode.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -101,7 +105,7 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
 
 ### 6. On fail / at the end
 - **fail → make it a decision, never auto-advance.** A fail is a fine-tune finding; **stop and offer a
-  terminal `👉` fork** (render per `references/walk-me-through.md`) — do NOT silently note-and-continue to
+  terminal `👉` fork** (render per `../walk-me-through/references/walk-me-through.md`) — do NOT silently note-and-continue to
   the next test:
   - **`fix now`** → hand the finding to **`/harness:fine-tune`** (test-guide never edits — fine-tune does
     the fix, with its sensor/commit discipline). Already inside a fine-tune loop → it's just the next fix

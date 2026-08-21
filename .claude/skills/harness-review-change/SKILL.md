@@ -30,6 +30,10 @@ out to N sub-agents.
 > `origin/<default-branch>...HEAD`; never hardcode `main`), rules dir (Paths — load-bearing guardrail),
 > Sensors (final verification gate), Context docs › quality score (the judge rubric the reviewer grades
 > against — resolve via the binding, never bundle). Never hardcode a lint/test/build command.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -42,7 +46,7 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 The review framework (13 lenses, Phase 0/1, severity taxonomy, `Category`/`Disposition`/`Fix class`,
 return format) lives in `references/framework.md`. The four internal stances live in
 `references/deep-stances.md`. Every single-pick decision renders as a pure-text fork card per
-`references/walk-me-through.md` — **never** `AskUserQuestion` or any native picker. Emit each card as
+`../walk-me-through/references/walk-me-through.md` — **never** `AskUserQuestion` or any native picker. Emit each card as
 **live rendered markdown** (the table renders), **never** wrapped in a code fence — a fenced card shows
 raw `|` pipes to the operator and breaks the interaction; the example cards below are written unfenced for
 exactly this reason. The pipeline "you are here" trail follows `references/pipeline-map.md`.
@@ -287,7 +291,7 @@ _(`build-run` renders none of this — it returns findings to build. This sectio
 wizard modes.)_
 
 Two stages: a **static summary** (TL;DR + findings overview), then a **fork-card wizard** — one
-decision-needing finding at a time, pure-text single-pick fork cards per `references/walk-me-through.md`,
+decision-needing finding at a time, pure-text single-pick fork cards per `../walk-me-through/references/walk-me-through.md`,
 **never** `AskUserQuestion`. Every finding gets a sequential `#N` index. "Findings" here = the decision
 queue only; the auto-fixed table renders first, above the summary, as reporting. Severity taxonomy is in
 `references/framework.md`.
