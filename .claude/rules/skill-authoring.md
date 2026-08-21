@@ -93,7 +93,8 @@ input it reads at runtime must live **inside the skill dir**, referenced by a sk
   relative climb out of the dir breaks when the dir is copied/packaged) and never an absolute path.
 
 **Co-shipped dependency exception.** The `walk-me-through` fork-card contract is consumed by every
-pipeline skill; bundling a copy per skill multiplied review noise (bots file findings per copy) and
+pipeline skill that renders a fork card (14 of the 15 — `harness:status` renders none);
+bundling a copy per skill multiplied review noise (bots file findings per copy) and
 inflated every contract-touching diff ~5×. It is instead a **declared hard dependency** (like
 OpenSpec): skills resolve `../walk-me-through/references/walk-me-through.md` **from their injected
 base directory** — the one sanctioned `../` climb, valid only for a dependency declared in the

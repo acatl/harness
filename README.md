@@ -42,10 +42,12 @@ it for its forks, but it's useful in any project. Install just this one:
 npx skills add acatl/harness --skill walk-me-through
 ```
 
-> **It is also a hard dependency of every `harness:*` skill** (like OpenSpec): they resolve its
-> fork-card contract as a sibling skill (`../walk-me-through/references/walk-me-through.md`) instead of
-> each bundling a copy. Installing any harness skill selectively? Install `walk-me-through` alongside it,
-> or forks will stop with a missing-dependency error.
+> **It is also a hard dependency of the 14 `harness:*` skills that render fork cards** (like OpenSpec):
+> they resolve its fork-card contract as a sibling skill
+> (`../walk-me-through/references/walk-me-through.md`) instead of each bundling a copy. The one
+> exception is `harness:status` — it renders no forks. Installing any harness skill
+> selectively? Install `walk-me-through` alongside it, or forks will stop with a missing-dependency
+> error.
 
 ## Update
 
