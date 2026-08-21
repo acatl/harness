@@ -8,6 +8,13 @@ From the next release onward this file is maintained **automatically by
 don't hand-edit released sections. Pending changes live in the standing "Release PR", not in an
 `Unreleased` heading here.
 
+## [1.4.0](https://github.com/acatl/harness/compare/harness-pipeline-v1.3.2...harness-pipeline-v1.4.0) (2026-08-21)
+
+
+### Features
+
+* **address-pr-comments:** pre-commit fix-diff self-check, prose-class sweep, convergence brake ([#45](https://github.com/acatl/harness/issues/45)) ([4524ce3](https://github.com/acatl/harness/commit/4524ce32d1d46ff39cf50c39465a2a5f1dbdb71a))
+
 ## [1.3.2](https://github.com/acatl/harness/compare/harness-pipeline-v1.3.1...harness-pipeline-v1.3.2) (2026-08-07)
 
 
