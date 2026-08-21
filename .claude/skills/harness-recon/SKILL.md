@@ -41,11 +41,13 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 ## Steps
 1. **Resolve change.** Announce `Using change: <name>`. `openspec status --change "<name>" --json`.
    No `proposal` artifact → stop: "Recon needs a proposal; author it first (`openspec new` / `harness:build`)."
-2. **Seam check.** `design.md` exists → prevention impossible → a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`),
-   full shape (counter + TLDR + why-it-matters + Recommendation + `Cost if` + `Escape:` + `Pick:`): rows
-   `[A] Run recon anyway — writes only the recon artifacts (recon.md + the proposal's harness:recon block); authors no design content` /
-   `[B] Stop — ends the run`, escape `[C]` discuss / propose other. Both rows are terminal.
-   Existing `harness:recon` block in proposal → re-run, replace in place.
+2. **Seam check.** `design.md` exists → prevention impossible; the only productive action is to run
+   recon anyway → **consent gate, not a fork** (`../walk-me-through/references/walk-me-through.md` ›
+   consent gate — never a two-row card with `Stop` as the filler row). Terminal block:
+   `👉 design.md already exists — recon can no longer prevent duplication, only ledger it. Run anyway?
+   Writes recon.md + the proposal's harness:recon block (an existing block is replaced in place);
+   authors no design content. (yes / no)`. **yes** → continue; **no** → end the run, write nothing,
+   breadcrumb `stopped: seam check — consent denied`.
 3. **Extract capabilities.** Read `proposal.md`. List implied behaviors, **concept-level not
    file-level** (e.g. "rank tasks in a project"). Per capability: label, domain nouns, verb, likely
    layer. <2 emerge → note + continue (all-`build-new` is valid for a novel change).
@@ -110,7 +112,7 @@ Verdicts: <R> reuse · <E> extend · <B> build-new
 Next: author design.md (reads the proposal incl. verdicts)
       harness:architecture — gate; verifies design honored the verdicts
 ```
-Ran-anyway path (Step 2 `[A]`) → replace Next with: "design already exists — feed the ledger to `harness:architecture`."
+Ran-anyway path (Step 2 **yes**) → replace Next with: "design already exists — feed the ledger to `harness:architecture`."
 
 ## Don't
 - Writes **two places only** — the marked `harness:recon` block in `proposal.md` + `<change-state-dir>/recon.md`. No other artifact, no code. Never edit vendor files (`.claude/skills/openspec-*`, `.claude/commands/opsx/*`).

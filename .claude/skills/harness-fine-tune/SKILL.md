@@ -70,8 +70,9 @@ skip-condition as runtime-verification) — **guided mode** (arg `guided`, or th
 block — `👉 Walk the manual/behavioral test scenarios with /harness:test-guide before continuing?
 (yes / no)` and run it only on **yes**. When invoked, `harness:test-guide` runs as a
 **nested skill** (non-terminal — resume this loop after, per Sticky mode). **Route from test-guide's own
-outcome** — `fix now` → the finding becomes the next fix pass; `log the fail, keep walking` / `stop` → don't force a
-fix, just resume the loop. Record `test-guide-offered` in the marker **either way** so it's not re-asked on
+outcome** — `fix now` → the finding becomes the next fix pass; **every other outcome** (`log the fail,
+keep walking` · `log the fail — end the walk` · `stop`) → don't force a fix, just resume the loop (the
+fail list arrives in test-guide's end summary / handoff). Record `test-guide-offered` in the marker **either way** so it's not re-asked on
 later passes or after a nested-skill/context-loss resume.
 ### 3. Ask for approval
 Brief summary of what changed → "Does this look good?" Wait. Don't proceed until yes. (These asks are bare

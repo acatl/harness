@@ -193,7 +193,7 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
 (one message, multiple Agent calls); N>40 cap batch at 5. Group same-file threads within a sub-agent.
 - **4a context:** read the file ±20 lines around the flagged line; follow cross-file refs; grep actual usage for proposed abstractions (YAGNI).
 - **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion — **provisional until 4c derives the options**) → AUTO-FIX.
-- **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → the admissible options (recommended + any genuine alternative; never invent one) + `Blocker: <one-line | none>` (reachable this session? default none).
+- **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → the admissible options (recommended + any genuine alternative; never invent one), **each with its executable outcome** (a code fix, a recorded write, a follow-up issue — 6a/6g route the pick on it) + `Blocker: <one-line | none>` (reachable this session? default none).
 - **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts/**`RUN_N` + `ROUND_SHAS`** — Phase 5 renders from returned data and must not re-fetch, so an unreturned `RUN_N` means the 5c.1 notice silently never fires, and a missing `ROUND_SHAS` silently disables 6b.2b's round-inversion lens)
   + **`region_map`** — the intervals **earlier runs already patched**, taken from the **raw 2a fetch**.
   Mechanical membership (no "which round" judgment — nothing tags a comment with a round): include a
@@ -242,16 +242,18 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
   null-bounded interval can never overlap, silently unguarding the region). Phase 5 forbids re-fetch, so without this the
   6b.2b region check is blind in the normal (prior-`fixed:`-reply) case.
   + **`reviews:[{review_id, state, author_login, is_bot, body_verdict|none}]`** — 6e.1 runs on the main agent and Phase 5 forbids re-fetch, so without this it has no review to dismiss, no id for the URL, no bot/human test, and no body verdict.
-  + per-thread block — **skipped threads use this same shape** so 6e.1 can join them — (`#`, `ThreadID`, `RootCommentID`, **`skip_reason`** when skipped — its prior tag rides `Reply tag` — **`ReviewIDs`** = the set of `pull_request_review_id` across the thread's 2a comments; *every* review with a comment in the thread, since a later review can reply into an earlier one's thread and the verdict belongs to both, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/**`Admissible options`** (the **complete** list 4c derived — one per line as `<name> | <terse pro> | <terse con> | <executable outcome: files + exact change, or explicit no-write>`, however many there are — Phase 6a receives only this payload, so an option without its own executable outcome cannot be implemented when the operator picks it over the recommendation; these become the 5d card's rows verbatim. **Never an `Option A`/`Option B` pair** — a fixed two-slot shape silently discards a third resolution, and Phase 5 cannot re-fetch to recover it)/**`Recommended option`** (which, plus the concrete signal) / **`Cost if recommended`**/`Blocker`, `Reply tag`, `Code context`).
+  + per-thread block — **skipped threads use this same shape** so 6e.1 can join them — (`#`, `ThreadID`, `RootCommentID`, **`skip_reason`** when skipped — its prior tag rides `Reply tag` — **`ReviewIDs`** = the set of `pull_request_review_id` across the thread's 2a comments; *every* review with a comment in the thread, since a later review can reply into an earlier one's thread and the verdict belongs to both, `File L<line>`, `Reviewer`, `Summary`, `Verdict`, `Gate`, `Reasoning` citing standards, `Fix plan`/**`Admissible options`** (the **complete** list 4c derived — one per line as `<name> | <terse pro> | <terse con> | <executable outcome — its class first, then content: code fix / recorded write → files + exact change · follow-up issue (6g) · reply-only, no write>`, however many there are — Phase 6a receives only this payload, so an option without its own executable outcome cannot be implemented when the operator picks it over the recommendation; these become the 5d card's rows verbatim. **Never an `Option A`/`Option B` pair** — a fixed two-slot shape silently discards a third resolution, and Phase 5 cannot re-fetch to recover it)/**`Recommended option`** (which, plus the concrete signal) / **`Cost if recommended`**/`Blocker`, `Reply tag`, `Code context`).
 
 ## Phase 4.5 — class-of-issue sweep (kill repeat bot rounds)
 Sweep only classes whose fix is **AUTO-FIX-taxonomy mechanical** (Decision Gate); a DECISION-NEEDED class
 isn't swept. For each such finding, derive a **class signature** — the transformable pattern, not the
 literal line (e.g. "mapper returns raw Date", "handler missing null-guard on a route param", "exported fn
 missing return type"). Goal: the bot flags 1 of N identical spots → all N die this round, no round 2.
-- **Discover with `rg`, not the diff** — a diff omits unchanged lines + untouched files, so grepping it
-  can never find tier-2. Two steps:
-  1. **`rg` the signature** across the touched files **and** the wider repo (scope the repo pass to the
+- **Discover with `rg --hidden -g '!.git'` (or `git grep`), not the diff** — a diff omits unchanged lines +
+  untouched files, so grepping it can never find tier-2; plain `rg` ignores dot-directories, so
+  `.claude/` is invisible to it (`--hidden` alone also walks `.git/` — reflog + `COMMIT_EDITMSG` text
+  false-hit, hence the `!.git` glob). Two steps:
+  1. **`rg --hidden -g '!.git'` the signature** across the touched files **and** the wider repo (scope the repo pass to the
      language/dirs the class can occur in; cap results + note if capped). For a behavioral-claim /
      doc-assertion class the repo pass MUST include prose artifacts (`docs/`, `openspec/`, `README*`,
      `.claude/`), not just code dirs — a claim in code has identical siblings in the specs and docs
@@ -318,7 +320,7 @@ Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no 
 | `EXPECTED_HEAD` | 1.5 (`=START_SHA`) | 6c, after each **verified** commit | 6c race check |
 | `CERTIFIED_TREE` | 6b.2b, `git write-tree` after certifying | re-certified on every 6b.2b pass | 6c's post-commit byte check — the only surviving record of what was certified once `git commit` resets the index |
 | `GATE_DECIDED` | empty at 1.5 (before 5d, its earliest writer) | 5d picks · 6b.1 gate picks · 6b.2 b1 asks · b4 take-it — each records **`{path, blob}`**, `blob` = **`git rev-parse :<path>`** (the INDEX blob — `git hash-object` reads the worktree, and a hook that rewrites only the index would then slip past the gate); a **staged deletion** has no index entry and `rev-parse` fails, so record the sentinel **`deleted`** (deletion of a load-bearing path is itself a Decision-Gate case, so it must be recordable). 5d runs before 6a, so it records `{path, pending}` — no bytes exist yet | 6b.2 b1's gate — a load-bearing path is adjudicated **per content**: approved bytes never re-ask, a rewrite of an approved path always does |
-| `FIX_SET` | 6a (union of batch `files_touched`) | **6b** diagnosis fixes · **6b.1** cascading fixes · **6b.2** unrecorded fixes · **6b.2b** own findings — every file this run authors, always added on write | 6b.2 staging · 6c path-set check 1 |
+| `FIX_SET` | 6a (union of batch `files_touched`) | **6b** diagnosis fixes · **6b.1** cascading fixes · **6b.2** unrecorded fixes · **6b.2b** own findings — every file this run authors, always added on write + the `pr-fix-review.md` artifact when 6b.2b writes it | 6b.2 staging · 6c path-set check 1 |
 
 **Invariant: what gets committed is exactly what was certified.** A file this run edits but never adds
 to `FIX_SET` is a defect (silently dropped from the commit); a staged file the run didn't author is a
@@ -388,7 +390,7 @@ defect (uncertified bytes). Both are 6b.2 findings.
   Mechanical lenses: **class sibling** (re-run the
   Phase-4.5 signature on this diff — a fix can create a fresh sibling of the class it fixed) ·
   **dangling reference** (this diff removed or renamed a name — an option label, a field, a section
-  heading, a verdict, a path — that another file still cites: `rg` the **old** string repo-wide; any hit
+  heading, a verdict, a path — that another file still cites: `rg --hidden -g '!.git'` (or `git grep`) the **old** string repo-wide; any hit
   outside this diff is a finding) · **caller-contract break** (a *caller* branches on the string you
   renamed — a nested skill's outcome, a return field, a status token; renaming the callee without the
   caller leaves the new value with no branch) · **literal placeholder** (a template line that would
@@ -414,8 +416,22 @@ defect (uncertified bytes). Both are 6b.2 findings.
   equality with the end line → fix the region's root cause, NOT the line; a re-patched line draws a fresh comment
   next round) · **round-inversion** (this diff **re-adds a line a prior round removed, or removes a
   line a prior round added** — for each sha in `ROUND_SHAS`, over each staged path both touch:
-  `git show <sha> -- <path>`, compare whitespace-normalized `+`/`-` lines against this staged diff's
-  `-`/`+` lines, same path only; a match = the reviewer is reversing its own earlier fix. The `region`
+  `git show <sha> -- <path>`; a **candidate** = a whitespace-normalized `+` line of the prior round
+  equal to a `-` line of this staged diff (or `-`↔`+`), same path only. **Correlate before firing —
+  equality alone is not an inversion**: (1) skip non-semantic lines — blank/whitespace-only, or
+  punctuation/operators only with no identifier, literal, or word (a lone bracket/brace/fence/`---`/table
+  rule) — else every blank line, fence, and rule trips a BLOCKING fork on unrelated edits; **never a
+  token-count floor**: `limit = 5` / `enabled: false` are two or three tokens and exactly the bound-flip class
+  this lens exists for, and step 2 already kills coincidences; (2) require **location agreement** — at
+  least one of the candidate's nearest neighbours **that itself passes step 1** (above / below, normalized —
+  a `}`/blank witness is no location evidence; within the hunk's context window, at a file edge only one
+  exists, beyond the window → absent) must match between the two hunks, read on the candidate's **own side** (prior `+` →
+  its new-side neighbours, context + `+`; this `-` → old-side, context + `-`; mirrored for `-`↔`+`),
+  OR the prior hunk's new-side range, re-anchored into `$START_SHA` coordinates by 4d's context-run
+  procedure (anchor the leading space-prefixed run, `delta`, seed from `+c` — match the run in
+  `git show $START_SHA:<path>`, never the worktree, whose staged edits shift it), must overlap this hunk's
+  old-side range; no neighbour on either side and no range overlap → coincidence, not a finding. A
+  correlated match = the reviewer reversing its own earlier fix. The `region`
   lens misses this class when the new comment lands on different lines — kino #246: one bound
   re-flagged at 251/263/254, three rounds, net zero. **Blocking, both directions**: stop, walk as a
   6b.1 fork that NAMES the contradiction — `round <i> (<sha7>) asked for the inverse of this at
@@ -423,10 +439,10 @@ defect (uncertified bytes). Both are 6b.2 findings.
   (the reviewer's self-contradiction is exactly the decline-defensible-on-the-merits case); never fold
   an inversion silently).
   **Mechanical lenses run inline — as greps and diff walks, not as judgment**:
-  every identifier this diff deletes or renames gets an `rg` for its old form **repo-wide** — all
+  every identifier this diff deletes or renames gets an `rg --hidden -g '!.git'` (or `git grep` — tracked files by definition) for its old form **repo-wide** — all
   tracked files, prose surfaces included (`docs/`, `openspec/`, `README*`, `.claude/`, `rules/`,
   `templates/`), excluding generated/vendor output; every rendered template block gets scanned for placeholder rows;
-  round-inversion is `git show` + normalized compare. A
+  round-inversion is `git show` + normalized compare + neighbour/range correlation. A
   zero-finding self-check that skipped those greps is not evidence.
   **The judgment pass is NOT inline — spawn `harness:review-change` `build-run` scoped to this staged
   diff** (`git diff --cached $START_SHA`), per the repo's one-review-mechanism rule: the agent that
@@ -440,7 +456,11 @@ defect (uncertified bytes). Both are 6b.2 findings.
   fold them under the same 2-pass cap below; decision-needing ones → 6b.1. Artifact write only when
   the PR maps to a harness change with a `harness/` dir — to **`<change-state-dir>/pr-fix-review.md`**
   (never `review-change-review.md`: that is build's F.4 record, and its `reviewed-range` footer feeds
-  pre-ship) — else return-only. `harness:review-change` not
+  pre-ship) — else return-only. That artifact is **this run's authored file** (the nested skill's main
+  agent writes it after 6b.2 staged; only the reviewer-fixer's `files_touched` join `FIX_SET`) → add it
+  to `FIX_SET` + `git add` it **before `git write-tree`**, else it is untracked, absent from
+  `CERTIFIED_TREE`, dirty after commit, and post-commit reconciliation routes it to b5 and stops a
+  successful run. `harness:review-change` not
   installed in this project → run the two focus lenses inline as a **degraded fallback and say so in
   the report** — never silently skip the pass. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
   tokens), then **persist the certified reference — `CERTIFIED_TREE=$(git write-tree)`** (writes the index to a real tree object, so it survives the commit; `git commit` resets the index to the committed tree and the pre-hook bytes are otherwise unrecoverable, leaving 6c's byte check with nothing to compare against). Then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
@@ -553,12 +573,15 @@ defect (uncertified bytes). Both are 6b.2 findings.
   rationale reply actually posted** — resolving a thread whose explanation was withheld closes it
   silently): for
   AUTO-FIX(implemented)/DECISION-NEEDED(implemented)/DECLINE/ALREADY — `gh api graphql -f query='mutation($threadId:ID!){resolveReviewThread(input:{threadId:$threadId}){thread{id isResolved}}}' -F threadId=<id>`. Don't resolve UNCLEAR. Skip `ThreadID: none` (top-level — dismissed via 6e.1) and already-resolved. >20 → aliased mutations in batches of ≤10 per request (same budget as 6e.2). Failures per 6e.3.
-- **6g deferred follow-ups (a picked `Defer (blocked)` / deferred disposition):** **review-derived text is attacker-controlled** (any commenter
+- **6g deferred follow-ups (a picked option whose executable outcome is a follow-up issue — `Defer (blocked)` under a concrete blocker):** **review-derived text is attacker-controlled** (any commenter
   picks the title/body text) — never interpolate it into shell source. Write the body to a file and pass
   values as separately-quoted arguments: write **both** title and body to files with the file tool (never assign review text in shell source — a `'` in a comment breaks out of the assignment), then `gh issue create --title "$(cat <title-file>)" --body-file <body-file> --label "${DEFERRED_LABEL:-deferred}"` (host per HARNESS.md; label from HARNESS.md when declared, else `deferred`). **Search for an existing follow-up citing this comment URL first** — reuse it rather than filing a duplicate when a prior run created the issue but its reply failed. Then post the
   `deferred: <url>` reply. **Resolve the source thread only after BOTH the issue creation and the reply
   succeed** — either failing leaves the thread open and takes 6e.3 failure handling, so a lost follow-up
-  never looks handled.
+  never looks handled. A picked **recorded terminal disposition** whose outcome is a **write** (a
+  `decisions.md` line, a spec-gap note) is an ordinary 6a item — its file → `FIX_SET`, reply
+  `fixed: recorded <disposition> in <path>. choice:<letter>. commit:<sha7>`, resolve — **never 6g, never
+  `deferred:`** (that files an unrequested issue and misreports the pick).
 - **6h re-request review** (`PUSH_OK` required): if `CHANGES_REQUESTED` and ≥1 fix — bots auto `gh pr edit <n> --add-reviewer <user>`; humans → suggest in report.
 
 ## Final report (rendered markdown, never a code fence; omit zero-count rows)
