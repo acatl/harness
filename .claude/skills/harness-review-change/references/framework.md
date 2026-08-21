@@ -591,18 +591,28 @@ to `FIX_SET`; nothing else tells it which paths you touched — an omitted path 
 absent from the commit, and its post-commit reconciliation buckets it at b5 and **aborts the run**.
 `Files changed:` is the _reviewed diff's_ files — never a substitute for `Files fixed:`.
 
-**If there's nothing in scope to review** — no commits diverge from `origin/main`, and (in `operator`
-mode) no uncommitted working-tree changes either — return only:
+**If there's nothing in scope to review** — emptiness is **scope-aware**, per below — return only:
 
 ```text
 STATUS: no-commits
 ```
 
+The token is identical across scopes (callers branch on it). What counts as _nothing in scope_:
+- **Commit-range scope** (`build-run` from build's F.4 · `pre-ship` · `operator`) — no commits diverge
+  from `origin/<default-branch>`; **plus**, in `operator` mode, no uncommitted working-tree changes
+  either.
+- **Caller-provided non-commit scope** (`harness:address-pr-comments` 6b.2b — the staged fix diff
+  `git diff --cached $START_SHA`) — emptiness is `git diff --cached --quiet <base>`; a **non-empty
+  staged diff IS in scope — review it**. Never test this scope with `git log <base>..HEAD`: 6b.2b runs
+  **pre-commit** and its Phase 1.5 guarantees `HEAD == START_SHA == origin/<branch>`, so that range is
+  empty by construction and the mandatory isolated judgment pass would silently no-op.
+
 **Otherwise**, return a preamble block followed by one block per finding:
 
 ```text
 PREAMBLE
-Commits: <list of commits, one per line>
+Commits: <list of commits, one per line — on a non-commit scope (6b.2b's staged fix diff) there are
+  none: emit `None — staged diff at <base>`, never a range this pass did not inspect>
 Files changed: <list>
 Files fixed: <paths you wrote to, one per line, or "None">
 OpenSpec changes: <list or "None">
@@ -640,8 +650,12 @@ Admissible options: <only on `decision-needing` — every resolution this findin
   the Cons column. The main agent may not re-fetch, so an option with no executable
   outcome cannot be carried out. Normally ≥2. **Exactly one is legal
   when a must-stop rule forces the stop** (`Load-bearing is never auto-fixed`): the
-  stop is real, the menu is not — the wizard renders the one-option consent gate
-  (the handed walk-me-through contract), never a one-row table and never a design-stop>
+  stop is real, the menu is not — **interactive modes** (`pre-ship` / `operator`): the wizard
+  renders the one-option consent gate (the handed walk-me-through contract), never a one-row table
+  and never a design-stop. **`build-run` has no wizard** — there, escalate to `design-stop` and
+  carry the single option in the block; it is the only channel to the caller's gate
+  (`harness:address-pr-comments` 6b.1), and refuting instead would ship a load-bearing change
+  unconsented>
 Recommended option: <only on `decision-needing` — **the exact name of one entry
   in `Admissible options` above** (verbatim string match; a name not in that list,
   or a `Cost if recommended` describing a different entry, is a contract violation
@@ -701,7 +715,7 @@ code) can make, not the caller folding findings after the fact:
   walk-me-through contract › Admissibility (path handed in your spawn prompt); **never invent a row to fill the table.**
   Fix class governs auto-fix vs queue as it always has — the admissibility gate
   shapes what the _card offers_, and never reclassifies a finding or relaxes the
-  `Load-bearing is never auto-fixed` rule below.
+  `Load-bearing is never auto-fixed` rule (`SKILL.md` › Fix guardrails — not below; it lives there).
 
 When in doubt, classify **decision-needing** — but the doubt that queues is doubt
 about **which resolution** is right (a real trade-off), or **scope-axis** (the fix

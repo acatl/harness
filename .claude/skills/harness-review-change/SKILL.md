@@ -62,7 +62,7 @@ the return contract — the engine itself is identical.
 
 | Mode | Caller | Scope | Depth | Clean-tree gate | Fork behavior | Returns |
 |------|--------|-------|-------|-----------------|---------------|---------|
-| `build-run` | `harness:build` Step F.4 · `harness:address-pr-comments` 6b.2b | this run's diff (`<change-name>`) / from 6b.2b: the staged fix diff (`git diff --cached $START_SHA`; artifact only when the PR maps to a harness change, else return-only) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer); from 6b.2b: writes **`<change-state-dir>/pr-fix-review.md`** instead (+ `reviewed-scope` line, **never** `reviewed-range`) — a distinct artifact, so a fix-round pass never overwrites F.4's findings record and its footer · returns `judge_findings` + `files_touched` |
+| `build-run` | `harness:build` Step F.4 · `harness:address-pr-comments` 6b.2b | this run's diff (`<change-name>`) / from 6b.2b: the staged fix diff (`git diff --cached $START_SHA`; artifact only when the PR maps to a harness change, else return-only) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer); from 6b.2b: writes **`<change-state-dir>/pr-fix-review.md`** instead (+ `reviewed-scope` line, **never** `reviewed-range`) — a distinct artifact, so a fix-round pass never overwrites F.4's findings record and its footer · returns `judge_findings` + `files_touched` + `design_stops` (full finding blocks — the triple can't fill a fork card) |
 | `pre-ship` | `harness:ship` pre-push | whole branch `origin/<default-branch>...HEAD` | **thin** (see below) | **no hard abort** (ship's `git add -A` sweeps); show diff summary | decision-needing → wizard | hands back to ship (ship commits) |
 | `operator` | bare `/harness:review-change` | committed `origin/<default-branch>...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
 
@@ -71,7 +71,8 @@ clear fixes are applied, results reported (plus the final sensor gate in `pre-sh
 `build-run` build owns that gate; see Final verification gate). Interactive modes stop only at:
 a **genuine fork** (≥2 admissible resolutions, per `Fix class: decision-needing`) — one card per
 finding; a **one-option consent gate** (a must-stop rule — `Load-bearing is never auto-fixed` — leaves
-a single admissible repair; one-line apply-or-not); a **design-stop on invalid reviewer data** (queued
+a single admissible repair; one-line apply-or-not — **`build-run` has no wizard: it escalates that
+finding to `design-stop` and returns it in `design_stops`**, never refutes it); a **design-stop on invalid reviewer data** (queued
 finding missing its `Admissible options:` block, the block is empty, its `Recommended option`
 names no row in it, or its `Cost if recommended` describes a different row — `references/framework.md` › return format). Never ask whether to walk the
 queue, whether to apply decisions already made, or whether to proceed to the next stage — those are
@@ -144,7 +145,8 @@ Skill (main context) — parse mode → set scope · depth · clean-tree · fork
   │
   └── Spawn ONE reviewer-fixer sub-agent (warm context for the whole review)
         │  Gather bundle ONCE: Phase 0 + Phase 1 + diff (per mode scope) + source
-        │  Gate: nothing in scope (no diverging commits; operator: none + clean tree) → STATUS: no-commits, stop.
+        │  Gate (scope-aware) → STATUS: no-commits, stop: commit-range scope = no diverging commits (operator: none + clean tree);
+        │        caller-provided non-commit scope (6b.2b staged fix diff) = git diff --cached --quiet <base> (non-empty staged diff IS in scope).
         │  Stage 1 baseline       → fix clear · note decision-needing   (thin: scoped per above)
         │  Stage 2 cross-cutting  → (remembers S1; delta only) fix clear · note
         │  Stage 3 adversarial    → refute own fixes + residue sweep; fix regressions   (skip if no fixes)
@@ -204,11 +206,18 @@ Mode-specific spawn-prompt additions:
 The agent gathers data in batches (parallelism per the framework):
 - **Batch 1** (parallel): `git fetch origin <default-branch> && git log --oneline <scope>`; `git diff --name-only
   <scope>`; `openspec list --json`; read `CLAUDE.md`, the package manifest, `README.md` (Phase 0);
-  in `build-run`, the handed build artifacts.
-- **Gate**: nothing in scope — no diverging commits (and, in `operator` mode, no uncommitted changes) →
-  return `STATUS: no-commits`, stop.
-- **Batch 2** (parallel): `git diff <scope>` split by top-level directory; Phase 1 artifacts if OpenSpec
-  changes detected.
+  in `build-run`, the handed build artifacts. **Caller-provided non-commit scope** (6b.2b's staged fix
+  diff): **skip `git log`** — no commits exist by construction (Gate below) and the range form is
+  ill-formed against a `git diff --cached` scope; the name list is `git diff --cached --name-only <base>`.
+- **Gate** (scope-aware): nothing in scope → return `STATUS: no-commits` (token unchanged across
+  scopes — callers branch on it), stop. **Commit-range scope** (build's F.4 · `pre-ship` · `operator`):
+  no commits diverge from `origin/<default-branch>` (and, in `operator` mode, no uncommitted
+  working-tree changes either). **Caller-provided non-commit scope** (6b.2b's staged fix diff):
+  emptiness is `git diff --cached --quiet <base>` — a non-empty staged diff **IS** in scope; never test
+  it with `git log <base>..HEAD`, which is empty by construction there (6b.2b runs pre-commit;
+  Phase 1.5 guarantees `HEAD == START_SHA == origin/<branch>`) and would no-op the mandatory pass.
+- **Batch 2** (parallel): `git diff <scope>` (**non-commit scope:** `git diff --cached <base>`) split by
+  top-level directory; Phase 1 artifacts if OpenSpec changes detected.
 - **Batch 3** (parallel): read full source files for context, batched by area.
 - **Batch 4** (parallel): targeted grep/read verification for specific concerns.
 
@@ -288,7 +297,7 @@ Per `references/framework.md` return format — preamble + one block per finding
 `refuted` block. The skill then, per mode:
 - **`build-run`** — write `<change-state-dir>/review-change-review.md` (findings + `reviewed-range`
   footer; from 6b.2b: `<change-state-dir>/pr-fix-review.md` with `reviewed-scope`, never
-  `reviewed-range`) and return **`judge_findings` + `files_touched`**:
+  `reviewed-range`) and return **`judge_findings` + `files_touched` + `design_stops`**:
   - `judge_findings` — the triple (`{summary, category, disposition}` per finding) to build
     **verbatim** for its Step G.3 run-log row.
   - `files_touched` — the preamble's `Files fixed` list (`references/framework.md` › return format)
@@ -296,6 +305,21 @@ Per `references/framework.md` return format — preamble + one block per finding
     **uncommitted working-tree edits** and the caller stages them (`harness:address-pr-comments`
     6b.2b → `FIX_SET`); omitted, they reach the caller's post-commit reconciliation unowned, bucket
     at b5, and abort the run.
+  - `design_stops` — for **every** finding with `Disposition: design-stop`, its **full
+    `references/framework.md` finding block verbatim** (File / Summary / Issue / Why it matters /
+    Suggested fix / Admissible options / Recommended option / Cost if recommended / Code context);
+    `[]` when none. **A one-option must-stop block is legal here** (`Load-bearing is never
+    auto-fixed` leaves a single admissible repair): carry the single option — the caller renders it
+    as a consent gate, not a card. `framework.md`'s "never a design-stop" scopes to the interactive
+    modes, which have a wizard; `build-run` does not, so this is that finding's only route out.
+    **Load-bearing** — the caller renders these (the ≥2-option ones) as fork cards
+    (`harness:address-pr-comments` 6b.1) and the `judge_findings` triple
+    (`{summary, category, disposition}`) **cannot fill one**: no `File L<line>`, no `Admissible
+    options` with their executable outcomes, no `Recommended option`, no `Cost if recommended`. On the
+    **return-only** path (6b.2b when the PR maps to no harness change with a `harness/` dir) **no
+    artifact is written**, so this return is the caller's only channel for the block. Purely
+    **additive**: `judge_findings`' shape is unchanged — build's Step G.3 folds it verbatim into the
+    run-log and the run-log schema (`harness-runs.SCHEMA.md`) pins its disposition enum.
 
   No wizard, no operator handoff.
 - **`pre-ship` / `operator`** — the **auto-fixed table** (from `Disposition: applied` blocks) as

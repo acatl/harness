@@ -333,7 +333,8 @@ Run in order; each must pass:
    never amend) and **re-run the sensor gate (F.1)**; if any applied fix **touched runtime behavior**,
    **re-run behavioral-verify (F.2)** too — a runtime fix invalidates the pre-fix verdict. A
    `design-stop` disposition is a **genuine fork** — surface for a human (build is autonomous, so the
-   review raises no wizard). Keep the returned `judge_findings` verbatim for the Step G.3 run-log row.
+   review raises no wizard); a block whose `Admissible options` carries **exactly one** (a must-stop
+   rule forced the stop) is the **one-option consent gate**, one line apply-or-not — never a one-row card. Keep the returned `judge_findings` verbatim for the Step G.3 run-log row.
    **Spec-less runs this identically** — its proportional depth (trivial diff → baseline stance only) *is*
    the post-impl code review; the pre-impl inline `spec-less-review.md` (Step B/C) already reviewed the
    plan, so the two occupy different pipeline stages (plan vs code) with no duplication.
