@@ -49,16 +49,20 @@ When a decision is made, update these files in the same change — they are the 
   [.claude/rules/skill-authoring.md](.claude/rules/skill-authoring.md) › Bundled resources.
 - **One review mechanism.** Code review lives in a single skill, `harness:review-change` (13 lenses / 4
   stances / severity taxonomy in its `references/`), invoked at multiple altitudes via its `mode` arg:
-  `build-run` (build's verify core — Step F.4), `pre-ship` (ship's pre-push gate), `operator`
+  `build-run` (build's verify core — Step F.4; also address-pr-comments' 6b.2b judgment pass), `pre-ship` (ship's pre-push gate), `operator`
   (standalone). Don't re-inline a review pass anywhere else — call `review-change` with the right mode so
   the lenses stay defined once. The reviewer runs as an isolated sub-agent (real doer ≠ judge).
   **What this governs — the lens mechanism:** a pass that grades a change against the 13 lenses / 4
   stances, or any open-ended defect hunt over a diff; it must run isolated and be defined once.
-  **Not** a skill's bounded **self-check on its own output** — a fixed, enumerated check list, run
-  inline, gating that skill's own commit (e.g. `address-pr-comments` 6b.2). Those are commit-gates:
-  they define no lenses, must not spawn `review-change`, and stay inside the skill they guard. A
-  self-check that grows lenses, stances, or open-ended defect hunting has become a review pass →
-  route it through `review-change`.
+  **Not** a skill's bounded, **mechanical** self-check on its own output — enumerated greps, diff
+  walks, signature re-runs, run inline, gating that skill's own commit (e.g. `address-pr-comments`
+  6b.2b's mechanical lenses). Those are commit-gates: they stay inside the skill they guard and don't
+  spawn `review-change` for what a grep can prove. The moment a self-check needs **open-ended judgment
+  over a diff** — a defect hunt, not an enumerated check — that portion IS a review pass: route it
+  through `review-change` (`build-run`) so the doer never grades itself, keeping the mechanical checks
+  inline beside it (6b.2b is the worked example: greps inline, judgment lenses via `build-run`).
+  Evidence for the split: kino #246 and harness-pipeline #45 — fix-created defects the author-run
+  self-check never saw, caught only by the next bot review round.
 
 ## Handling PR review comments (this repo's own PRs)
 

@@ -111,8 +111,16 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
     the fix, with its sensor/commit discipline). Already inside a fine-tune loop → it's just the next fix
     pass; standalone → enter fine-tune for this finding. After the fix lands, **re-walk the failed scenario**
     to confirm it now passes, then continue the walk from where it paused.
-  - **`note & continue`** → record the finding (ephemeral) and advance to the next test.
+  - **`log the fail, keep walking`** → append the fail to the **session fail list** and advance to the
+    next scenario — this ends nothing: the fail list surfaces only in the Step-6 end summary + fine-tune
+    handoff (or on `stop`), never printed at log time. **Never written to disk** (test-guide is
+    read-only; record dies with the session). Label it exactly so — not `note & continue`: the row is
+    admissible only because the fail *is* reported, and only while the card states the report is
+    session-only (contract: state the concrete outcome, never imply a phantom save).
   - **`stop`** → end the walk now and surface the fail list.
+  - **Final scenario:** `keep walking` has nowhere to advance — it collapses into `stop` (two identical
+    rows). Render only **`fix now`** / **`log the fail — end the walk`** (the fail joins the session
+    fail list either way).
 - **end** → print an **ephemeral summary** (not saved): `✅ N passed · ❌ N failed · ⏭️ N skipped`, then
   the **fail list** as the handoff into fine-tune. Offer an **export** (Gherkin + a priority table) only
   if the operator asks — for handing a QA dev/agent; default is no file.

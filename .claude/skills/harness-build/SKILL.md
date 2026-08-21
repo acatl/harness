@@ -297,7 +297,10 @@ At the gate, emit the **pipeline trail** for the `build · spec-review gate` sto
      architecture/design reviews spec-less skipped (Steps B–C), regenerate the held checklist (Step D),
      then **resume impl** honoring `tasks.md` `- [x]` + `progress.md` (never redo completed work).
      **(B) log + defer** — append `## D<N> · <👤 human|🤖 build> · <decision>` to `decisions.md` and stay
-     spec-less. The flip is load-bearing → always logged. **full/absent:** inert (specs already authored,
+     spec-less. **Admissible despite the `Defer` standing ban** — it is a *recorded terminal disposition*
+     (`../walk-me-through/references/walk-me-through.md` › standing bans, carve-out b): the durable `decisions.md` entry **is**
+     the outcome, resolving the fork this turn, not an open-ended "later". Without that carve-out this
+     mandated fork would collapse to automatic escalation. The flip is load-bearing → always logged. **full/absent:** inert (specs already authored,
      nothing to escalate) — the design-gap fork above runs verbatim.
    - Update `progress.md` as each group commits. Repeat per group.
 
