@@ -22,6 +22,10 @@ Lightweight session state machine for iterative polishing after a change is impl
 > Sensors). Doc-sync targets the change-state dir. Push + PR = `harness:ship`.
 > **Arg `guided`** — the test-guide runs automatically (Step 2), no yes/no gate. Persisted in the marker,
 > so it holds across the sticky loop and context loss.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -66,13 +70,14 @@ skip-condition as runtime-verification) — **guided mode** (arg `guided`, or th
 block — `👉 Walk the manual/behavioral test scenarios with /harness:test-guide before continuing?
 (yes / no)` and run it only on **yes**. When invoked, `harness:test-guide` runs as a
 **nested skill** (non-terminal — resume this loop after, per Sticky mode). **Route from test-guide's own
-outcome** — `fix now` → the finding becomes the next fix pass; `note & continue` / `stop` → don't force a
-fix, just resume the loop. Record `test-guide-offered` in the marker **either way** so it's not re-asked on
+outcome** — `fix now` → the finding becomes the next fix pass; **every other outcome** (`log the fail,
+keep walking` · `log the fail — end the walk` · `stop`) → don't force a fix, just resume the loop (the
+fail list arrives in test-guide's end summary / handoff). Record `test-guide-offered` in the marker **either way** so it's not re-asked on
 later passes or after a nested-skill/context-loss resume.
 ### 3. Ask for approval
 Brief summary of what changed → "Does this look good?" Wait. Don't proceed until yes. (These asks are bare
 yes/no / open prompts — keep them one-line. Any ≥2-option choice → a walk-me-through fork card,
-`references/walk-me-through.md`, reply by letter; never `AskUserQuestion`.)
+`../walk-me-through/references/walk-me-through.md`, reply by letter; never `AskUserQuestion`.)
 ### 4. On approval
 a. **Verify clean** — sensors green; fix anything red first.
 b. **Ask to sync & commit:** "Sync docs and commit?" yes → c; no → d (track that unsynced passes are accumulating).

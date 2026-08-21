@@ -14,6 +14,11 @@ metadata:
 
 # harness:init — generate the binding layer
 
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
+
 Inverse of every other harness skill: they *read* `docs/HARNESS.md`; this *writes* it. Until it
 exists + is correct, the rest of the pipeline is inert.
 
@@ -32,7 +37,7 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 
 **Principle: detect → confirm → ask only what can't be inferred.** Never interrogate for what the repo
 already states. One question at a time, each rendered as a walk-me-through fork card
-(`references/walk-me-through.md`) — indexed options + grounded recommendation + escape; never
+(`../walk-me-through/references/walk-me-through.md`) — indexed options + grounded recommendation + escape; never
 `AskUserQuestion`. Bare yes/no confirms stay one-line. Never block on optional capabilities.
 
 ## Steps

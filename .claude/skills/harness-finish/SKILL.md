@@ -23,6 +23,10 @@ the feature PR.
 
 > **Bindings.** Resolve from `docs/HARNESS.md`: change-state dir, task-tracker verbs (`done`) +
 > `merged` stage hook, **Finish › merge mode** (`single-merge` | `two-merge`), run-log path, PR host.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -49,7 +53,7 @@ for the machine, fast-path for the human.
 0. **Consent gate (fail-closed — first thing, no mutation before the yes).** Unless YOLO (above):
    - **Resolve the change read-only** — passed arg; else infer from branch / conversation (same
      resolution as `harness:build` Step 0); else `openspec list --json` + a walk-me-through fork card
-     (`references/walk-me-through.md`). No writes yet.
+     (`../walk-me-through/references/walk-me-through.md`). No writes yet.
    - Emit a `👉` confirm naming the **concrete consequences**, then **halt the turn**. Resume only on a
      **genuine operator turn** — a model continuation, an injected/meta turn, or a CI-monitor event
      **never** counts as the yes; if one arrives, stay halted. No yes → nothing happens (the safe

@@ -26,6 +26,10 @@ job; this only surfaces what to check and how. Works cold.
 > **Bindings.** Resolve from `docs/HARNESS.md`: change-state dir, the **Runtime verification** recipe
 > (launch / driver / teardown — for the *how to drive each scenario* steps), the `test` sensor command
 > (for the coverage check). Never hardcode.
+> **Fork-card contract (hard dependency):** cards render per the co-shipped `walk-me-through`
+> skill — resolve `../walk-me-through/references/walk-me-through.md` **from this skill's injected
+> base directory** (never the project cwd). Installed alongside like OpenSpec; absent → stop and
+> tell the operator to install `walk-me-through`, never improvise a card format.
 
 ## Breadcrumbs
 Emit one line at start + one at end — so harness iteration can trace this run in the session transcript.
@@ -33,7 +37,7 @@ Emit one line at start + one at end — so harness iteration can trace this run 
 - **end:** `■ harness:test-guide v<hash8> → <outcome>` — one-line result (e.g. `web-core · 3 walked · 1 fail` / `nothing to test`). `<hash8>` = first 8 chars of `git hash-object` on this SKILL.md — compute it (run the command) in the end-of-run commands; never a placeholder.
 
 ## Operator input
-`👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status).
+`👉` = operator's turn. Prefix any line needing their answer (question / confirm / pick) and make it the **terminal block** — below the breadcrumb/trail/next, nothing actionable under it (a blocking ask buried above a ready action gets skipped; the eye must land on it last). While a `👉` is open, don't render a runnable `/harness:` next — show it gated behind the answer. Reserved marker, distinct from `⚠️` (warning) / `✨` (improvement) / `❓` (unclear-status). A walk-me-through fork card is already the terminal block — reproduce its `Pick:` line verbatim; it needs no additional `👉`.
 
 **Read-only.** Never writes, commits, opens/edits a file, runs a sensor that mutates, or touches an
 artifact. It reads, derives, and guides. Fixing is fine-tune's move; automating is the QA agent's.
@@ -101,14 +105,22 @@ or jump. Track pass/fail/skip **in-session only** (conversation memory — no fi
 
 ### 6. On fail / at the end
 - **fail → make it a decision, never auto-advance.** A fail is a fine-tune finding; **stop and offer a
-  terminal `👉` fork** (render per `references/walk-me-through.md`) — do NOT silently note-and-continue to
+  terminal fork card** (render per `../walk-me-through/references/walk-me-through.md`) — do NOT silently note-and-continue to
   the next test:
   - **`fix now`** → hand the finding to **`/harness:fine-tune`** (test-guide never edits — fine-tune does
     the fix, with its sensor/commit discipline). Already inside a fine-tune loop → it's just the next fix
     pass; standalone → enter fine-tune for this finding. After the fix lands, **re-walk the failed scenario**
     to confirm it now passes, then continue the walk from where it paused.
-  - **`note & continue`** → record the finding (ephemeral) and advance to the next test.
+  - **`log the fail, keep walking`** → append the fail to the **session fail list** and advance to the
+    next scenario — this ends nothing: the fail list surfaces only in the Step-6 end summary + fine-tune
+    handoff (or on `stop`), never printed at log time. **Never written to disk** (test-guide is
+    read-only; record dies with the session). Label it exactly so — not `note & continue`: the row is
+    admissible only because the fail *is* reported, and only while the card states the report is
+    session-only (contract: state the concrete outcome, never imply a phantom save).
   - **`stop`** → end the walk now and surface the fail list.
+  - **Final scenario:** `keep walking` has nowhere to advance — it collapses into `stop` (two identical
+    rows). Render only **`fix now`** / **`log the fail — end the walk`** (the fail joins the session
+    fail list either way).
 - **end** → print an **ephemeral summary** (not saved): `✅ N passed · ❌ N failed · ⏭️ N skipped`, then
   the **fail list** as the handoff into fine-tune. Offer an **export** (Gherkin + a priority table) only
   if the operator asks — for handing a QA dev/agent; default is no file.
