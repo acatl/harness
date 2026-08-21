@@ -21,7 +21,7 @@ metadata:
 
 One review **mechanism** (13 lenses + four escalating stances), run in **one spawned reviewer-fixer
 sub-agent** in a warm isolated context (doer ≠ judge — the judge cannot see the implementer's
-reasoning). The same engine serves three callers via a **mode** parameter: `build-run` (build's
+reasoning). The same engine serves three callers via a **mode** parameter: `build-run` (build's / address-pr-comments 6b.2b's
 verify core), `pre-ship` (ship's pre-push gate), `operator` (manual, out-of-pipeline). The skill (main
 context) owns mode-parsing, the operator wizard, and each caller's return contract. Large diffs may fan
 out to N sub-agents.
@@ -62,7 +62,7 @@ the return contract — the engine itself is identical.
 
 | Mode | Caller | Scope | Depth | Clean-tree gate | Fork behavior | Returns |
 |------|--------|-------|-------|-----------------|---------------|---------|
-| `build-run` | `harness:build` Step F.4 | this run's diff (`<change-name>`) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer) · returns `judge_findings` |
+| `build-run` | `harness:build` Step F.4 · `harness:address-pr-comments` 6b.2b | this run's diff (`<change-name>`) / from 6b.2b: the staged fix diff (`git diff --cached $START_SHA`; artifact only when the PR maps to a harness change, else return-only) | full¹ | **skip** (tree dirty by design — build commits per group) | design-stop → build's fork · **no wizard** | writes `<change-state-dir>/review-change-review.md` (+ `reviewed-range` footer) · returns `judge_findings` |
 | `pre-ship` | `harness:ship` pre-push | whole branch `origin/<default-branch>...HEAD` | **thin** (see below) | **no hard abort** (ship's `git add -A` sweeps); show diff summary | decision-needing → wizard | hands back to ship (ship commits) |
 | `operator` | bare `/harness:review-change` | committed `origin/<default-branch>...HEAD` **+ any uncommitted working-tree changes** | full¹ | **none** — reviewing uncommitted work is the point (review-before-commit); fixes blend into your WIP | decision-needing → wizard | summary + uncommitted-changes handoff |
 
@@ -176,7 +176,10 @@ The spawn prompt is **mode-aware** — say, in substance:
 Mode-specific spawn-prompt additions:
 - **`build-run`** — hand the agent build's **warm-context artifacts verbatim**: `surface-map.md`,
   `decisions.md`, the reviewed spec (`proposal.md`/`design.md`/`specs`). Tell it: "these decisions were
-  already resolved deliberately — do not re-flag them as findings." **Autonomous:** apply clear fixes;
+  already resolved deliberately — do not re-flag them as findings." **From `address-pr-comments`
+  6b.2b** those artifacts don't exist — hand the caller's Phase-3 standards summary + 4c fix plans +
+  its two focus hints instead; same autonomy, same no-gate/no-commit rules; skip the artifact when the
+  caller passed return-only. **Autonomous:** apply clear fixes;
   a `decision-needing` finding is either `refuted` (with reason) or escalated to `design-stop` — there
   is **no wizard**. **Do NOT run the final sensor gate and do NOT commit** — build owns both. Stamp the
   `reviewed-range` footer in the returned artifact.

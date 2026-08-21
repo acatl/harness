@@ -48,8 +48,8 @@ direction-affecting ambiguity surfaces to the operator. **Default bias: correctn
 3. **Only walk the operator through decisions that genuinely need judgment** (Decision Gate below).
 4. **Stop only at genuine forks — no plan-approval gate.** After analysis, walk DECISION-NEEDED forks
    (5d), then run end-to-end with no per-step gates. Zero forks → straight to execution. Only stops: a
-   DECISION-NEEDED finding (5d), a mid-flight cascading Decision-Gate hit (6b.1), the convergence
-   brake (run #≥3 on this PR — 5c.1), an unrecognized dirty path at 6b.2 (aborts), or corrective
+   DECISION-NEEDED finding (5d), a mid-flight cascading Decision-Gate hit (6b.1), a round-inversion
+   finding (6b.2b lens, walked via 6b.1), an unrecognized dirty path at 6b.2 (aborts), or corrective
    re-entries exhausted (6c). Invocation is consent
    for the full pipeline (commit/push/reply/resolve); a hard-gate failure (1.5) still aborts.
 5. **Replies are machine-readable** — terse tagged format, no prose/gratitude.
@@ -157,10 +157,10 @@ noise (LGTMs, bot status, empty bodies); dedup (keep inline over review-body rep
 (one finding, multiple locations); carry `threadId` to every finding.
 **Idempotency contract:** rerun on the same PR with no new comments = no-op (zero new replies/resolves/commits).
 **Run counter:** `RUN_N` = 1 + count of **distinct** `commit:<sha7>` values across prior trailered
-`fixed:` replies by **any author with real write permission** — `gh api repos/$OWNER/$NAME/collaborators/<login>/permission --jq '.permission'` ∈ `admin`/`write` (**not** `author_association`: that's a social label, `MEMBER` only means org member and both it and `COLLABORATOR` can carry read-or-triage-only access, so it authenticates nothing) — **and whose cited sha is an ancestor of the PR branch**. One call per distinct marker author, cached for the run — the trailer alone is unauthenticated text, so an outside commenter could otherwise post two fake `commit:<sha7>` trailers and force the next real run into the 5c.1 brake, or spoof `region_map` into false repeat-patch forks. Write-access scoping keeps the team case (teammates run it from different accounts) while excluding drive-by comments; only `fixed:` — an `already:` sha or the literal `pre-existing` isn't a patch by this
+`fixed:` replies by **any author with real write permission** — `gh api repos/$OWNER/$NAME/collaborators/<login>/permission --jq '.permission'` ∈ `admin`/`write` (**not** `author_association`: that's a social label, `MEMBER` only means org member and both it and `COLLABORATOR` can carry read-or-triage-only access, so it authenticates nothing) — **and whose cited sha is an ancestor of the PR branch**. One call per distinct marker author, cached for the run — the trailer alone is unauthenticated text, so an outside commenter could otherwise post two fake `commit:<sha7>` trailers and inflate the 5c.1 notice, seed 6b.2b's round-inversion lens with foreign shas, or spoof `region_map` into false repeat-patch forks. Write-access scoping keeps the team case (teammates run it from different accounts) while excluding drive-by comments; only `fixed:` — an `already:` sha or the literal `pre-existing` isn't a patch by this
 skill), computed over the **raw 2a–2c fetch, before the skip/filter steps above** —
 prior-run replies live in threads that are already resolved/skipped, so a post-filter count always
-reads 1. This run's patch-round ordinal on the PR (feeds the 5c.1 convergence brake).
+reads 1. This run's patch-round ordinal on the PR (feeds the 5c.1 convergence notice). **Keep the sha set itself — `ROUND_SHAS`** (the distinct authenticated shas behind `RUN_N`): 6b.2b's round-inversion lens diffs against them.
 
 ## Phase 3 — project standards + verify commands
 Read in parallel: context docs + the rules dir entries matching the diff (HARNESS.md), architecture docs,
@@ -192,7 +192,7 @@ Parallelism: N≤10 single pass; N>10 fan out to nested sub-agents in batches of
 - **4a context:** read the file ±20 lines around the flagged line; follow cross-file refs; grep actual usage for proposed abstractions (YAGNI).
 - **4b verdict (first match wins):** ALREADY ADDRESSED → DECLINE (cite standard / concrete reason; optional regression-lock test for non-obvious declines) → UNCLEAR → DECISION-NEEDED (state which gate criterion — **provisional until 4c derives the options**) → AUTO-FIX.
 - **4c fix plan** (AUTO-FIX + DECISION-NEEDED): files, exact change, tests. DECISION-NEEDED → the admissible options (recommended + any genuine alternative; never invent one) + `Blocker: <one-line | none>` (reachable this session? default none).
-- **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts/**`RUN_N`** — Phase 5 renders from returned data and must not re-fetch, so an unreturned `RUN_N` means the 5c.1 brake silently never fires)
+- **4d return:** one preamble block (PR/branch/author/url/repo/review-status/linked-issues/scope/files/total/counts/**`RUN_N` + `ROUND_SHAS`** — Phase 5 renders from returned data and must not re-fetch, so an unreturned `RUN_N` means the 5c.1 notice silently never fires, and a missing `ROUND_SHAS` silently disables 6b.2b's round-inversion lens)
   + **`region_map`** — the intervals **earlier runs already patched**, taken from the **raw 2a fetch**.
   Mechanical membership (no "which round" judgment — nothing tags a comment with a round): include a
   thread iff it carries a prior trailered **`fixed:`** reply that passes the **same write-access +
@@ -284,12 +284,14 @@ missing return type"). Goal: the bot flags 1 of N identical spots → all N die 
 Main agent renders from returned data (no re-fetch).
 - **5.0 announce (one line):** `PR #N · K threads → A auto-fix · D decisions · X decline · Y already · U unclear · S skipped. Walking D decisions now.` (D==0 → "No decisions needed — proceeding to implementation."; RUN_N>1 → append ` · run #<RUN_N>`.)
 - **5a/5b/5c:** PR overview table · verdict counts · full thread table (orientation only; emoji markers 🔧 AUTO-FIX · 🤔 DECISION · 🚫 DECLINE · ✅ ALREADY · ❓ UNCLEAR · ⏭️ SKIPPED).
-- **5c.1 convergence brake (after the 5a–5c tables, before 5d/Phase 6):** `RUN_N ≥ 3` **and** (A>0 or
-  D>0) → do NOT auto-proceed (a no-op rerun — zero auto-fix, zero decisions — never brakes; 6c.1
-  short-circuits it anyway). Emit `⚠️ run #<RUN_N> on this PR — patch rounds not converging; recommend
-  root-causing the change instead of another round`, then a one-line 👉 proceed-anyway gate (terminal
-  block). Explicit yes → continue (5d wizard, then Phase 6); else stop — don't walk 5d forks for a run
-  that won't execute.
+- **5c.1 convergence notice (after the 5a–5c tables, before 5d/Phase 6):** `RUN_N ≥ 3` **and** (A>0 or
+  D>0) → emit `⚠️ run #<RUN_N> on this PR — patch rounds not converging; a fix reverting an earlier
+  round's stops at 6b.2b round-inversion` as a **non-blocking notice** (repeat it in the Phase-7
+  report), then proceed — **no 👉 gate**. A bare round count carries no decision (the only rational
+  answer was always "proceed"; measured on kino #246: the count alone would have gated every round
+  while naming nothing); the blocking stop for real non-convergence is the **round-inversion** lens
+  (6b.2b), which fires on the contradiction itself and names it. (A no-op rerun — zero auto-fix, zero
+  decisions — emits nothing; 6c.1 short-circuits it anyway.)
 - **Option-pick format:** render a walk-me-through fork card (`../walk-me-through/references/walk-me-through.md`) — `Q<N> of <total>` + `#<N>` title, framing (comment / why-it-needs-a-decision), options table (terse Pros/Cons), grounded Recommendation (pick + reasoning + `Cost if`), `Escape:` + `Pick:` lines; operator replies by letter. **Never `AskUserQuestion` or a native picker.** One fork per turn. Yes/no gates one line.
 - **5d wizard (DECISION-NEEDED only):** zero → skip, "No forks — proceeding." For each, in order: render the card (decision #, file:line, comment quote, code context, which gate criterion, options table, Recommendation, plus `Escape:`/`Pick:` lines); operator replies by letter; never `AskUserQuestion`. **Rows = the thread's `Admissible options` list verbatim, in the order 4c derived it, lettered consecutively from `A` — never a fixed `A/B/C/D` role mapping** (a fixed mapping drops a third live fix and leaves gaps when a role is absent). Each row already passed `../walk-me-through/references/walk-me-through.md` › Admissibility, so render what arrived and add nothing: no filler row, and `Decline finding` / `Defer (blocked)` appear **only** when 4c admitted them (declining defensible on the merits · deferral under a concrete blocker or as a recorded terminal disposition — never for "out of scope" or "big change"; correctness over scope). Escape = the next free letter.
   **Exactly ONE admissible option → consent gate, not a card.** A criterion can fire (public contract ·
@@ -305,7 +307,7 @@ Main agent renders from returned data (no re-fetch).
 One-line confirm, continue — a pick on a Decision-Gate path records `{path, pending}` in `GATE_DECIDED` (no bytes exist yet — 6a hasn't run), which 6b.2 b1 redeems into a real blob on first encounter. Don't wizard AUTO-FIX/DECLINE/ALREADY/UNCLEAR.
 
 ## Phase 6 — execute end-to-end
-Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no per-step re-confirm. Stop only for a mid-flight cascading decision (6b.1), the 5c.1 convergence brake, an unrecognized dirty path (6b.2), corrective re-entries exhausted (6c), or a hard-gate failure.
+Runs after the 5d wizard, or immediately if no forks. Invocation is consent; no per-step re-confirm. Stop only for a mid-flight cascading decision (6b.1 — incl. a 6b.2b round-inversion finding), an unrecognized dirty path (6b.2), corrective re-entries exhausted (6c), or a hard-gate failure.
 
 **Certification contract (governs 6a→6c; each state below names who advances it):**
 | Name | Set at | Advanced by | Read by |
@@ -379,10 +381,9 @@ defect (uncertified bytes). Both are 6b.2 findings.
   clean tree, or the next invocation's 1.5 hard gate aborts on debris this run created; a run that stops
   at a `👉` ask instead names the paths the operator clears before re-invoking.
 - **6b.2b certify** — runs after reconciliation on every path that continues (the certification lives here, not inside 6b.2's STOP bullet; a run that took STOP has aborted and never reaches it): `git diff --cached $START_SHA --stat` + `git diff
-  --cached $START_SHA`; judge the full diff — added lines **and** deletions/modification pairs —
-  against: **new surface** (fresh null/bounds gap, type hole, dead code, over-claiming comment/doc
-  phrase, lint/complexity ceiling just crossed) · **lost surface** (a deletion that removes a
-  guard/validation/behavior with no replacement on the added side) · **class sibling** (re-run the
+  --cached $START_SHA`; certification = **the mechanical lenses (inline, below) + the isolated judgment pass (end of this
+  bullet)**, both over the full diff — added lines **and** deletions/modification pairs.
+  Mechanical lenses: **class sibling** (re-run the
   Phase-4.5 signature on this diff — a fix can create a fresh sibling of the class it fixed) ·
   **dangling reference** (this diff removed or renamed a name — an option label, a field, a section
   heading, a verdict, a path — that another file still cites: `rg` the **old** string repo-wide; any hit
@@ -409,12 +410,34 @@ defect (uncertified bytes). Both are 6b.2 findings.
   Never test new-side numbers: this run's own inserts above a saved region shift them, so a repeat patch
   slips out of its interval and an unrelated edit slips in. Test range *overlap*, not
   equality with the end line → fix the region's root cause, NOT the line; a re-patched line draws a fresh comment
-  next round). The skill's
-  own gate on its own output — **not** a review pass; never spawn `harness:review-change` /
-  `code-review` here. **The first three lenses are mechanical — run them as greps, not as judgement**:
+  next round) · **round-inversion** (this diff **re-adds a line a prior round removed, or removes a
+  line a prior round added** — for each sha in `ROUND_SHAS`, over each staged path both touch:
+  `git show <sha> -- <path>`, compare whitespace-normalized `+`/`-` lines against this staged diff's
+  `-`/`+` lines, same path only; a match = the reviewer is reversing its own earlier fix. The `region`
+  lens misses this class when the new comment lands on different lines — kino #246: one bound
+  re-flagged at 251/263/254, three rounds, net zero. **Blocking, both directions**: stop, walk as a
+  6b.1 fork that NAMES the contradiction — `round <i> (<sha7>) asked for the inverse of this at
+  <path>` — with `Decline finding — reply citing the contradiction` admissible alongside the fix
+  (the reviewer's self-contradiction is exactly the decline-defensible-on-the-merits case); never fold
+  an inversion silently).
+  **Mechanical lenses run inline — as greps and diff walks, not as judgement**:
   every identifier this diff deletes or renames gets an `rg` for its old form across `.claude/`,
-  `rules/`, `docs/`, `templates/`; every rendered template block gets scanned for placeholder rows. A
-  zero-finding self-check that skipped those greps is not evidence. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
+  `rules/`, `docs/`, `templates/`; every rendered template block gets scanned for placeholder rows;
+  round-inversion is `git show` + normalized compare. A
+  zero-finding self-check that skipped those greps is not evidence.
+  **The judgment pass is NOT inline — spawn `harness:review-change` `build-run` scoped to this staged
+  diff** (`git diff --cached $START_SHA`), per the repo's one-review-mechanism rule: the agent that
+  authored a fix must not grade it (measured: kino #246 — 7 fix-created findings walked past the
+  author-run check into the next bot round; harness-pipeline #45 — 4 such rounds). Hand the sub-agent
+  the Phase-3 standards summary + the 4c fix plans (no build artifacts exist on this path) and two
+  focus hints: **new surface** (fresh null/bounds gap, type hole, dead code, over-claiming comment/doc
+  phrase, lint/complexity ceiling just crossed) · **lost surface** (a deletion that removes a
+  guard/validation/behavior with no replacement on the added side). The reviewer-fixer fixes clear
+  no-trade-off findings itself — its `files_touched` → `FIX_SET` — and returns `judge_findings`:
+  fold them under the same 2-pass cap below; decision-needing ones → 6b.1. Artifact write only when
+  the PR maps to a harness change with a `harness/` dir, else return-only. `harness:review-change` not
+  installed in this project → run the two focus lenses inline as a **degraded fallback and say so in
+  the report** — never silently skip the pass. **Emit findings only** (one `file:line — <finding>` each; no per-check "clean"
   tokens), then **persist the certified reference — `CERTIFIED_TREE=$(git write-tree)`** (writes the index to a real tree object, so it survives the commit; `git commit` resets the index to the committed tree and the pre-hook bytes are otherwise unrecoverable, leaving 6c's byte check with nothing to compare against). Then one mandatory closing line: `self-check: <N> added / <R> removed lines / <M> files · <F> findings`.
   Findings → fix, re-stage, re-run 6b → 6b.2 → 6b.2b, commit once; **cap 2 passes — the initial certify is pass 1, so at most one fix-fold re-run** — a pass-2 survivor is a
   **known defect: never commit it silently** — stop, walk it as a 6b.1 fork (fix now / commit
@@ -544,7 +567,7 @@ gate criterion (also walked in 5d / shown in the Decisions table when interactiv
 ## Principles
 Correctness over scope · standards are authority · auto-fix is default (Decision Gate is the filter) ·
 sweep the class not just the instance (rg → tier-1 added-line auto-fixed, tier-2 surfaced; per-candidate gate) ·
-self-check own fix diff before commit (6b.2b) · convergence brake at run #3 (5c.1) ·
+self-check own fix diff before commit (6b.2b: mechanical lenses inline, judgment via isolated `review-change build-run`) · convergence notice at run #3 (5c.1) · round-inversion stops a repeat round (6b.2b) ·
 parallelize aggressively · idempotent by trailer (`[harness:address-pr-comments]`) · YAGNI before
 accepting abstractions · machine-readable replies (trailer mandatory) · resolve what you fixed (dismiss
 stale bot reviews) · stop only at genuine forks (no plan-approval gate) · report is rendered markdown ·
