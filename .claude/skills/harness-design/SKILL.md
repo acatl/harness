@@ -128,18 +128,35 @@ On return:
   a finding — an applied finding lets the run continue to task generation and ships the contract change
   with no `specs/` delta.
 - `STATUS: reviewed` → print the payload's Setup Confirmation block verbatim, continue.
-- Malformed / missing payload → **never fabricate findings.** autonomous: respawn once silently;
-  second malformed return → emit a one-line skip note (`skipped: auditor returned no usable payload`)
-  and end — never stall a build chain on an unanswerable question. gated: offer one respawn as a
-  `👉` terminal-block ask; declined, or the respawn also malformed → same one-line skip note and end.
-  Never a third attempt.
+- Malformed / missing payload → **never fabricate findings.** One retry, then terminate — **all three
+  modes covered, no mode falls through:**
+  - **Retry**, by whether an operator is present: **autonomous** (build-invoked, no reader mid-stream)
+    → respawn once silently. **gated / standalone** (operator present) → offer the one respawn as a
+    `👉` terminal-block ask; declining is a terminal answer.
+  - **Terminate** identically in every mode once the retry is spent: **write the gate artifact**
+    recording that the review did not run — no findings, no spec edits — then end. The `Outcome:` reason
+    states **what actually happened**, never a fixed count (the decline path spends only one attempt, so
+    a hardcoded "2 attempts" would put a false provenance in a durable record):
+    second malformed return → `Outcome: not-run — auditor payload unusable after 2 attempts`;
+    operator declined the retry → `Outcome: not-run — auditor payload unusable; operator declined the retry`.
+    Breadcrumb `skipped: auditor payload unusable`. Never a third attempt.
+  - **Why an artifact and not a bare note:** the caller's completion contract recognizes a gate artifact,
+    or a *self-calibrated* out-of-scope skip — a failure is neither, so a bare note can stall the chain.
+    The artifact also leaves a durable record that this gate never actually judged the change, which a
+    silent skip would hide from anyone reading the change's `harness/` dir later.
 
 ## Step 3 — Fork cards (before the report)
 Payload's `## Fork cards` non-empty → surface each as a walk-me-through fork card
 (`../walk-me-through/references/walk-me-through.md`), severity order TRADEOFF → UNCLEAR, one at a time. Cards arrive
 **complete** (auditor drafts the full shape, counters included) — render verbatim, don't renumber.
-Fold each answer into the finding #s the card names — the finding's Proposed language becomes the
-**chosen option's own `Proposed` cell** (each option carries one; never draft your own). A `no-write`
+Fold each answer into the finding #s the card names — **map the operator's letter to each finding's
+option row by `ID`, never by position or wording** (card letters and option IDs are one shared space per
+A6). **Check the escape letter FIRST — before any ID lookup:** the card's escape (the letter after the
+last option) has no option row *by design*, so run walk-me-through's escape flow (discuss / propose
+another direction), then fold the direction they land on, drafting its language from their input. Only a
+letter that is **neither an option `ID` nor the escape** → **don't guess**: say so and re-ask that card.
+The finding's Proposed language becomes **that row's own
+`Proposed` cell** (each option carries one; never draft your own). A `no-write`
 cell writes nothing: record the stated outcome as a brief note on the finding. **Mark every folded
 finding # locked — Step 5 must not re-ask it.** Types: ⚠️ Tradeoff · ❓ Unclear. None → straight to report.
 
@@ -192,8 +209,11 @@ autonomous mode. Then by `Type`:
   - gated: **Apply / Edit first / Skip**. Edit → ask changes, show revised, "Good?", record on confirm.
 - **Options** (real choice or `→ Downstream` — **fork, stops both modes**): **locked by a Step 3 fork
   card → never re-ask; carry it through as Straightforward on the chosen option's `Proposed` language.**
-  Otherwise render the payload's options table + recommendation; ask choice or invite their own
-  direction; record the picked option's `Proposed` (their own direction → draft from input, "Good?").
+  Otherwise render the payload's options table (IDs included) + recommendation, then resolve the reply by
+  the **same three letter classes as Step 3**: an option **`ID`** → record that row's `Proposed`; the
+  **escape letter** → escape flow (discuss / propose another direction), draft from their input, "Good?";
+  **anything else** → **don't guess and don't record** — say so and re-ask. A guessed row is exactly the
+  wrong-spec-write this ID scheme exists to prevent.
   Picked a `no-write` option → record the outcome, write nothing; it counts as skipped, not applied.
   **ONE admissible option in the payload → consent gate, not a table.** A `Downstream` finding may
   legitimately admit one mitigation; a one-row card is banned (`../walk-me-through/references/walk-me-through.md`).
@@ -230,6 +250,7 @@ per-finding detail (applied and skipped):
 # Design Review Gate
 Date: <ISO> · Skill: harness:design · Change: <name>
 Outcome: <N critical, M recommended, K nice-to-have, J missing journeys> · Changes written: <N> · Skipped: <finding #s>
+<not-run form (Step 2 auditor failure): `Outcome: not-run — <reason>` alone; omit Findings/Detail/Forks>
 
 ## Findings
 | # | Sev | Lens | Category | Spec | Summary |

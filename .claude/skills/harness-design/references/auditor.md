@@ -111,6 +111,11 @@ shapes what a card OFFERS; it never changes a finding's `Type` and never relaxes
 annotation still forces `Type: options`, per the invariant below). A drafted card is rendered verbatim, so a
 filler row you draft here reaches the operator unchallenged.
 
+**Card letters ARE the option IDs.** A card resolving finding #s must use, for every row, the same
+IDs those findings' `Options` rows carry — same letter, same meaning, in every finding the
+card folds into. One card folding into several findings means those findings share one ID space: `B` must
+mean the same choice in each. Can't align them → they aren't one fork; draft separate cards.
+
 Check for TRADEOFF / UNCLEAR — you draft the card content, the orchestrator asks the operator:
 - **TRADEOFF** — genuine design choice, no objectively correct option; depends on product direction
   (paginate vs infinite scroll, required-at-draft vs at-submit, modal vs page, single vs multi-step).
@@ -173,9 +178,16 @@ STATUS: reviewed
 - Impact: <user-facing / second-order consequence>
 - Evidence: <spec quote or screen/flow grounding the finding>
 - Proposed: `<target file>` · <layer> → <exact language to write>          (straightforward / journey)
-- Options: | Option | Meaning | Upside | Downside | Proposed | + 1-sentence recommendation  (options type)
+- Options: | ID | Option | Meaning | Upside | Downside | Proposed | + 1-sentence recommendation  (options type)
+  **`ID` is the option's identity — sequential letters from `A`, one per row, as many as the finding
+  has (an UNCLEAR's 4 likely options + its `Leave as a recorded spec gap` row = `A`–`E`); unique within the
+  finding, and the card's escape letter is the next one after the last option.** When a fork card resolves
+  this finding, the card's rows carry these SAME IDs (A6) and the operator answers by letter, so the
+  orchestrator maps the answer to a row by ID, never by position or wording. Without it a card folding
+  into several findings has no reliable mapping and the wrong option's language gets written.
   Every option's `Proposed` cell carries its OWN `<target file>` · <layer> → exact language, **or** an
-  explicit no-write outcome: `no-write — leave as spec gap` (A6's mandatory UNCLEAR escape) ·
+  explicit no-write outcome: `no-write — leave as a recorded spec gap` (the UNCLEAR disposition row — a
+  terminal outcome, NOT the card's `Escape:` line; it is a lettered row like any other) ·
   `no-write — <what happens instead>`.
   The orchestrator writes the picked option's language verbatim and never drafts its own; a `no-write`
   pick writes nothing and is recorded as such. An **empty** cell is unusable — the pick resolves to
